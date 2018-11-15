@@ -1,17 +1,17 @@
 package org.tair.module;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import lombok.Data;
+import org.apache.solr.client.solrj.beans.Field;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.solr.client.solrj.beans.Field;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
-import lombok.Data;
-
 @Data
 @JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PantherData {
 
 	private SearchResult search;
@@ -22,6 +22,8 @@ public class PantherData {
 	private String family_name;
 	@Field
 	private String jsonString;
+	@Field
+	private List<String> event_types = new ArrayList<String>();
 	@Field
 	private List<String> node_types = new ArrayList<String>();
 	@Field
@@ -45,7 +47,7 @@ public class PantherData {
 	@Field
 	private List<String> sf_ids = new ArrayList<String>();
 	@Field
-	private List<String> reference_speciation_events = new ArrayList<String>();
+	private List<String> speciation_events = new ArrayList<String>();
 	@Field
 	private List<String> species_list = new ArrayList<String>();
 	

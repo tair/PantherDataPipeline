@@ -1,16 +1,15 @@
 package org.tair.process;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.json.JSONObject;
 import org.tair.module.Annotation;
 import org.tair.module.Children;
 import org.tair.module.PantherData;
 import org.tair.util.Util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PantherBookXmlToJson {
 
@@ -45,6 +44,12 @@ public class PantherBookXmlToJson {
 
 		for (Annotation annotation : this.annotations) {
 			// System.out.println(annotation.getAccession());
+			addToListFromAnnotation(annotation);
+		}
+	}
+
+	private void addToListFromAnnotation(Annotation annotation) {
+
 			if (annotation.getOrganism() != null && !this.pantherData.getOrganisms().contains(annotation.getOrganism()))
 				this.pantherData.getOrganisms().add(annotation.getOrganism());
 
@@ -55,7 +60,7 @@ public class PantherBookXmlToJson {
 			if (annotation.getNode_name() != null
 					&& !this.pantherData.getNode_names().contains(annotation.getNode_name())) {
 				this.pantherData.getNode_names().add(annotation.getNode_name());
-			
+
 				// DICDI|dictyBase=DDB_G0277745|UniProtKB=Q86KT5
 				int pos = annotation.getNode_name().indexOf("UniProtKB");
 				String uniProtId = null;
@@ -88,18 +93,17 @@ public class PantherBookXmlToJson {
 				this.pantherData.getSf_ids().add(annotation.getSf_id());
 
 			if (annotation.getNode_type() != null
-					&& !this.pantherData.getNode_types().contains(annotation.getNode_type()))
-				this.pantherData.getNode_types().add(annotation.getNode_type());
+					&& !this.pantherData.getEvent_types().contains(annotation.getNode_type()))
+				this.pantherData.getEvent_types().add(annotation.getNode_type());
 
-			if (annotation.getReference_speciation_event() != null && !this.pantherData.getReference_speciation_events()
+			if (annotation.getSpeciation_event() != null && !this.pantherData.getSpeciation_events()
 					.contains(annotation.getReference_speciation_event()))
-				this.pantherData.getReference_speciation_events().add(annotation.getReference_speciation_event());
+				this.pantherData.getSpeciation_events().add(annotation.getSpeciation_event());
 
 			if (annotation.getSpecies() != null
-					&& !this.pantherData.getSpecies_list().contains(annotation.getSpecies()))
+					&& !this.pantherData.getSpecies_list().contains(annotation.getSpecies())
+					&& this.pantherData.getSpecies_list().size() == 0)
 				this.pantherData.getSpecies_list().add(annotation.getSpecies());
-
-		}
 	}
 	
 	private String getFamilyName(String id) throws Exception {
@@ -117,13 +121,44 @@ public class PantherBookXmlToJson {
 
 		System.out.println("Reading book: " + id);
 		readPantherXmlToObject(id);
-		flattenTree(pantherData.getSearch().getAnnotation_node().getChildren());
+		try {
+			flattenTree(pantherData.getSearch().getAnnotation_node().getChildren());
+		}
+		catch(Exception e) {
+			System.out.println("Error "+ e);
+		}
 		buildListItems();
 		
 		this.pantherData.setFamily_name(getFamilyName(id));
 
 		return this.pantherData;
 
+	}
+
+	public PantherData readBookFromLocal(PantherData oldPantherData) throws Exception {
+		this.pantherData = new PantherData();
+		this.annotations = new ArrayList<Annotation>();
+		this.pantherData.setId(oldPantherData.getId());
+		this.pantherData.setJsonString(oldPantherData.getJsonString());
+
+		String jsonString = oldPantherData.getJsonString();
+
+		// convert json string to Panther object
+		PantherData oldPantherData2 = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+				PantherData.class);
+
+		try {
+			Annotation rootNodeAnnotation = oldPantherData2.getSearch().getAnnotation_node();
+			addToListFromAnnotation(rootNodeAnnotation);
+			flattenTree(oldPantherData2.getSearch().getAnnotation_node().getChildren());
+			buildListItems();
+
+			this.pantherData.setFamily_name(getFamilyName(oldPantherData.getId()));
+		} catch(Exception e) {
+			System.out.println(e);
+		}
+
+		return this.pantherData;
 	}
 
 }
