@@ -1,15 +1,17 @@
 package org.tair.module;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 import lombok.Data;
 
 @Data
 @JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Annotation {
 
 	private String node_type;
+	private String event_type;
 	private String organism;
 	private String gene_symbol;
 	private String node_name;
@@ -20,7 +22,9 @@ public class Annotation {
 	private String sf_name;
 	private String sf_id;
 	private String reference_speciation_event;
+	private String speciation_event;
 	private String species;
+	private String PANTHER_GO_SLIM_CC;
 
 	private Children children;
 }

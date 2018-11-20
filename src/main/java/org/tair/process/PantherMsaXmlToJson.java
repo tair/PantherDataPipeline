@@ -1,15 +1,14 @@
 package org.tair.process;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.tair.module.Annotation;
 import org.tair.module.Children;
 import org.tair.module.PantherData;
 import org.tair.util.Util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PantherMsaXmlToJson {
 
@@ -77,13 +76,13 @@ public class PantherMsaXmlToJson {
 			if (annotation.getSf_id() != null && !this.pantherData.getSf_ids().contains(annotation.getSf_id()))
 				this.pantherData.getSf_ids().add(annotation.getSf_id());
 
-			if (annotation.getNode_type() != null
-					&& !this.pantherData.getNode_types().contains(annotation.getNode_type()))
-				this.pantherData.getNode_types().add(annotation.getNode_type());
+			if (annotation.getEvent_type() != null
+					&& !this.pantherData.getEvent_types().contains(annotation.getEvent_type()))
+				this.pantherData.getEvent_types().add(annotation.getEvent_type());
 
-			if (annotation.getReference_speciation_event() != null && !this.pantherData.getReference_speciation_events()
+			if (annotation.getReference_speciation_event() != null && !this.pantherData.getSpeciation_events()
 					.contains(annotation.getReference_speciation_event()))
-				this.pantherData.getReference_speciation_events().add(annotation.getReference_speciation_event());
+				this.pantherData.getSpeciation_events().add(annotation.getReference_speciation_event());
 
 			if (annotation.getSpecies() != null
 					&& !this.pantherData.getSpecies_list().contains(annotation.getSpecies()))
