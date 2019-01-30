@@ -36,4 +36,30 @@ public class Util {
 		// convert json XML to JSON string
 		return XML.toJSONObject(buff.toString()).toString();
 	}
+
+	public static <T> String readContentFromWebUrlToJsonString(String url) throws Exception {
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(new URL(url).openConnection().getInputStream()));
+		StringBuffer buff = new StringBuffer();
+		String inputLine;
+		while ((inputLine = in.readLine()) != null)
+			buff.append(inputLine).append("\n");
+		in.close();
+
+		// convert json XML to JSON string
+		return XML.toJSONObject(buff.toString()).toString();
+	}
+
+	public static String readFamilyNameFromUrl(String url) throws Exception {
+
+		URL flUrl = new URL(url);
+		flUrl.openConnection();
+		BufferedReader in = new BufferedReader(new InputStreamReader(new URL(url).openConnection().getInputStream()));
+		StringBuffer buff = new StringBuffer();
+		String inputLine;
+		while ((inputLine = in.readLine()) != null)
+			buff.append(inputLine).append("\n");
+		in.close();
+		return XML.toJSONObject(buff.toString()).toString();
+	}
 }

@@ -2,7 +2,6 @@ package org.tair.process;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.json.JSONObject;
 import org.tair.module.Annotation;
 import org.tair.module.Children;
 import org.tair.module.PantherData;
@@ -25,6 +24,17 @@ public class PantherBookXmlToJson {
 		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
 				PantherData.class);
 		this.pantherData.setId(book_id);
+		return this.pantherData;
+	}
+
+	public PantherData readPantherTreeById(String family_id) throws Exception {
+		String prunedTreeUrl = "http://panthertest1.med.usc.edu:8081/tempFamilySearch?type=book_info&book=" + family_id
+				+ "&taxonFltr=13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,559292,284812";
+		String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, prunedTreeUrl);
+		// convert json string to Panther object
+		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+				PantherData.class);
+		this.pantherData.setId(family_id);
 		this.pantherData.setJsonString(jsonString);
 		return this.pantherData;
 	}
@@ -105,14 +115,6 @@ public class PantherBookXmlToJson {
 					&& this.pantherData.getSpecies_list().size() == 0)
 				this.pantherData.getSpecies_list().add(annotation.getSpecies());
 	}
-	
-	private String getFamilyName(String id) throws Exception {
-		
-		String url = "http://pantherdb.org/tempFamilySearch?type=family_name&book=" + id;
-		String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, url);
-		return new JSONObject(jsonString).getJSONObject("search").getString("family_name");
-
-	}
 
 	public PantherData readBookById(String id) throws Exception {
 
@@ -129,10 +131,41 @@ public class PantherBookXmlToJson {
 		}
 		buildListItems();
 		
-		this.pantherData.setFamily_name(getFamilyName(id));
+//		this.pantherData.setFamily_name(getFamilyName(id));
 
 		return this.pantherData;
+	}
 
+	public PantherData convertJsonToSolrDocument(PantherData orig, String familyName) throws Exception {
+		this.annotations = new ArrayList<Annotation>();
+		String jsonString = orig.getJsonString();
+
+		// convert json string to Panther object
+		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+				PantherData.class);
+		this.pantherData.setId(orig.getId());
+		this.pantherData.setJsonString(jsonString);
+		this.pantherData.setFamily_name(familyName);
+		try {
+			if(this.pantherData.getSearch() == null) {
+				System.out.println("Error in: " + this.pantherData.getId());
+			} else {
+				Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
+				if(rootNodeAnnotation == null) {
+//					System.out.println(this.pantherData.getSearch().getParameters().getBook());
+					this.pantherData = null;
+				} else {
+					addToListFromAnnotation(rootNodeAnnotation);
+					flattenTree(this.pantherData.getSearch().getAnnotation_node().getChildren());
+					buildListItems();
+				}
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("Error in building list: " + e.getMessage());
+		}
+
+		return this.pantherData;
 	}
 
 	public PantherData readBookFromLocal(PantherData oldPantherData) throws Exception {
@@ -142,20 +175,24 @@ public class PantherBookXmlToJson {
 		this.pantherData.setJsonString(oldPantherData.getJsonString());
 
 		String jsonString = oldPantherData.getJsonString();
-
 		// convert json string to Panther object
 		PantherData oldPantherData2 = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
 				PantherData.class);
 
 		try {
-			Annotation rootNodeAnnotation = oldPantherData2.getSearch().getAnnotation_node();
-			addToListFromAnnotation(rootNodeAnnotation);
-			flattenTree(oldPantherData2.getSearch().getAnnotation_node().getChildren());
-			buildListItems();
+			if(oldPantherData2.getSearch() == null) {
+				System.out.println("Error in: " + oldPantherData.getId());
+			} else {
+				Annotation rootNodeAnnotation = oldPantherData2.getSearch().getAnnotation_node();
+				addToListFromAnnotation(rootNodeAnnotation);
+				flattenTree(oldPantherData2.getSearch().getAnnotation_node().getChildren());
+				buildListItems();
+			}
 
-			this.pantherData.setFamily_name(getFamilyName(oldPantherData.getId()));
+			this.pantherData.setFamily_name(oldPantherData.getFamily_name());
 		} catch(Exception e) {
-			System.out.println(e);
+			e.printStackTrace();
+			System.out.println("Error in building list: " + e.getMessage());
 		}
 
 		return this.pantherData;
