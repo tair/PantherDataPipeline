@@ -1,11 +1,11 @@
 package org.tair.module;
 
-import java.util.List;
+import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import org.apache.solr.client.solrj.beans.Field;
+
 import lombok.Data;
 
 @Data

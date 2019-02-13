@@ -1,10 +1,8 @@
 package org.tair.process.uniprotdb;
 
-import static org.junit.Assert.assertEquals;
-
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
+//import java.awt.Toolkit;
+//import java.awt.datatransfer.Clipboard;
+//import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +14,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.response.QueryResponse;
+//import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
 
@@ -32,11 +30,11 @@ public class TestUpdateGOAnnotations {
 		final SolrQuery query = new SolrQuery("*:*");
 		query.setFields("id","uniprot_ids");
 		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
-		final QueryResponse response = UpdateGOAnnotations.solrClient.query("panther", query);	
+		UpdateGOAnnotations.solrClient.query("panther", query);	
 	}
 	
 	@Test
-	public void TestGetGOAnnotationsForTree() throws SolrServerException, IOException {
+	public void TestGetGOAnnotationsForTree() throws SolrServerException, IOException, InterruptedException {
 		Collection<Object> uniprotIds = new ArrayList<Object>();
 		uniprotIds.add("A0A0B4JCZ8");
 		uniprotIds.add("Q23624");

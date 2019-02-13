@@ -3,6 +3,7 @@ package org.tair.module;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import lombok.Data;
 
 @Data
@@ -11,8 +12,4 @@ import lombok.Data;
 public class ConnectedXref {
 	private String db;
 	private String id;
-	
-	public String buildConnectedXref() {
-		return this.db + ":" + this.id;
-	}
 }

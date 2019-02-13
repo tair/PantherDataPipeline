@@ -25,7 +25,7 @@ public class GOAnnotation {
 	private String goName;
 	private String evidenceCode;
 	private String reference;
-	private List<String> withFrom;
+	private List<ConnectedXref> withFrom;
 	
 	@JsonProperty("geneProductId")
 	private void buildGeneProductId(String geneProductId) {
@@ -46,11 +46,11 @@ public class GOAnnotation {
     @JsonProperty("withFrom")
     private void buildWithFrom(List<WithFromItem> withFrom) {
     	if (withFrom != null) {    		    	
-			List<String> withFromList = new ArrayList<String>();
+			List<ConnectedXref> withFromList = new ArrayList<ConnectedXref>();
 			for (WithFromItem withFromItem: withFrom) {
 				List<ConnectedXref> connectedXrefs =  withFromItem.getConnectedXrefs();
 				for (ConnectedXref connectedXref:connectedXrefs) {
-					withFromList.add(connectedXref.buildConnectedXref());
+					withFromList.add(connectedXref);
 				}
 			}
 	        this.withFrom = withFromList;

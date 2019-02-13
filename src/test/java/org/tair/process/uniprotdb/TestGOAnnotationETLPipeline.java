@@ -8,16 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Test;
 import org.tair.module.GOAnnotation;
-import org.tair.module.GOAnnotationData;
 
 public class TestGOAnnotationETLPipeline {
 	GOAnnotationETLPipeline GOAnnotationETLPipeline = new GOAnnotationETLPipeline();
@@ -61,8 +53,9 @@ public class TestGOAnnotationETLPipeline {
 			goAnnotation.setGoId(attributes[3]);
 			goAnnotation.setReference(attributes[4]);
 			goAnnotation.setEvidenceCode(attributes[5]);
-			List<String> withFrom = Arrays.asList(attributes[6].split("[|,]"));
-			goAnnotation.setWithFrom(withFrom);
+//			List<String> withFrom = Arrays.asList(attributes[6].split("[|,]"));
+			// need to parse every withFrom to fit the structure of ConnectedXref {db:"",id:""}
+//			goAnnotation.setWithFrom(withFrom);
 			System.out.println(goAnnotation.toString());
 			count ++;
 		}

@@ -26,7 +26,7 @@ public class UpdateGOAnnotations {
 	SolrClient solrClient = new HttpSolrClient.Builder(solrUrl).build();
 	ObjectMapper mapper = new ObjectMapper();
 	
-	public void updateGOAnnotations() throws SolrServerException, IOException {
+	public void updateGOAnnotations() throws SolrServerException, IOException, InterruptedException {
 		SolrQuery query = new SolrQuery("*:*");
 		query.setFields("id","uniprot_ids");
 		query.setSort("id", ORDER.asc);
@@ -56,7 +56,7 @@ public class UpdateGOAnnotations {
 		
 	}
 	
-	public List<String> getGOAnnotationsForTree(Collection<Object> uniprotIds) throws SolrServerException, IOException {
+	public List<String> getGOAnnotationsForTree(Collection<Object> uniprotIds) throws SolrServerException, IOException, InterruptedException {
 		SolrQuery query = new SolrQuery("*:*");
 		List<String> goAnnotationDataList = new ArrayList<String>();
 		for (Object uniprotId : uniprotIds) {
@@ -73,6 +73,7 @@ public class UpdateGOAnnotations {
 				goAnnotationData.setUniprot_id(uniprotId.toString().toLowerCase());
 				ObjectWriter ow = new ObjectMapper().writer();
 				String goAnnotationDataStr = ow.writeValueAsString(goAnnotationData);
+				goAnnotationDataStr = goAnnotationDataStr.replace("\\\"", "\"");
 				goAnnotationDataList.add(goAnnotationDataStr);
 			}
 		}
