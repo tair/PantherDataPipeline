@@ -54,5 +54,9 @@ public class PantherData {
 	// MSA information
 	@Field
 	private String msaJsonString;
+	
+	// go annotations information
+	@Field
+	private List<String> go_annotations = new ArrayList<String>();
 
 }
