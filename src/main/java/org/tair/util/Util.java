@@ -1,7 +1,5 @@
 package org.tair.util;
 
-import org.json.XML;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
+
+import org.json.XML;
 
 public class Util {
 
@@ -36,8 +36,8 @@ public class Util {
 		// convert json XML to JSON string
 		return XML.toJSONObject(buff.toString()).toString();
 	}
-	
-	public static String readContentFromWebJsonToJson(String url) throws Exception {
+
+	public static <T> String readContentFromWebUrlToJsonString(String url) throws Exception {
 
 		BufferedReader in = new BufferedReader(new InputStreamReader(new URL(url).openConnection().getInputStream()));
 		StringBuffer buff = new StringBuffer();
@@ -45,6 +45,21 @@ public class Util {
 		while ((inputLine = in.readLine()) != null)
 			buff.append(inputLine).append("\n");
 		in.close();
-		return buff.toString();
+
+		// convert json XML to JSON string
+		return XML.toJSONObject(buff.toString()).toString();
+	}
+
+	public static String readFamilyNameFromUrl(String url) throws Exception {
+
+		URL flUrl = new URL(url);
+		flUrl.openConnection();
+		BufferedReader in = new BufferedReader(new InputStreamReader(new URL(url).openConnection().getInputStream()));
+		StringBuffer buff = new StringBuffer();
+		String inputLine;
+		while ((inputLine = in.readLine()) != null)
+			buff.append(inputLine).append("\n");
+		in.close();
+		return XML.toJSONObject(buff.toString()).toString();
 	}
 }

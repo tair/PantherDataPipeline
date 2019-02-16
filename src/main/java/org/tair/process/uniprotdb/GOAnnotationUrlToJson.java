@@ -8,20 +8,23 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.tair.module.GOAnnotation;
 import org.tair.module.GOAnnotationData;
 import org.tair.util.Util;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class GOAnnotationUrlToJson {
 
-	public GOAnnotationData readGOAnnotationUrlToObject(String uniprot_id) throws Exception {
+	public GOAnnotationData readGOAnnotationUrlToObject(String uniprot_id) throws Exception  {
 		String url = "https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&aspect=molecular_function&geneProductId="+uniprot_id+"&evidenceCode=ECO%3A0000314%2C%20ECO%3A0000315%2C%20ECO%3A0000316%2C%20ECO%3A0000270%2C%20ECO%3A0000269%2C%20ECO%3A0000353&qualifier=enables&geneProductType=protein";
-		String jsonString = Util.readContentFromWebJsonToJson(url);
+		String jsonString = Util.readContentFromWebUrlToJsonString(url);
 		JSONObject obj = new JSONObject(jsonString);
 		JSONArray results = obj.getJSONArray("results");
 		List<GOAnnotation> goAnnotations = new ArrayList<GOAnnotation>();
@@ -42,7 +45,7 @@ public class GOAnnotationUrlToJson {
 		List<String> uniprotList = Arrays.asList(uniprot_ids.split(","));
 		do {
 			String url = "https://www.ebi.ac.uk/QuickGO/services/annotation/search?limit=100&page="+page+"&includeFields=goName&aspect=molecular_function&geneProductId="+uniprot_ids+"&evidenceCode=ECO%3A0000314%2C%20ECO%3A0000315%2C%20ECO%3A0000316%2C%20ECO%3A0000270%2C%20ECO%3A0000269%2C%20ECO%3A0000353&qualifier=enables&geneProductType=protein";
-			String jsonString = Util.readContentFromWebJsonToJson(url);
+			String jsonString = Util.readContentFromWebUrlToJsonString(url);
 			JSONObject obj = new JSONObject(jsonString);
 			if (pages==0) {
 				pages = Integer.parseInt(obj.getJSONObject("pageInfo").get("total").toString());
@@ -69,7 +72,7 @@ public class GOAnnotationUrlToJson {
 		return goAnnotations;
 	}
 	
-	private void addAnnotationToListByPage(JSONArray results, int i, List<String> uniprotList, List<GOAnnotationData> goAnnotations) throws Exception {
+	private void addAnnotationToListByPage(JSONArray results, int i, List<String> uniprotList, List<GOAnnotationData> goAnnotations) throws JsonParseException, JsonMappingException, JSONException, IOException {
 		GOAnnotation goAnnotation = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(results.getJSONObject(i).toString(),GOAnnotation.class);
 		GOAnnotationData goAnnotationData = new GOAnnotationData();
 		String geneProductId = goAnnotation.getGeneProductId().toLowerCase();
