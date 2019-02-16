@@ -27,7 +27,7 @@ public class PantherETLPipeline {
 	private String URL_PTHR_FAMILY_NAME = "http://panthertest1.med.usc.edu:8081/tempFamilySearch?type=family_name&book=";
 
 	//Change this to the location of pruned panther files that you have saved locally
-	private String PATH_LOCAL_PRUNED_TREES = "/Users/swapp1990/Documents/projects/Pheonix_Projects/pruned_panther_files/";
+	private String PATH_LOCAL_PRUNED_TREES = "src/main/resources/panther/pruned_panther_files/";
 	private String PATH_FAMILY_LIST = "src/main/resources/panther/familyList.json";
 	private String PATH_FAMILY_NAMES_LIST = "src/main/resources/panther/familyNamesList.json";
 
