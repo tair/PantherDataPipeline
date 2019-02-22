@@ -24,7 +24,7 @@ public class GOAnnotationUrlToJson {
 
 	public GOAnnotationData readGOAnnotationUrlToObject(String uniprot_id) throws Exception  {
 		String url = "https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&aspect=molecular_function&geneProductId="+uniprot_id+"&evidenceCode=ECO%3A0000314%2C%20ECO%3A0000315%2C%20ECO%3A0000316%2C%20ECO%3A0000270%2C%20ECO%3A0000269%2C%20ECO%3A0000353&qualifier=enables&geneProductType=protein";
-		String jsonString = Util.readContentFromWebUrlToJsonString(url);
+		String jsonString = Util.readContentFromWebJsonToJson(url);
 		JSONObject obj = new JSONObject(jsonString);
 		JSONArray results = obj.getJSONArray("results");
 		List<GOAnnotation> goAnnotations = new ArrayList<GOAnnotation>();
@@ -45,7 +45,7 @@ public class GOAnnotationUrlToJson {
 		List<String> uniprotList = Arrays.asList(uniprot_ids.split(","));
 		do {
 			String url = "https://www.ebi.ac.uk/QuickGO/services/annotation/search?limit=100&page="+page+"&includeFields=goName&aspect=molecular_function&geneProductId="+uniprot_ids+"&evidenceCode=ECO%3A0000314%2C%20ECO%3A0000315%2C%20ECO%3A0000316%2C%20ECO%3A0000270%2C%20ECO%3A0000269%2C%20ECO%3A0000353&qualifier=enables&geneProductType=protein";
-			String jsonString = Util.readContentFromWebUrlToJsonString(url);
+			String jsonString = Util.readContentFromWebJsonToJson(url);
 			JSONObject obj = new JSONObject(jsonString);
 			if (pages==0) {
 				pages = Integer.parseInt(obj.getJSONObject("pageInfo").get("total").toString());
