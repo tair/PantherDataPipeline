@@ -73,7 +73,6 @@ public class UpdateGOAnnotations {
 				goAnnotationData.setUniprot_id(uniprotId.toString().toLowerCase());
 				ObjectWriter ow = new ObjectMapper().writer();
 				String goAnnotationDataStr = ow.writeValueAsString(goAnnotationData);
-				goAnnotationDataStr = goAnnotationDataStr.replace("\\\"", "\"");
 				goAnnotationDataList.add(goAnnotationDataStr);
 			}
 		}
