@@ -3,26 +3,25 @@ package org.tair.process;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import com.opencsv.CSVWriter;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import org.tair.module.FamilyName;
-import org.tair.module.PantherData;
-import org.tair.module.PantherFamilyList;
-import org.tair.module.PantherFamilyNameList;
+import org.tair.module.*;
 import org.tair.util.Util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.util.*;
 
 public class PantherETLPipeline {
 
-	private String URL_SOLR = "http://localhost:8983/solr/panther";
-//	String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
+//	private String URL_SOLR = "http://localhost:8983/solr/panther";
+	String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 	private String URL_PTHR_FAMILY_LIST = "http://panthertest1.med.usc.edu:8081/tempFamilySearch?type=family_list";
 	private String URL_PTHR_FAMILY_NAME = "http://panthertest1.med.usc.edu:8081/tempFamilySearch?type=family_name&book=";
 
@@ -30,6 +29,8 @@ public class PantherETLPipeline {
 	private String PATH_LOCAL_PRUNED_TREES = "src/main/resources/panther/pruned_panther_files/";
 	private String PATH_FAMILY_LIST = "src/main/resources/panther/familyList.json";
 	private String PATH_FAMILY_NAMES_LIST = "src/main/resources/panther/familyNamesList.json";
+	private String PATH_HT_LIST = "src/main/resources/panther/familyHTList.csv";
+	private String PATH_NP_LIST = "src/main/resources/panther/familyNPList.csv";
 
 	SolrClient solr = new HttpSolrClient.Builder(URL_SOLR).build();
 	ObjectMapper mapper = new ObjectMapper();
@@ -163,6 +164,53 @@ public class PantherETLPipeline {
 		pantherList.clear();
 	}
 
+	//Analyze panther trees and find out all trees with Hori_Transfer node in it. Write the ids to a csv
+	public void analyzePantherTrees() throws Exception {
+		List<String> pantherFamilyList = getLocalPantherFamilyList();
+
+		File csvFile = new File(PATH_HT_LIST);
+		FileWriter outputfile = new FileWriter(csvFile);
+		CSVWriter writer = new CSVWriter(outputfile);
+		String[] header = {"PantherID"};
+		writer.writeNext(header);
+		int total = 0;
+		for(int i = 0; i < pantherFamilyList.size(); i++) {
+			PantherData origPantherData = readPantherBooksFromLocal(pantherFamilyList.get(i));
+			//Is Horizontal Transfer
+			boolean isHorizTransfer = new PantherBookXmlToJson().isHoriz_Transfer(origPantherData);
+			if(isHorizTransfer) {
+				String[] data1 = {pantherFamilyList.get(i)};
+				writer.writeNext(data1);
+			}
+		}
+		writer.close();
+	}
+
+	//Delete panther trees from solr which don't have any plant genes in it. Save all the deleted ids into a csv
+	public void deleteTreesWithoutPlantGenes() throws Exception {
+		List<String> pantherFamilyList = getLocalPantherFamilyList();
+
+		File csvFile = new File(PATH_NP_LIST);
+		FileWriter outputfile = new FileWriter(csvFile);
+		CSVWriter writer = new CSVWriter(outputfile);
+		String[] header = {"Deleted Ids"};
+		writer.writeNext(header);
+		for(int i = 0; i < pantherFamilyList.size(); i++) {
+			PantherData origPantherData = readPantherBooksFromLocal(pantherFamilyList.get(i));
+			//Has plant genome
+			boolean hasPlantGenome = new PantherBookXmlToJson().hasPlantGenome(origPantherData);
+			if(!hasPlantGenome) {
+				String[] data1 = {pantherFamilyList.get(i)};
+				solr.deleteById(pantherFamilyList.get(i));
+				System.out.println("deleted " + pantherFamilyList.get(i));
+				writer.writeNext(data1);
+			}
+		}
+		solr.commit();
+		System.out.println("Solr commit done");
+		writer.close();
+	}
+
 	public PantherData readPantherBooksFromLocal(String id) throws Exception {
 		String filePath = PATH_LOCAL_PRUNED_TREES + id + ".json";
 		InputStream input = new FileInputStream(filePath);
@@ -180,7 +228,7 @@ public class PantherETLPipeline {
 		mapper.writeValue(jsonFile, dataInJson);
 	}
 
-	public void saveAndCommitToSolr(List<PantherData> pantherList) throws Exception{
+	public void saveAndCommitToSolr(List<PantherData> pantherList) throws Exception {
 		solr.addBeans(pantherList);
 		solr.commit();
 		committedCount += pantherList.size();
@@ -201,8 +249,13 @@ public class PantherETLPipeline {
 //		etl.savePantherTreesLocally(pantherFamilyList);
 
 		//Reindex Solr DB based on local panther files and change in solr schema.
-		Map<String, String> idToFamilyNames = etl.getLocalPantherFamilyNamesList();
-		etl.indexSolrDB(idToFamilyNames);
+//		Map<String, String> idToFamilyNames = etl.getLocalPantherFamilyNamesList();
+//		etl.indexSolrDB(idToFamilyNames);
+
+//		etl.analyzePantherTrees();
+
+		//Delete panther trees without plant genes.
+		etl.deleteTreesWithoutPlantGenes();
 	}
 
 }

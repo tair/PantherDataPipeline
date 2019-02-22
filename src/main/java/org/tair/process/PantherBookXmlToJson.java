@@ -8,6 +8,7 @@ import org.tair.module.PantherData;
 import org.tair.util.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PantherBookXmlToJson {
@@ -166,6 +167,98 @@ public class PantherBookXmlToJson {
 		}
 
 		return this.pantherData;
+	}
+
+	public boolean isHoriz_Transfer(PantherData orig) throws Exception {
+		this.annotations = new ArrayList<Annotation>();
+		String jsonString = orig.getJsonString();
+
+			// convert json string to Panther object
+		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+																		PantherData.class);
+		this.pantherData.setId(orig.getId());
+		if(this.pantherData.getSearch() != null) {
+			Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
+			this.annotations.add(rootNodeAnnotation);
+			if(rootNodeAnnotation != null) {
+				flattenTree(this.pantherData.getSearch().getAnnotation_node().getChildren());
+			}
+		}
+		List<String> pantherWithHorizTrans = new ArrayList<>();
+		for(int i = 0; i < this.annotations.size(); i++) {
+			Annotation currAnno = this.annotations.get(i); //&&
+			if(currAnno!= null && currAnno.getEvent_type() != null) {
+				if(currAnno.getEvent_type().equals("HORIZ_TRANSFER")) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean hasPlantGenome(PantherData orig) throws Exception {
+		this.annotations = new ArrayList<Annotation>();
+		String jsonString = orig.getJsonString();
+
+		// convert json string to Panther object
+		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+				PantherData.class);
+		this.pantherData.setId(orig.getId());
+		if(this.pantherData.getSearch() != null) {
+			Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
+			if(rootNodeAnnotation == null) {
+				return true;
+			}
+			this.annotations.add(rootNodeAnnotation);
+			if(rootNodeAnnotation != null) {
+				flattenTree(this.pantherData.getSearch().getAnnotation_node().getChildren());
+			}
+		}
+
+		for(int i = 0; i < this.annotations.size(); i++) {
+			Annotation currAnno = this.annotations.get(i); //&&
+			if(currAnno!= null && currAnno.getOrganism() != null) {
+				if(getPlantOrganisms().contains(currAnno.getOrganism())) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private List<String> getPlantOrganisms() {
+		List<String> genomes = Arrays.asList("Amborella trichopoda",
+				"Arabidopsis thaliana",
+				"Brachypodium distachyon",
+				"Brassica rapa subsp. Pekinensis",
+				"Chlamydomonas reinhardtii",
+				"Citrus sinensis",
+				"Cucumis sativus",
+				"Erythranthe guttata",
+				"Glycine max",
+				"Gossypium hirsutum",
+				"Helianthus annuus",
+				"Hordeum vulgare subsp. vulgare",
+				"Medicago truncatula",
+				"Musa acuminata subsp. malaccensis",
+				"Nicotiana tabacum",
+				"Oryza sativa",
+				"Ostreococcus tauri",
+				"Phoenix dactylifera",
+				"Physcomitrella patens",
+				"Populus trichocarpa",
+				"Prunus persica",
+				"Ricinus communis",
+				"Setaria italica",
+				"Solanum lycopersicum",
+				"Sorghum bicolor",
+				"Theobroma cacao",
+				"Triticum aestivum",
+				"Vitis vinifera",
+				"Zea mays",
+				"Zostera marina");
+		return genomes;
 	}
 
 	public PantherData readBookFromLocal(PantherData oldPantherData) throws Exception {
