@@ -164,6 +164,7 @@ public class PantherETLPipeline {
 		pantherList.clear();
 	}
 
+	//Analyze panther trees and find out all trees with Hori_Transfer node in it. Write the ids to a csv
 	public void analyzePantherTrees() throws Exception {
 		List<String> pantherFamilyList = getLocalPantherFamilyList();
 
@@ -173,7 +174,7 @@ public class PantherETLPipeline {
 		String[] header = {"PantherID"};
 		writer.writeNext(header);
 		int total = 0;
-		for(int i = 0; i < 1000; i++) {
+		for(int i = 0; i < pantherFamilyList.size(); i++) {
 			PantherData origPantherData = readPantherBooksFromLocal(pantherFamilyList.get(i));
 			//Is Horizontal Transfer
 			boolean isHorizTransfer = new PantherBookXmlToJson().isHoriz_Transfer(origPantherData);
@@ -185,6 +186,7 @@ public class PantherETLPipeline {
 		writer.close();
 	}
 
+	//Delete panther trees from solr which don't have any plant genes in it. Save all the deleted ids into a csv
 	public void deleteTreesWithoutPlantGenes() throws Exception {
 		List<String> pantherFamilyList = getLocalPantherFamilyList();
 
@@ -252,6 +254,7 @@ public class PantherETLPipeline {
 
 //		etl.analyzePantherTrees();
 
+		//Delete panther trees without plant genes.
 		etl.deleteTreesWithoutPlantGenes();
 	}
 
