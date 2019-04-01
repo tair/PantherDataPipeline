@@ -115,8 +115,7 @@ public class PantherETLPipeline {
 				PantherFamilyList.class);
 
 		List<String> allFamilies = flJson.getFamilyList();
-		System.out.println("FN Size "+ allFamilies.size());
-		return flJson.getFamilyList();
+		return allFamilies;
 	}
 
 	//Get Panther Family Name List from local file if it exists
@@ -142,7 +141,7 @@ public class PantherETLPipeline {
 		List<PantherData> pantherList = new ArrayList<>();
 		List<String> emptyPantherIds = new ArrayList<>();
 		int commitCount = 100;
-		for(int i = 3916; i < pantherFamilyList.size(); i++) {
+		for(int i = 0; i < pantherFamilyList.size(); i++) {
 			PantherData origPantherData = readPantherBooksFromLocal(pantherFamilyList.get(i));
 			String familyName = idToFamilyNames.get(pantherFamilyList.get(i));
 			PantherData modiPantherData = new PantherBookXmlToJson().convertJsonToSolrDocument(origPantherData, familyName);
@@ -182,7 +181,6 @@ public class PantherETLPipeline {
 					Map<String, List<String>> partialUpdate = new HashMap<>();
 					partialUpdate.put("set", speciation_events);
 					sdoc.addField("species_list", partialUpdate);
-					System.out.println("commit " + pantherFamilyList.get(i));
 					solr.add(sdoc);
 					solr.commit();
 					commitedCount++;
@@ -193,9 +191,6 @@ public class PantherETLPipeline {
 				plantGenomeCount++;
 			}
 		}
-		System.out.println("NotPlantGenomeCount "+plantGenomeCount);
-		System.out.println("commitedCount "+commitedCount);
-		System.out.println("errorCount "+errorCount);
 	}
 
 	//Analyze panther trees and find out all trees with Hori_Transfer node in it. Write the ids to a csv
@@ -286,7 +281,9 @@ public class PantherETLPipeline {
 //		Map<String, String> idToFamilyNames = etl.getLocalPantherFamilyNamesList();
 //		etl.indexSolrDB(idToFamilyNames);
 
-		etl.atomicUpdateSolr();
+		//Update a single fild in solr without reindex
+//		etl.atomicUpdateSolr();
+
 //		etl.analyzePantherTrees();
 
 		//Delete panther trees without plant genes.
