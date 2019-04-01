@@ -6,27 +6,25 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.SolrInputDocument;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import org.tair.module.*;
 import org.tair.util.Util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 
 public class PantherETLPipeline {
 
-//	private String URL_SOLR = "http://localhost:8983/solr/panther";
-	String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
+	private String URL_SOLR = "http://localhost:8983/solr/panther";
+//	String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 	private String URL_PTHR_FAMILY_LIST = "http://panthertest1.med.usc.edu:8081/tempFamilySearch?type=family_list";
 	private String URL_PTHR_FAMILY_NAME = "http://panthertest1.med.usc.edu:8081/tempFamilySearch?type=family_name&book=";
 
 	//Change this to the location of pruned panther files that you have saved locally
-	private String PATH_LOCAL_PRUNED_TREES = "src/main/resources/panther/pruned_panther_files/";
+	private String PATH_LOCAL_PRUNED_TREES = "/Users/swapp1990/Documents/projects/Pheonix_Projects/pruned_panther_files/";
 	private String PATH_FAMILY_LIST = "src/main/resources/panther/familyList.json";
 	private String PATH_FAMILY_NAMES_LIST = "src/main/resources/panther/familyNamesList.json";
 	private String PATH_HT_LIST = "src/main/resources/panther/familyHTList.csv";
@@ -115,7 +113,9 @@ public class PantherETLPipeline {
 
 		PantherFamilyList flJson = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(data,
 				PantherFamilyList.class);
-		return flJson.getFamilyList();
+
+		List<String> allFamilies = flJson.getFamilyList();
+		return allFamilies;
 	}
 
 	//Get Panther Family Name List from local file if it exists
@@ -140,7 +140,7 @@ public class PantherETLPipeline {
 		List<String> pantherFamilyList = getLocalPantherFamilyList();
 		List<PantherData> pantherList = new ArrayList<>();
 		List<String> emptyPantherIds = new ArrayList<>();
-		int commitCount = 1;
+		int commitCount = 100;
 		for(int i = 0; i < pantherFamilyList.size(); i++) {
 			PantherData origPantherData = readPantherBooksFromLocal(pantherFamilyList.get(i));
 			String familyName = idToFamilyNames.get(pantherFamilyList.get(i));
@@ -162,6 +162,35 @@ public class PantherETLPipeline {
 		}
 		saveAndCommitToSolr(pantherList);
 		pantherList.clear();
+	}
+
+	public void atomicUpdateSolr() throws Exception {
+		List<String> pantherFamilyList = getLocalPantherFamilyList();
+		int plantGenomeCount = 0;
+		int commitedCount = 0;
+		int errorCount = 0;
+		for(int i = 0; i < pantherFamilyList.size(); i++) {
+			PantherData origPantherData = readPantherBooksFromLocal(pantherFamilyList.get(i));
+			boolean hasPlantGenome = new PantherBookXmlToJson().hasPlantGenome(origPantherData);
+			if(hasPlantGenome) {
+				SolrInputDocument sdoc = new SolrInputDocument();
+				sdoc.addField("id", pantherFamilyList.get(i));
+
+				List<String> speciation_events = new PantherBookXmlToJson().getFieldValue(origPantherData);
+				if (speciation_events != null) {
+					Map<String, List<String>> partialUpdate = new HashMap<>();
+					partialUpdate.put("set", speciation_events);
+					sdoc.addField("species_list", partialUpdate);
+					solr.add(sdoc);
+					solr.commit();
+					commitedCount++;
+				} else {
+					errorCount++;
+				}
+			} else {
+				plantGenomeCount++;
+			}
+		}
 	}
 
 	//Analyze panther trees and find out all trees with Hori_Transfer node in it. Write the ids to a csv
@@ -252,10 +281,13 @@ public class PantherETLPipeline {
 //		Map<String, String> idToFamilyNames = etl.getLocalPantherFamilyNamesList();
 //		etl.indexSolrDB(idToFamilyNames);
 
+		//Update a single fild in solr without reindex
+//		etl.atomicUpdateSolr();
+
 //		etl.analyzePantherTrees();
 
 		//Delete panther trees without plant genes.
-		etl.deleteTreesWithoutPlantGenes();
+//		etl.deleteTreesWithoutPlantGenes();
 	}
 
 }
