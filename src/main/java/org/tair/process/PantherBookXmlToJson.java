@@ -111,8 +111,8 @@ public class PantherBookXmlToJson {
 					.contains(annotation.getReference_speciation_event()))
 				this.pantherData.getSpeciation_events().add(annotation.getSpeciation_event());
 
-			if (annotation.getSpecies() != null
-					&& !this.pantherData.getSpecies_list().contains(annotation.getSpecies())
+			if (annotation.getSpeciation_event() != null
+					&& !this.pantherData.getSpecies_list().contains(annotation.getSpeciation_event())
 					&& this.pantherData.getSpecies_list().size() == 0)
 				this.pantherData.getSpecies_list().add(annotation.getSpecies());
 	}
@@ -167,6 +167,21 @@ public class PantherBookXmlToJson {
 		}
 
 		return this.pantherData;
+	}
+
+	public List<String> getFieldValue(PantherData orig) throws Exception {
+		String jsonString = orig.getJsonString();
+		List<String> fieldValue = new ArrayList<>();
+		// convert json string to Panther object
+		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+										PantherData.class);
+		try {
+			Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
+			fieldValue.add(rootNodeAnnotation.getSpeciation_event());
+		} catch(NullPointerException e) {
+			return null;
+		}
+		return fieldValue;
 	}
 
 	public boolean isHoriz_Transfer(PantherData orig) throws Exception {
