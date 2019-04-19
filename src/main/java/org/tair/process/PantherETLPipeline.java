@@ -20,11 +20,11 @@ public class PantherETLPipeline {
 
 	private String URL_SOLR = "http://localhost:8983/solr/panther";
 //	String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
-	private String URL_PTHR_FAMILY_LIST = "http://panthertest1.med.usc.edu:8081/tempFamilySearch?type=family_list";
-	private String URL_PTHR_FAMILY_NAME = "http://panthertest1.med.usc.edu:8081/tempFamilySearch?type=family_name&book=";
+	private String URL_PTHR_FAMILY_LIST = "http://pantherdb.org/tempFamilySearch?type=family_list&taxonFltr=13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,559292,284812";
+	private String URL_PTHR_FAMILY_NAME = "http://pantherdb.org/tempFamilySearch?type=family_name&book=";
 
 	//Change this to the location of pruned panther files that you have saved locally
-	private String PATH_LOCAL_PRUNED_TREES = "/Users/swapp1990/Documents/projects/Pheonix_Projects/pruned_panther_files/";
+	private String PATH_LOCAL_PRUNED_TREES = "src/main/resources/panther/pruned_panther_files/";
 	private String PATH_FAMILY_LIST = "src/main/resources/panther/familyList.json";
 	private String PATH_FAMILY_NAMES_LIST = "src/main/resources/panther/familyNamesList.json";
 	private String PATH_HT_LIST = "src/main/resources/panther/familyHTList.csv";
@@ -286,7 +286,7 @@ public class PantherETLPipeline {
 
 //		etl.analyzePantherTrees();
 
-		//Delete panther trees without plant genes.
+		//Delete panther trees without plant agenes.
 //		etl.deleteTreesWithoutPlantGenes();
 	}
 
