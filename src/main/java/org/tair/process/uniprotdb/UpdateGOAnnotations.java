@@ -53,11 +53,12 @@ public class UpdateGOAnnotations {
 		uniprot_rows = (int)uniprotIdFacets.getValues().get(0).getCount();
 		System.out.println("Uniprot DB result rows set to: " + uniprot_rows);
 
-		for (SolrDocument result : response.getResults()) {
+		for (int i = 0; i<response.getResults().size(); i ++){
+			SolrDocument result = response.getResults().get(i);
 			Collection<Object> uniprotIds = result.getFieldValues("uniprot_ids");
 			if (uniprotIds == null) continue;
 			String id = (String) result.getFieldValue("id");
-			System.out.println("Processing: "+id);
+			System.out.println("Processing: "+id +" idx: "+i);
 			List<String> goAnnotationDataList = getGOAnnotationsForTree(uniprotIds);
 			
 			SolrInputDocument doc = new SolrInputDocument();
