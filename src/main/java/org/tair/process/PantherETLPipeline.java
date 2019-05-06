@@ -286,7 +286,7 @@ public class PantherETLPipeline {
 
 //		etl.analyzePantherTrees();
 
-		//Delete panther trees without plant agenes.
+		//Delete panther trees without plant genes.
 //		etl.deleteTreesWithoutPlantGenes();
 	}
 
