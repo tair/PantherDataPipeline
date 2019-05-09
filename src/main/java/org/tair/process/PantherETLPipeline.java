@@ -1,10 +1,12 @@
 package org.tair.process;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import com.opencsv.CSVWriter;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.json.JSONArray;
@@ -29,9 +31,14 @@ public class PantherETLPipeline {
 	private String PATH_FAMILY_NAMES_LIST = "src/main/resources/panther/familyNamesList.json";
 	private String PATH_HT_LIST = "src/main/resources/panther/familyHTList.csv";
 	private String PATH_NP_LIST = "src/main/resources/panther/familyNPList.csv";
+	// log family that has large msa data
+	private String PATH_LARGE_MSA_LIST = "src/main/resources/panther/largeMsaFamilyList.csv";
+	// log family that has invalid msa data
+	private String PATH_INVALID_MSA_LIST = "src/main/resources/panther/invalidMsaFamilyList.csv";
 
 	SolrClient solr = new HttpSolrClient.Builder(URL_SOLR).build();
 	ObjectMapper mapper = new ObjectMapper();
+	ObjectWriter ow = new ObjectMapper().writer();
 	int committedCount = 0;
 
 	public void updateOrSaveFamilyListJson() throws Exception{
@@ -193,6 +200,82 @@ public class PantherETLPipeline {
 		}
 	}
 
+	private void updateMsaData() throws Exception {
+		List<String> pantherFamilyList = getLocalPantherFamilyList();
+		PantherMsaXmlToJson pantherMsaXmlToJson = new PantherMsaXmlToJson();
+		File largeMsaFile = new File(PATH_LARGE_MSA_LIST);
+		FileWriter largeMsaFileWriter = new FileWriter(largeMsaFile);
+		CSVWriter largeMsaCSVWriter = new CSVWriter(largeMsaFileWriter);
+		File invalidMsaFile = new File(PATH_INVALID_MSA_LIST);
+		FileWriter invalidMsaFileWriter = new FileWriter(invalidMsaFile);
+		CSVWriter invalidMsaCSVWriter = new CSVWriter(invalidMsaFileWriter);
+		for(int i = 0; i < pantherFamilyList.size(); i++) {
+			String pantherId = pantherFamilyList.get(i);
+			System.out.println("Processing : "+pantherId+" idx: "+i);
+			PantherData origPantherData = readPantherBooksFromLocal(pantherId);
+			boolean hasPlantGenome = new PantherBookXmlToJson().hasPlantGenome(origPantherData);
+			if(hasPlantGenome) {
+				SolrInputDocument sdoc = new SolrInputDocument();
+				sdoc.addField("id", pantherId);
+
+				MsaData msaData = pantherMsaXmlToJson.readMsaById(pantherId);
+				List<String> sequence_info;
+				try {
+					sequence_info = msaData.getSearch().getSequence_list().getSequence_info();
+				}catch (NullPointerException e){
+					logErrorFamilyList(pantherId, invalidMsaFile, ow.writeValueAsString(msaData));
+					continue;
+				}
+
+				if (sequence_info.size() == 0) {
+					continue;
+				}else if (sequence_info.size()>30000) {
+					logErrorFamilyList(pantherId, largeMsaFile, Integer.toString(sequence_info.size()));
+					continue;
+				}else{
+					Map<String, String> partialDelete = new HashMap<>();
+					partialDelete.put("removeregex", ".*");
+					sdoc.setField("msa_data", partialDelete);
+					solr.add(sdoc);
+					solr.commit();
+//					System.out.println("Cleared msa_data for: " + pantherId);
+					Map<String, List<String>> partialUpdate = new HashMap<>();
+					int ChunkSize = 10000;
+					for (int j=0; j<sequence_info.size(); j += ChunkSize){
+						int end;
+						if (j+ChunkSize-1 < sequence_info.size()){
+							end = j+ChunkSize-1;
+						}else{
+							end = sequence_info.size()-1;
+						}
+						partialUpdate.put("add", sequence_info.subList(j,end));
+						sdoc.setField("msa_data", partialUpdate);
+						try {
+							solr.add(sdoc);
+							solr.commit();
+						}catch (SolrServerException e){
+							e.printStackTrace();
+						}
+//						System.out.println("Added msa data: " + j + "-" + end);
+					}
+					System.out.println("Updated msa data for: "+pantherId);
+				}
+			} else {
+				continue;
+			}
+		}
+		invalidMsaCSVWriter.close();
+		largeMsaCSVWriter.close();
+	}
+
+	private void logErrorFamilyList(String pantherId, File outputFile, String errorData) throws IOException {
+		FileWriter fileWriter = new FileWriter(outputFile, true);
+		CSVWriter csvWriter = new CSVWriter(fileWriter);
+		String[] line = {pantherId, errorData};
+		csvWriter.writeNext(line);
+		csvWriter.close();
+	}
+
 	//Analyze panther trees and find out all trees with Hori_Transfer node in it. Write the ids to a csv
 	public void analyzePantherTrees() throws Exception {
 		List<String> pantherFamilyList = getLocalPantherFamilyList();
@@ -265,6 +348,8 @@ public class PantherETLPipeline {
 	}
 
 	public static void main(String args[]) throws Exception {
+		long startTime = System.nanoTime();
+
 		PantherETLPipeline etl = new PantherETLPipeline();
 
 		//Run the following if we don't have a local family list json, or it needs to be updated
@@ -288,6 +373,15 @@ public class PantherETLPipeline {
 
 		//Delete panther trees without plant genes.
 //		etl.deleteTreesWithoutPlantGenes();
+
+		//Update msa data without reindex
+//		etl.updateMsaData();
+
+
+		long endTime = System.nanoTime();
+		long timeElapsed = endTime - startTime;
+		System.out.println("Execution time in milliseconds : " +
+				timeElapsed / 1000000);
 	}
 
 }

@@ -1,5 +1,11 @@
 package org.tair.util;
 
+import org.json.XML;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,9 +13,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.stream.Stream;
-
-import org.json.XML;
 
 public class Util {
 
@@ -73,5 +78,13 @@ public class Util {
 			buff.append(inputLine).append("\n");
 		in.close();
 		return XML.toJSONObject(buff.toString()).toString();
+	}
+
+	public static List<String> saxReader(String url) throws IOException, SAXException {
+		XMLReader myReader = XMLReaderFactory.createXMLReader();
+		MSAHandler handler = new MSAHandler();
+		myReader.setContentHandler(handler);
+		myReader.parse(new InputSource(new URL(url).openStream()));
+		return handler.getSequenceInfo();
 	}
 }

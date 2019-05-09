@@ -50,13 +50,4 @@ public class PantherData {
 	private List<String> speciation_events = new ArrayList<String>();
 	@Field
 	private List<String> species_list = new ArrayList<String>();
-	
-	// MSA information
-	@Field
-	private String msaJsonString;
-	
-	// go annotations information
-	@Field
-	private List<String> go_annotations = new ArrayList<String>();
-
 }
