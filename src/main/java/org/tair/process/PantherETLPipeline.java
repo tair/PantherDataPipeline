@@ -31,7 +31,9 @@ public class PantherETLPipeline {
 	private String PATH_FAMILY_NAMES_LIST = "src/main/resources/panther/familyNamesList.json";
 	private String PATH_HT_LIST = "src/main/resources/panther/familyHTList.csv";
 	private String PATH_NP_LIST = "src/main/resources/panther/familyNPList.csv";
+	// log family that has large msa data
 	private String PATH_LARGE_MSA_LIST = "src/main/resources/panther/largeMsaFamilyList.csv";
+	// log family that has invalid msa data
 	private String PATH_INVALID_MSA_LIST = "src/main/resources/panther/invalidMsaFamilyList.csv";
 
 	SolrClient solr = new HttpSolrClient.Builder(URL_SOLR).build();
