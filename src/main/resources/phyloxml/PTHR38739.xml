@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<phyloxml>
+    <phylogeny rooted="true">
+        <name>FAMILY NOT NAMED</name>
+        <description>PTHR38739</description>
+        <clade>
+            <branch_length>0</branch_length>
+            <events>
+                <duplications>1</duplications>
+            </events>
+            <clade>
+                <name>DDB_G0283041</name>
+                <branch_length>0.408</branch_length>
+                <taxonomy>
+                    <scientific_name>Dictyostelium discoideum</scientific_name>
+                </taxonomy>
+                <sequence>
+                    <accession source="UniProtKB">Q54RL5</accession>
+                </sequence>
+            </clade>
+            <clade>
+                <branch_length>0.099</branch_length>
+                <events>
+                    <duplications>1</duplications>
+                </events>
+                <clade>
+                    <name>DDB_G0272793</name>
+                    <branch_length>0.977</branch_length>
+                    <taxonomy>
+                        <scientific_name>Dictyostelium discoideum</scientific_name>
+                    </taxonomy>
+                    <sequence>
+                        <accession source="UniProtKB">Q556F9</accession>
+                    </sequence>
+                </clade>
+                <clade>
+                    <name>DDB_G0274987</name>
+                    <branch_length>0.945</branch_length>
+                    <taxonomy>
+                        <scientific_name>Dictyostelium discoideum</scientific_name>
+                    </taxonomy>
+                    <sequence>
+                        <accession source="UniProtKB">Q554P5</accession>
+                    </sequence>
+                </clade>
+                <clade>
+                    <name>DDB_G0292630</name>
+                    <branch_length>0.93</branch_length>
+                    <taxonomy>
+                        <scientific_name>Dictyostelium discoideum</scientific_name>
+                    </taxonomy>
+                    <sequence>
+                        <accession source="UniProtKB">Q54CY6</accession>
+                    </sequence>
+                </clade>
+                <clade>
+                    <name>DDB_G0290143</name>
+                    <branch_length>0.841</branch_length>
+                    <taxonomy>
+                        <scientific_name>Dictyostelium discoideum</scientific_name>
+                    </taxonomy>
+                    <sequence>
+                        <accession source="UniProtKB">Q54GI1</accession>
+                    </sequence>
+                </clade>
+            </clade>
+        </clade>
+    </phylogeny>
+</phyloxml>

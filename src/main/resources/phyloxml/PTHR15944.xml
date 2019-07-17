@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<phyloxml>
+    <phylogeny rooted="true">
+        <name>FAMILY NOT NAMED</name>
+        <description>PTHR15944</description>
+        <clade>
+            <branch_length>0</branch_length>
+            <events>
+                <speciations>1</speciations>
+            </events>
+            <clade>
+                <branch_length>0.352</branch_length>
+                <events>
+                    <speciations>1</speciations>
+                </events>
+                <clade>
+                    <branch_length>0.609</branch_length>
+                    <events>
+                        <duplications>1</duplications>
+                    </events>
+                    <clade>
+                        <branch_length>0.264</branch_length>
+                        <events>
+                            <speciations>1</speciations>
+                        </events>
+                        <clade>
+                            <branch_length>0.311</branch_length>
+                            <events>
+                                <speciations>1</speciations>
+                            </events>
+                            <clade>
+                                <name>20588</name>
+                                <branch_length>0.313</branch_length>
+                                <taxonomy>
+                                    <scientific_name>Homo sapiens</scientific_name>
+                                </taxonomy>
+                                <sequence>
+                                    <accession source="UniProtKB">Q9UHG3</accession>
+                                </sequence>
+                            </clade>
+                            <clade>
+                                <branch_length>0.164</branch_length>
+                                <events>
+                                    <speciations>1</speciations>
+                                </events>
+                                <clade>
+                                    <name>MGI=1914131</name>
+                                    <branch_length>0.02</branch_length>
+                                    <taxonomy>
+                                        <scientific_name>Mus musculus</scientific_name>
+                                    </taxonomy>
+                                    <sequence>
+                                        <accession source="UniProtKB">Q9CQF9</accession>
+                                    </sequence>
+                                </clade>
+                                <clade>
+                                    <name>628652</name>
+                                    <branch_length>0.03</branch_length>
+                                    <taxonomy>
+                                        <scientific_name>Rattus norvegicus</scientific_name>
+                                    </taxonomy>
+                                    <sequence>
+                                        <accession source="UniProtKB">Q99ML5</accession>
+                                    </sequence>
+                                </clade>
+                            </clade>
+                        </clade>
+                        <clade>
+                            <name>ZDB-GENE-050417-98</name>
+                            <branch_length>0.458</branch_length>
+                            <taxonomy>
+                                <scientific_name>Danio rerio</scientific_name>
+                            </taxonomy>
+                            <sequence>
+                                <accession source="UniProtKB">A0A0R4I9Q1</accession>
+                            </sequence>
+                        </clade>
+                    </clade>
+                    <clade>
+                        <branch_length>0.25</branch_length>
+                        <events>
+                            <speciations>1</speciations>
+                        </events>
+                        <clade>
+                            <branch_length>0.297</branch_length>
+                            <events>
+                                <speciations>1</speciations>
+                            </events>
+                            <clade>
+                                <name>28477</name>
+                                <branch_length>0.299</branch_length>
+                                <taxonomy>
+                                    <scientific_name>Homo sapiens</scientific_name>
+                                </taxonomy>
+                                <sequence>
+                                    <accession source="UniProtKB">Q8NBM8</accession>
+                                </sequence>
+                            </clade>
+                            <clade>
+                                <branch_length>0.041</branch_length>
+                                <events>
+                                    <speciations>1</speciations>
+                                </events>
+                                <clade>
+                                    <name>MGI=3606062</name>
+                                    <branch_length>0.011</branch_length>
+                                    <taxonomy>
+                                        <scientific_name>Mus musculus</scientific_name>
+                                    </taxonomy>
+                                    <sequence>
+                                        <accession source="UniProtKB">Q8C7K6</accession>
+                                    </sequence>
+                                </clade>
+                                <clade>
+                                    <name>1563290</name>
+                                    <branch_length>0.014</branch_length>
+                                    <taxonomy>
+                                        <scientific_name>Rattus norvegicus</scientific_name>
+                                    </taxonomy>
+                                    <sequence>
+                                        <accession source="UniProtKB">B5DEI0</accession>
+                                    </sequence>
+                                </clade>
+                            </clade>
+                        </clade>
+                        <clade>
+                            <name>ZDB-GENE-141212-302</name>
+                            <branch_length>0.397</branch_length>
+                            <taxonomy>
+                                <scientific_name>Danio rerio</scientific_name>
+                            </taxonomy>
+                            <sequence>
+                                <accession source="UniProtKB">F1QFH3</accession>
+                            </sequence>
+                        </clade>
+                    </clade>
+                </clade>
+                <clade>
+                    <name>DDB_G0287201</name>
+                    <branch_length>0.716</branch_length>
+                    <taxonomy>
+                        <scientific_name>Dictyostelium discoideum</scientific_name>
+                    </taxonomy>
+                    <sequence>
+                        <accession source="UniProtKB">Q54KR6</accession>
+                    </sequence>
+                </clade>
+            </clade>
+            <clade>
+                <branch_length>0.302</branch_length>
+                <events>
+                    <speciations>1</speciations>
+                </events>
+                <clade>
+                    <name>CHLRE_10g425200v5</name>
+                    <branch_length>0.879</branch_length>
+                    <taxonomy>
+                        <scientific_name>Chlamydomonas reinhardtii</scientific_name>
+                    </taxonomy>
+                    <sequence>
+                        <accession source="UniProtKB">A0A2K3D9F7</accession>
+                    </sequence>
+                </clade>
+                <clade>
+                    <branch_length>0.539</branch_length>
+                    <events>
+                        <speciations>1</speciations>
+                    </events>
+                    <clade>
+                        <branch_length>0.323</branch_length>
+                        <events>
+                            <speciations>1</speciations>
+                        </events>
+                        <clade>
+                            <name>AMTR_s00186p00043390</name>
+                            <branch_length>0.245</branch_length>
+                            <taxonomy>
+                                <scientific_name>Amborella trichopoda</scientific_name>
+                            </taxonomy>
+                            <sequence>
+                                <accession source="UniProtKB">W1P9Z9</accession>
+                            </sequence>
+                        </clade>
+                        <clade>
+                            <branch_length>0.114</branch_length>
+                            <events>
+                                <speciations>1</speciations>
+                            </events>
+                            <clade>
+                                <branch_length>0.131</branch_length>
+                                <events>
+                                    <speciations>1</speciations>
+                                </events>
+                                <clade>
+                                    <name>ZOSMA_345G00130</name>
+                                    <branch_length>0.323</branch_length>
+                                    <taxonomy>
+                                        <scientific_name>Zostera marina</scientific_name>
+                                    </taxonomy>
+                                    <sequence>
+                                        <accession source="UniProtKB">A0A0K9P9F6</accession>
+                                    </sequence>
+                                </clade>
+                                <clade>
+                                    <branch_length>0.153</branch_length>
+                                    <events>
+                                        <speciations>1</speciations>
+                                    </events>
+                                    <clade>
+                                        <branch_length>0.104</branch_length>
+                                        <events>
+                                            <speciations>1</speciations>
+                                        </events>
+                                        <clade>
+                                            <name>GSMUA_Achr11G18720_001</name>
+                                            <branch_length>0.144</branch_length>
+                                            <taxonomy>
+                                                <scientific_name>Musa acuminata subsp. malaccensis</scientific_name>
+                                            </taxonomy>
+                                            <sequence>
+                                                <accession source="UniProtKB">M0RTF2</accession>
+                                            </sequence>
+                                        </clade>
+                                        <clade>
+                                            <name>LOC103702607</name>
+                                            <branch_length>0.157</branch_length>
+                                            <taxonomy>
+                                                <scientific_name>Phoenix dactylifera</scientific_name>
+                                            </taxonomy>
+                                            <sequence>
+                                                <accession source="UniProtKB">A0A2H3XGJ7</accession>
+                                            </sequence>
+                                        </clade>
+                                    </clade>
+                                    <clade>
+                                        <branch_length>0.184</branch_length>
+                                        <events>
+                                            <speciations>1</speciations>
+                                        </events>
+                                        <clade>
+                                            <branch_length>0.105</branch_length>
+                                            <events>
+                                                <speciations>1</speciations>
+                                            </events>
+                                            <clade>
+                                                <name>Si021864m.g</name>
+                                                <branch_length>0.044</branch_length>
+                                                <taxonomy>
+                                                    <scientific_name>Setaria italica</scientific_name>
+                                                </taxonomy>
+                                                <sequence>
+                                                    <accession source="UniProtKB">K3Z5P6</accession>
+                                                </sequence>
+                                            </clade>
+                                            <clade>
+                                                <branch_length>0.044</branch_length>
+                                                <events>
+                                                    <speciations>1</speciations>
+                                                </events>
+                                                <clade>
+                                                    <name>SORBI_3006G281500</name>
+                                                    <branch_length>0.032</branch_length>
+                                                    <taxonomy>
+                                                        <scientific_name>Sorghum bicolor</scientific_name>
+                                                    </taxonomy>
+                                                    <sequence>
+                                                        <accession source="UniProtKB">C5YB59</accession>
+                                                    </sequence>
+                                                </clade>
+                                                <clade>
+                                                    <name>Zm00001d026702</name>
+                                                    <branch_length>0.053</branch_length>
+                                                    <taxonomy>
+                                                        <scientific_name>Zea mays</scientific_name>
+                                                    </taxonomy>
+                                                    <sequence>
+                                                        <accession source="UniProtKB">A0A1D6JJ37</accession>
+                                                    </sequence>
+                                                </clade>
+                                            </clade>
+                                        </clade>
+                                        <clade>
+                                            <branch_length>0.096</branch_length>
+                                            <events>
+                                                <speciations>1</speciations>
+                                            </events>
+                                            <clade>
+                                                <name>Os04g0692800</name>
+                                                <branch_length>2</branch_length>
+                                                <taxonomy>
+                                                    <scientific_name>Oryza sativa</scientific_name>
+                                                </taxonomy>
+                                                <sequence>
+                                                    <accession source="UniProtKB">Q0J8Q1</accession>
+                                                </sequence>
+                                            </clade>
+                                            <clade>
+                                                <branch_length>0.113</branch_length>
+                                                <events>
+                                                    <speciations>1</speciations>
+                                                </events>
+                                                <clade>
+                                                    <name>BRADI5G27617</name>
+                                                    <branch_length>0.095</branch_length>
+                                                    <taxonomy>
+                                                        <scientific_name>Brachypodium distachyon</scientific_name>
+                                                    </taxonomy>
+                                                    <sequence>
+                                                        <accession source="UniProtKB">I1J3V5</accession>
+                                                    </sequence>
+                                                </clade>
+                                                <clade>
+                                                    <branch_length>0.111</branch_length>
+                                                    <events>
+                                                        <speciations>1</speciations>
+                                                    </events>
+                                                    <clade>
+                                                        <name>HORVU2Hr1G124850</name>
+                                                        <branch_length>0.035</branch_length>
+                                                        <taxonomy>
+                                                            <scientific_name>Hordeum vulgare subsp. vulgare</scientific_name>
+                                                        </taxonomy>
+                                                        <sequence>
+                                                            <accession source="UniProtKB">A0A287JSX8</accession>
+                                                        </sequence>
+                                                    </clade>
+                                                    <clade>
+                                                        <branch_length>0.007</branch_length>
+                                                        <events>
+                                                            <duplications>1</duplications>
+                                                        </events>
+                                                        <clade>
+                                                            <name>TRIAE_CS42_2AL_TGACv1_094030_AA0291340</name>
+                                                            <branch_length>0.018</branch_length>
+                                                            <taxonomy>
+                                                                <scientific_name>Triticum aestivum</scientific_name>
+                                                            </taxonomy>
+                                                            <sequence>
+                                                                <accession source="UniProtKB">W5ASN3</accession>
+                                                            </sequence>
+                                                        </clade>
+                                                        <clade>
+                                                            <name>TRIAE_CS42_2BL_TGACv1_131244_AA0424910</name>
+                                                            <branch_length>0.016</branch_length>
+                                                            <taxonomy>
+                                                                <scientific_name>Triticum aestivum</scientific_name>
+                                                            </taxonomy>
+                                                            <sequence>
+                                                                <accession source="UniProtKB">W5BFS1</accession>
+                                                            </sequence>
+                                                        </clade>
+                                                        <clade>
+                                                            <name>TRIAE_CS42_2DL_TGACv1_161347_AA0558120</name>
+                                                            <branch_length>0.016</branch_length>
+                                                            <taxonomy>
+                                                                <scientific_name>Triticum aestivum</scientific_name>
+                                                            </taxonomy>
+                                                            <sequence>
+                                                                <accession source="UniProtKB">A0A1D5UT64</accession>
+                                                            </sequence>
+                                                        </clade>
+                                                    </clade>
+                                                </clade>
+                                            </clade>
+                                        </clade>
+                                    </clade>
+                                </clade>
+                            </clade>
+                            <clade>
+                                <branch_length>0.132</branch_length>
+                                <events>
+                                    <speciations>1</speciations>
+                                </events>
+                                <clade>
+                                    <branch_length>0.092</branch_length>
+                                    <events>
+                                        <speciations>1</speciations>
+                                    </events>
+                                    <clade>
+                                        <name>HannXRQ_Chr01g0017141</name>
+                                        <branch_length>0.241</branch_length>
+                                        <taxonomy>
+                                            <scientific_name>Helianthus annuus</scientific_name>
+                                        </taxonomy>
+                                        <sequence>
+                                            <accession source="UniProtKB">A0A251VP99</accession>
+                                        </sequence>
+                                    </clade>
+                                    <clade>
+                                        <branch_length>0.043</branch_length>
+                                        <events>
+                                            <speciations>1</speciations>
+                                        </events>
+                                        <clade>
+                                            <name>MIMGU_mgv1a005190mg</name>
+                                            <branch_length>0.248</branch_length>
+                                            <taxonomy>
+                                                <scientific_name>Erythranthe guttata</scientific_name>
+                                            </taxonomy>
+                                            <sequence>
+                                                <accession source="UniProtKB">A0A022PYJ9</accession>
+                                            </sequence>
+                                        </clade>
+                                        <clade>
+                                            <branch_length>0.228</branch_length>
+                                            <events>
+                                                <speciations>1</speciations>
+                                            </events>
+                                            <clade>
+                                                <name>Solyc12g088020.1</name>
+                                                <branch_length>0.162</branch_length>
+                                                <taxonomy>
+                                                    <scientific_name>Solanum lycopersicum</scientific_name>
+                                                </taxonomy>
+                                                <sequence>
+                                                    <accession source="UniProtKB">K4DGM3</accession>
+                                                </sequence>
+                                            </clade>
+                                            <clade>
+                                                <branch_length>0.052</branch_length>
+                                                <events>
+                                                    <duplications>1</duplications>
+                                                </events>
+                                                <clade>
+                                                    <name>LOC107795977</name>
+                                                    <branch_length>0.991</branch_length>
+                                                    <taxonomy>
+                                                        <scientific_name>Nicotiana tabacum</scientific_name>
+                                                    </taxonomy>
+                                                    <sequence>
+                                                        <accession source="UniProtKB">A0A1S4ABZ1</accession>
+                                                    </sequence>
+                                                </clade>
+                                                <clade>
+                                                    <name>LOC107826766</name>
+                                                    <branch_length>0.239</branch_length>
+                                                    <taxonomy>
+                                                        <scientific_name>Nicotiana tabacum</scientific_name>
+                                                    </taxonomy>
+                                                    <sequence>
+                                                        <accession source="UniProtKB">A0A1S4D7B3</accession>
+                                                    </sequence>
+                                                </clade>
+                                                <clade>
+                                                    <name>LOC107773308</name>
+                                                    <branch_length>0.215</branch_length>
+                                                    <taxonomy>
+                                                        <scientific_name>Nicotiana tabacum</scientific_name>
+                                                    </taxonomy>
+                                                    <sequence>
+                                                        <accession source="UniProtKB">A0A1S3Y864</accession>
+                                                    </sequence>
+                                                </clade>
+                                            </clade>
+                                        </clade>
+                                    </clade>
+                                </clade>
+                                <clade>
+                                    <branch_length>0.074</branch_length>
+                                    <events>
+                                        <speciations>1</speciations>
+                                    </events>
+                                    <clade>
+                                        <name>VIT_07s0031g02490</name>
+                                        <branch_length>0.207</branch_length>
+                                        <taxonomy>
+                                            <scientific_name>Vitis vinifera</scientific_name>
+                                        </taxonomy>
+                                        <sequence>
+                                            <accession source="UniProtKB">D7SWF2</accession>
+                                        </sequence>
+                                    </clade>
+                                    <clade>
+                                        <branch_length>0.104</branch_length>
+                                        <events>
+                                            <speciations>1</speciations>
+                                        </events>
+                                        <clade>
+                                            <branch_length>0.063</branch_length>
+                                            <events>
+                                                <speciations>1</speciations>
+                                            </events>
+                                            <clade>
+                                                <branch_length>0.09</branch_length>
+                                                <events>
+                                                    <speciations>1</speciations>
+                                                </events>
+                                                <clade>
+                                                    <branch_length>0.25</branch_length>
+                                                    <events>
+                                                        <speciations>1</speciations>
+                                                    </events>
+                                                    <clade>
+                                                        <name>Bra024247</name>
+                                                        <branch_length>0.082</branch_length>
+                                                        <taxonomy>
+                                                            <scientific_name>Brassica rapa subsp. pekinensis</scientific_name>
+                                                        </taxonomy>
+                                                        <sequence>
+                                                            <accession source="UniProtKB">M4E643</accession>
+                                                        </sequence>
+                                                    </clade>
+                                                    <clade>
+                                                        <name>AT5G63910</name>
+                                                        <branch_length>0.082</branch_length>
+                                                        <taxonomy>
+                                                            <scientific_name>Arabidopsis thaliana</scientific_name>
+                                                        </taxonomy>
+                                                        <sequence>
+                                                            <accession source="UniProtKB">P57681</accession>
+                                                        </sequence>
+                                                    </clade>
+                                                </clade>
+                                                <clade>
+                                                    <branch_length>0.131</branch_length>
+                                                    <events>
+                                                        <speciations>1</speciations>
+                                                    </events>
+                                                    <clade>
+                                                        <branch_length>0.097</branch_length>
+                                                        <events>
+                                                            <duplications>1</duplications>
+                                                        </events>
+                                                        <clade>
+                                                            <name>LOC107925476</name>
+                                                            <branch_length>0.023</branch_length>
+                                                            <taxonomy>
+                                                                <scientific_name>Gossypium hirsutum</scientific_name>
+                                                            </taxonomy>
+                                                            <sequence>
+                                                                <accession source="UniProtKB">A0A1U8LE71</accession>
+                                                            </sequence>
+                                                        </clade>
+                                                        <clade>
+                                                            <name>LOC107945423</name>
+                                                            <branch_length>0.014</branch_length>
+                                                            <taxonomy>
+                                                                <scientific_name>Gossypium hirsutum</scientific_name>
+                                                            </taxonomy>
+                                                            <sequence>
+                                                                <accession source="UniProtKB">A0A1U8N7H9</accession>
+                                                            </sequence>
+                                                        </clade>
+                                                    </clade>
+                                                    <clade>
+                                                        <name>TCM_001552</name>
+                                                        <branch_length>0.104</branch_length>
+                                                        <taxonomy>
+                                                            <scientific_name>Theobroma cacao</scientific_name>
+                                                        </taxonomy>
+                                                        <sequence>
+                                                            <accession source="UniProtKB">A0A061DKR0</accession>
+                                                        </sequence>
+                                                    </clade>
+                                                </clade>
+                                            </clade>
+                                            <clade>
+                                                <name>CISIN_1g043512mg</name>
+                                                <branch_length>0.193</branch_length>
+                                                <taxonomy>
+                                                    <scientific_name>Citrus sinensis</scientific_name>
+                                                </taxonomy>
+                                                <sequence>
+                                                    <accession source="UniProtKB">A0A067EQM7</accession>
+                                                </sequence>
+                                            </clade>
+                                        </clade>
+                                        <clade>
+                                            <branch_length>0.062</branch_length>
+                                            <events>
+                                                <speciations>1</speciations>
+                                            </events>
+                                            <clade>
+                                                <branch_length>0.069</branch_length>
+                                                <events>
+                                                    <speciations>1</speciations>
+                                                </events>
+                                                <clade>
+                                                    <branch_length>0.188</branch_length>
+                                                    <events>
+                                                        <duplications>1</duplications>
+                                                    </events>
+                                                    <clade>
+                                                        <name>POPTR_007G101700v3</name>
+                                                        <branch_length>0.053</branch_length>
+                                                        <taxonomy>
+                                                            <scientific_name>Populus trichocarpa</scientific_name>
+                                                        </taxonomy>
+                                                        <sequence>
+                                                            <accession source="UniProtKB">A0A2K1ZS65</accession>
+                                                        </sequence>
+                                                    </clade>
+                                                    <clade>
+                                                        <name>POPTR_007G101600v3</name>
+                                                        <branch_length>0.027</branch_length>
+                                                        <taxonomy>
+                                                            <scientific_name>Populus trichocarpa</scientific_name>
+                                                        </taxonomy>
+                                                        <sequence>
+                                                            <accession source="UniProtKB">A0A2K1ZS63</accession>
+                                                        </sequence>
+                                                    </clade>
+                                                </clade>
+                                                <clade>
+                                                    <name>RCOM_1190550</name>
+                                                    <branch_length>0.169</branch_length>
+                                                    <taxonomy>
+                                                        <scientific_name>Ricinus communis</scientific_name>
+                                                    </taxonomy>
+                                                    <sequence>
+                                                        <accession source="UniProtKB">B9RRG4</accession>
+                                                    </sequence>
+                                                </clade>
+                                            </clade>
+                                            <clade>
+                                                <branch_length>0.078</branch_length>
+                                                <events>
+                                                    <speciations>1</speciations>
+                                                </events>
+                                                <clade>
+                                                    <name>MTR_3g096675</name>
+                                                    <branch_length>0.193</branch_length>
+                                                    <taxonomy>
+                                                        <scientific_name>Medicago truncatula</scientific_name>
+                                                    </taxonomy>
+                                                    <sequence>
+                                                        <accession source="UniProtKB">A0A072V2M1</accession>
+                                                    </sequence>
+                                                </clade>
+                                                <clade>
+                                                    <branch_length>0.092</branch_length>
+                                                    <events>
+                                                        <speciations>1</speciations>
+                                                    </events>
+                                                    <clade>
+                                                        <name>Csa_4G507980</name>
+                                                        <branch_length>0.256</branch_length>
+                                                        <taxonomy>
+                                                            <scientific_name>Cucumis sativus</scientific_name>
+                                                        </taxonomy>
+                                                        <sequence>
+                                                            <accession source="UniProtKB">A0A0A0L186</accession>
+                                                        </sequence>
+                                                    </clade>
+                                                    <clade>
+                                                        <name>PRUPE_4G274700</name>
+                                                        <branch_length>0.224</branch_length>
+                                                        <taxonomy>
+                                                            <scientific_name>Prunus persica</scientific_name>
+                                                        </taxonomy>
+                                                        <sequence>
+                                                            <accession source="UniProtKB">A0A251PTA0</accession>
+                                                        </sequence>
+                                                    </clade>
+                                                </clade>
+                                            </clade>
+                                        </clade>
+                                    </clade>
+                                </clade>
+                            </clade>
+                        </clade>
+                    </clade>
+                    <clade>
+                        <name>PHYPA_004231</name>
+                        <branch_length>0.491</branch_length>
+                        <taxonomy>
+                            <scientific_name>Physcomitrella patens</scientific_name>
+                        </taxonomy>
+                        <sequence>
+                            <accession source="UniProtKB">A0A2K1KTZ5</accession>
+                        </sequence>
+                    </clade>
+                </clade>
+            </clade>
+        </clade>
+    </phylogeny>
+</phyloxml>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<phyloxml>
+    <phylogeny rooted="true">
+        <name>INNER MEMBRANE PROTEIN YGIH</name>
+        <description>PTHR30309</description>
+        <clade>
+            <branch_length>0.486</branch_length>
+            <events>
+                <speciations>1</speciations>
+            </events>
+            <clade>
+                <name>RCOM_2036210</name>
+                <branch_length>0.907</branch_length>
+                <taxonomy>
+                    <scientific_name>Ricinus communis</scientific_name>
+                </taxonomy>
+                <sequence>
+                    <accession source="UniProtKB">B9TLK3</accession>
+                </sequence>
+            </clade>
+            <clade>
+                <name>EG11674</name>
+                <branch_length>0.512</branch_length>
+                <taxonomy>
+                    <scientific_name>Escherichia coli</scientific_name>
+                </taxonomy>
+                <sequence>
+                    <accession source="UniProtKB">P60782</accession>
+                </sequence>
+            </clade>
+        </clade>
+    </phylogeny>
+</phyloxml>
