@@ -16,22 +16,21 @@ import java.util.HashMap;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.StreamResult;
-
-
 /*
     Purpose:
-        Input: place Panther Json Files in main/resources/panther/pruned_panther_files
-        Output: receive Json files in xml format
- */
+        Input: place Panther Json Files in main/resources/panther/pruned_panther_files directory
+        Output: receive Json files in xml format in main/resources/phyloxml directory
+
+        There are some sample panther json files in there currently.
+*/
 public class pantherToPhyloXmlPipeline
 {
     public static void main(String args[])
     {
-//        PantherJsonToPhyloXml("PTHR11705");
+        PantherJsonToPhyloXml("PTHR11705");
 
-//          converts all panther json files in pruned_panther_files direct
-//          there are some sample json files in there currently
-          convertAllInDirectory();
+//
+//          convertAllInDirectory();   // converts all panther json files in pruned_panther_files directory
     }
 
     // specifically converts all pruned pantherForPhylo files from resource directory
