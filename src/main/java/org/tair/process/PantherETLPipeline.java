@@ -124,6 +124,25 @@ public class PantherETLPipeline {
 		List<String> allFamilies = flJson.getFamilyList();
 		return allFamilies;
 	}
+	//Get Panther Family Name List from local file if it exists
+	public String getPantherFamilyName(String id) throws Exception {
+		InputStream input = new FileInputStream(PATH_FAMILY_NAMES_LIST);
+
+		String data = mapper.readValue(input, String.class);
+
+		PantherFamilyNameList flJson = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(data,
+				PantherFamilyNameList.class);
+
+		Map<String, String> idToFamilyName = new HashMap<String, String>();
+		for(int i = 0; i < flJson.getFamilyNames().size(); i++) {
+			FamilyName familyNameObj = flJson.getFamilyNames().get(i);
+			if(familyNameObj.getPantherId().equals(id)) {
+				return familyNameObj.getFamilyName();
+			}
+			idToFamilyName.put(familyNameObj.getPantherId(), familyNameObj.getFamilyName());
+		}
+		return "";
+	}
 
 	//Get Panther Family Name List from local file if it exists
 	public Map<String, String> getLocalPantherFamilyNamesList() throws Exception {
