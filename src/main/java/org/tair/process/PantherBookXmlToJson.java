@@ -137,6 +137,36 @@ public class PantherBookXmlToJson {
 		return this.pantherData;
 	}
 
+	public PantherData convertJsonToSolrforApi(String jsonString, String id) throws Exception {
+		this.annotations = new ArrayList<Annotation>();
+		// convert json string to Panther object
+		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+				PantherData.class);
+		this.pantherData.setId(id);
+		this.pantherData.setJsonString(jsonString);
+		this.pantherData.setFamily_name("familyName");
+		try {
+			if(this.pantherData.getSearch() == null) {
+				System.out.println("Error in: " + this.pantherData.getId());
+			} else {
+				Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
+				if(rootNodeAnnotation == null) {
+//					System.out.println(this.pantherData.getSearch().getParameters().getBook());
+					this.pantherData = null;
+				} else {
+					addToListFromAnnotation(rootNodeAnnotation);
+					flattenTree(this.pantherData.getSearch().getAnnotation_node().getChildren());
+					buildListItems();
+				}
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("Error in building list: " + e.getMessage());
+		}
+
+		return this.pantherData;
+	}
+
 	public PantherData convertJsonToSolrDocument(PantherData orig, String familyName) throws Exception {
 		this.annotations = new ArrayList<Annotation>();
 		String jsonString = orig.getJsonString();
