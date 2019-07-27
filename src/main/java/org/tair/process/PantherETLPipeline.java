@@ -39,6 +39,7 @@ public class PantherETLPipeline {
 	private String PATH_INVALID_MSA_LIST = "src/main/resources/panther/invalidMsaFamilyList.csv";
 
 	SolrClient solr = new HttpSolrClient.Builder(URL_SOLR).build();
+
 	ObjectMapper mapper = new ObjectMapper();
 	ObjectWriter ow = new ObjectMapper().writer();
 	int committedCount = 0;
@@ -173,14 +174,8 @@ public class PantherETLPipeline {
 		pantherList.clear();
 	}
 
-	public void setAnalysisCounts() throws Exception {
+	public void setUniprotIdsCount() throws Exception {
 		SolrQuery sq = new SolrQuery("*:*");
-
-//		sq.setRows(0);
-//
-//		QueryResponse tempRes = solr.query(sq);
-//		int count = (int) tempRes.getResults().getNumFound();
-//		System.out.println(count);
 		sq.setRows(8900);
 		sq.setFields("id, uniprot_ids");
 		sq.setSort("id", SolrQuery.ORDER.asc);
@@ -189,7 +184,7 @@ public class PantherETLPipeline {
 		System.out.println(treeIdResponse.getResults().size());
 
 		int totalDocsFound = treeIdResponse.getResults().size();
-		for (int i = 3213; i < totalDocsFound; i++) {
+		for (int i = 0; i < totalDocsFound; i++) {
 			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
 			System.out.println("processing: " + i + " "+ treeId); //debugging visualization
 			if(treeIdResponse.getResults().get(i).getFieldValues("uniprot_ids") != null) {
@@ -205,19 +200,35 @@ public class PantherETLPipeline {
 			} else {
 				System.out.println("null");
 			}
+		}
+	}
 
-//			if(uniprotIds != null) {
-//				System.out.println(uniprotIds);
-//
-//				SolrInputDocument sdoc = new SolrInputDocument();
-//				sdoc.addField("id", treeId);
-////			Map<String, String> partialUpdate = new HashMap<>();
-//				sdoc.addField("uniprot_ids_count", uniprotIds.size());
-//				solr.add(sdoc);
-//				solr.commit();
-//			} else {
-//				System.out.println("Null "+ treeId);
-//			}
+	public void setGoAnnotationsCount() throws Exception {
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(8900);
+		sq.setFields("id, go_annotations");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+
+		QueryResponse treeIdResponse = solr.query(sq);
+		System.out.println(treeIdResponse.getResults().size());
+
+		int totalDocsFound = treeIdResponse.getResults().size();
+		for (int i = 7007; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			System.out.println("processing: " + i + " "+ treeId); //debugging visualization
+			if(treeIdResponse.getResults().get(i).getFieldValues("go_annotations") != null) {
+				int uniprotIdsCount = treeIdResponse.getResults().get(i).getFieldValues("go_annotations").size();
+				System.out.println(uniprotIdsCount);
+				SolrInputDocument sdoc = new SolrInputDocument();
+				Map<String, String> partialUpdate = new HashMap<>();
+				partialUpdate.put("set", Integer.toString(uniprotIdsCount));
+				sdoc.addField("id", treeId);
+				sdoc.addField("go_annotations_count", partialUpdate);
+				solr.add(sdoc);
+				solr.commit();
+			} else {
+				System.out.println("null");
+			}
 		}
 	}
 
@@ -401,8 +412,8 @@ public class PantherETLPipeline {
 		long startTime = System.nanoTime();
 
 		PantherETLPipeline etl = new PantherETLPipeline();
-		etl.setAnalysisCounts();
-
+		etl.setUniprotIdsCount();
+//		etl.setGoAnnotationsCount();
 		//Run the following if we don't have a local family list json, or it needs to be updated
 //		etl.updateOrSaveFamilyListJson();
 
