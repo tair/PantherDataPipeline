@@ -1,115 +1,55 @@
 package org.tair.process;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.tair.module.Annotation;
-import org.tair.module.Children;
-import org.tair.module.PantherData;
+import org.tair.module.MsaData;
+import org.tair.module.SearchResult;
+import org.tair.module.SequenceList;
 import org.tair.util.Util;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PantherMsaXmlToJson {
 
-	PantherData pantherData = null;
-	private List<Annotation> annotations = null;
+	private MsaData msaData = null;
+	private ObjectWriter ow = new ObjectMapper().writer();
 
-	public PantherData readPantherXmlToObject(String id) throws Exception {
+	public MsaData readMsaById(String id) throws Exception {
 
 		// read the xml data from web.
-		 String url = "http://pantherdb.org/tempFamilySearch?type=msa_info&book=" + id;
-		 String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, url);
+		String url = "http://pantherdb.org/tempFamilySearch?type=msa_info&book=" + id
+			 + "&taxonFltr=13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,559292,284812";
+		try{
+			String jsonString = Util.readContentFromWebUrlToJson(MsaData.class, url);
 
-		// convert json string to Panther object
-		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
-				PantherData.class);
-		this.pantherData.setMsaJsonString(jsonString);
-		return this.pantherData;
+			// convert json string to MsaData object
+			this.msaData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+			MsaData.class);
+		}catch (OutOfMemoryError oe){
+			List<String> sequenceInfoList = Util.saxReader(url);
+			SearchResult searchResult = new SearchResult();
+			SequenceList sequenceList = new SequenceList();
+			this.msaData = new MsaData();
 
-	}
-
-	public void flattenTree(Children children) {
-
-		if (children == null || children.getAnnotation_node() == null || children.getAnnotation_node().size() == 0)
-			return;
-
-		for (Annotation annotation : children.getAnnotation_node()) {
-			this.annotations.add(annotation);
-			flattenTree(annotation.getChildren());
+			sequenceList.setSequence_info(sequenceInfoList);
+			searchResult.setSequence_list(sequenceList);
+			this.msaData.setSearch(searchResult);
 		}
-	}
 
-	public void buildListItems() {
-
-		for (Annotation annotation : this.annotations) {
-			// System.out.println(annotation.getAccession());
-			if (annotation.getOrganism() != null && !this.pantherData.getOrganisms().contains(annotation.getOrganism()))
-				this.pantherData.getOrganisms().add(annotation.getOrganism());
-
-			if (annotation.getGene_symbol() != null
-					&& !this.pantherData.getGene_symbols().contains(annotation.getGene_symbol()))
-				this.pantherData.getGene_symbols().add(annotation.getGene_symbol());
-
-			if (annotation.getNode_name() != null
-					&& !this.pantherData.getNode_names().contains(annotation.getNode_name()))
-				this.pantherData.getNode_names().add(annotation.getNode_name());
-
-			if (annotation.getDefinition() != null
-					&& !this.pantherData.getDefinitions().contains(annotation.getDefinition()))
-				this.pantherData.getDefinitions().add(annotation.getDefinition());
-
-			if (annotation.getBranch_length() != null
-					&& !this.pantherData.getBranch_lengths().contains(annotation.getBranch_length()))
-				this.pantherData.getBranch_lengths().add(annotation.getBranch_length());
-
-			if (annotation.getAccession() != null
-					&& !this.pantherData.getAccessions().contains(annotation.getAccession()))
-				this.pantherData.getAccessions().add(annotation.getAccession());
-
-			if (annotation.getGene_id() != null && !this.pantherData.getGene_ids().contains(annotation.getGene_id()))
-				this.pantherData.getGene_ids().add(annotation.getGene_id());
-
-			if (annotation.getSf_name() != null && !this.pantherData.getSf_names().contains(annotation.getSf_name()))
-				this.pantherData.getSf_names().add(annotation.getSf_name());
-
-			if (annotation.getSf_id() != null && !this.pantherData.getSf_ids().contains(annotation.getSf_id()))
-				this.pantherData.getSf_ids().add(annotation.getSf_id());
-
-			if (annotation.getEvent_type() != null
-					&& !this.pantherData.getEvent_types().contains(annotation.getEvent_type()))
-				this.pantherData.getEvent_types().add(annotation.getEvent_type());
-
-			if (annotation.getReference_speciation_event() != null && !this.pantherData.getSpeciation_events()
-					.contains(annotation.getReference_speciation_event()))
-				this.pantherData.getSpeciation_events().add(annotation.getReference_speciation_event());
-
-			if (annotation.getSpecies() != null
-					&& !this.pantherData.getSpecies_list().contains(annotation.getSpecies()))
-				this.pantherData.getSpecies_list().add(annotation.getSpecies());
-
-		}
-	}
-
-	public PantherData readMsaById(String id) throws Exception {
-
-		this.pantherData = new PantherData();
-		this.annotations = new ArrayList<Annotation>();
-
-		System.out.println("Reading MSA: " + id);
-		readPantherXmlToObject(id);
-		// flattenTree(pantherData.getSearch().getAnnotation_node().getChildren());
-		// buildListItems();
-
-		return this.pantherData;
+		return this.msaData;
 
 	}
 
 	public static void main(String s[]) throws Exception {
 
 		PantherMsaXmlToJson msa = new PantherMsaXmlToJson();
-		msa.readMsaById("PTHR10000");
-
+		//example with multiple sequence_info
+//		System.out.println(msa.readMsaById("PTHR10000"));
+		//example with single sequence_info
+//		System.out.println(msa.readMsaById("PTHR39529"));
+		//example with large msa data
+//		msa.readMsaById("PTHR24015");
 	}
 
 }

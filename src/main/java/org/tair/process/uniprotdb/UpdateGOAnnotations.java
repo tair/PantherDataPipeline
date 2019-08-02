@@ -12,10 +12,13 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.FacetParams;
 import org.tair.module.GOAnnotationData;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +28,7 @@ public class UpdateGOAnnotations {
 	String solrUrl = "http://localhost:8983/solr";
 	SolrClient solrClient = new HttpSolrClient.Builder(solrUrl).build();
 	ObjectMapper mapper = new ObjectMapper();
+	int uniprot_rows;
 	
 	public void updateGOAnnotations() throws SolrServerException, IOException, InterruptedException {
 		SolrQuery query = new SolrQuery("*:*");
@@ -35,12 +39,26 @@ public class UpdateGOAnnotations {
 		int total = (int)tempResponse.getResults().getNumFound();
 		query.setRows(total);
 		QueryResponse response = solrClient.query("panther", query);
+		
+		//using facet to get uniprot_db's max length result, and set the number to uniprot_db's rows.
+		SolrQuery uniprotFacetQuery = new SolrQuery("*:*");
+		uniprotFacetQuery.setRows(0);
+		uniprotFacetQuery.setFacet(true);
+		uniprotFacetQuery.addFacetField("uniprot_id");
+		uniprotFacetQuery.setFacetLimit(-1); // -1 means unlimited
+		uniprotFacetQuery.setFacetSort(FacetParams.FACET_SORT_COUNT);
+		
+		QueryResponse uniprotFacetResponse = solrClient.query("uniprot_db", uniprotFacetQuery);
+		FacetField uniprotIdFacets = uniprotFacetResponse.getFacetField("uniprot_id");
+		uniprot_rows = (int)uniprotIdFacets.getValues().get(0).getCount();
+		System.out.println("Uniprot DB result rows set to: " + uniprot_rows);
 
-		for (SolrDocument result : response.getResults()) {
+		for (int i = 0; i<response.getResults().size(); i ++){
+			SolrDocument result = response.getResults().get(i);
 			Collection<Object> uniprotIds = result.getFieldValues("uniprot_ids");
 			if (uniprotIds == null) continue;
 			String id = (String) result.getFieldValue("id");
-			System.out.println("Processing: "+id);
+			System.out.println("Processing: "+id +" idx: "+i);
 			List<String> goAnnotationDataList = getGOAnnotationsForTree(uniprotIds);
 			
 			SolrInputDocument doc = new SolrInputDocument();
@@ -60,7 +78,8 @@ public class UpdateGOAnnotations {
 		SolrQuery query = new SolrQuery("*:*");
 		List<String> goAnnotationDataList = new ArrayList<String>();
 		for (Object uniprotId : uniprotIds) {
-			query.setQuery("uniprot_id:"+uniprotId.toString().toLowerCase());		
+			query.setQuery("uniprot_id:"+uniprotId.toString().toLowerCase());
+			query.setRows(uniprot_rows);
 			QueryResponse response = solrClient.query("uniprot_db", query);
 			SolrDocumentList results = response.getResults();
 			List<String> goAnnotations = new ArrayList<String>();
@@ -73,7 +92,6 @@ public class UpdateGOAnnotations {
 				goAnnotationData.setUniprot_id(uniprotId.toString().toLowerCase());
 				ObjectWriter ow = new ObjectMapper().writer();
 				String goAnnotationDataStr = ow.writeValueAsString(goAnnotationData);
-				goAnnotationDataStr = goAnnotationDataStr.replace("\\\"", "\"");
 				goAnnotationDataList.add(goAnnotationDataStr);
 			}
 		}

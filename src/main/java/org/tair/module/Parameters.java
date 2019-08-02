@@ -11,4 +11,5 @@ import lombok.Data;
 public class Parameters {
 	private String elapsed_time;
 	private String id;
+	private String book;
 }
