@@ -4,6 +4,7 @@
 .mvn/
 mvnw
 mvnw.cmd
+/deploy.sh
 
 ### STS ###
 .apt_generated
