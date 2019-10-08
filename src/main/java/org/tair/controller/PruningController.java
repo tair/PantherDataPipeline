@@ -36,11 +36,20 @@ public class PruningController {
                 + "&taxonFltr=" + joined;
         String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, prunedTreeUrl);
 
-
         PantherData prunedData = new PantherBookXmlToJson().convertJsonToSolrforApi(jsonString, family_id);
 
         return prunedData.getJsonString();
     }
+
+    @PostMapping(path = "/panther/grafting", consumes="application/json")
+    public @ResponseBody String getGrafterTree(@RequestBody SequenceObj sequenceObj) throws Exception {
+        String seq = sequenceObj.getSequence();
+        String graftingUrl = "http://panthertest10.med.usc.edu:8090/tempFamilySearch?type=graft_seq&sequence=" +
+                seq +
+                "&taxonFltr=13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,559292,284812";
+
+        String jsonString = Util.readContentFromWebUrlToJsonString(graftingUrl);
+
+        return jsonString;
+    }
 }
-
-
