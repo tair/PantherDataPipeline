@@ -44,7 +44,7 @@ public class PruningController {
     @PostMapping(path = "/panther/grafting", consumes="application/json")
     public @ResponseBody String getGrafterTree(@RequestBody SequenceObj sequenceObj) throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
-        String path = classLoader.getResource("SampleGraft.json").getPath();
+        String path = classLoader.getResource("SampleGraft2.json").getPath();
         String seq = sequenceObj.getSequence();
         String graftingUrl = "http://panthertest10.med.usc.edu:8090/tempFamilySearch?type=graft_seq&sequence=" +
                 seq +
@@ -52,7 +52,8 @@ public class PruningController {
 
         String jsonString = Util.readFromFile(path);
         //System.out.println(jsonString);
-
+//        String jsonString = Util.readContentFromWebUrlToJsonString(graftingUrl);
+        System.out.println(jsonString);
         return jsonString;
     }
 }

@@ -37,7 +37,12 @@ public class PruningControllerTest {
         sequenceObj.setSequence("test");
         this.mockMvc.perform(post("/panther/grafting")
                                     .contentType(MediaType.APPLICATION_JSON)
-                                    .content("{\"sequence\": \"test\"}"))
+                                    .content("{\"sequence\": \"MSKVRDRTEDFRDAVRVAALSHGYTESQLAALMASFIMHKAPWRSAFMKAALKTLESIKE" +
+                                            "LERFIVKHRKDYVDLHRTTEQERDNIEHEVAVFVKVCKDQIDILKNRIHDEETEGSGRTW" +
+                                            "LQFRDDASHADMVAHKHGVVLILSEKLHSVTAQFDQLRSIRFQDAMNRVMPRRKVHRLPQ" +
+                                            "PKSEASKSDLPKLGEQELSSGTIRVQEQLLDDETRALQVELTNLLDAVQETETKMVEMSA" +
+                                            "LNHLMSTHVLQQAQQIEHLYEQAVEATNNVVLGNKELSQAIKRNSSSRTFLLLFFVVLTF" +
+                                            "SILFLDWYS\"}"))
                 .andExpect(status().isOk());
     }
 }
