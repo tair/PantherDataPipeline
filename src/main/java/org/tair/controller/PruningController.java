@@ -50,10 +50,17 @@ public class PruningController {
                 seq +
                 "&taxonFltr=13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,559292,284812";
 
+        System.out.println("Got Request " + graftingUrl);
 //        String jsonString = Util.readFromFile(path);
-        //System.out.println(jsonString);
-        String jsonString = Util.readContentFromWebUrlToJsonString(graftingUrl);
-//        System.out.println(jsonString);
+
+        String jsonString = "";
+        try {
+            jsonString = Util.readContentFromWebUrlToJsonString(graftingUrl);
+        }
+        catch(Exception e) {
+            System.out.println("Error "+ e.getMessage());
+            return "Error";
+        }
         return jsonString;
     }
 }
