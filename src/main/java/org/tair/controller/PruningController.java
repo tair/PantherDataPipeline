@@ -1,5 +1,9 @@
 package org.tair.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.web.bind.annotation.*;
 import org.tair.module.PantherData;
 import org.tair.process.PantherBookXmlToJson;
@@ -22,7 +26,6 @@ public class PruningController {
         List<String> taxonIdsToShow = taxonObj.getTaxonIdsToShow();
         String family_id = treeId;
         int[] taxon_array = taxonIdsToShow.stream().mapToInt(Integer::parseInt).toArray();
-        System.out.println(taxon_array);
         StringBuilder stringBuilder = new StringBuilder();
         String separator = ",";
         for (int i = 0; i < taxon_array.length - 1; i++) {
@@ -36,11 +39,67 @@ public class PruningController {
                 + "&taxonFltr=" + joined;
         String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, prunedTreeUrl);
 
-
         PantherData prunedData = new PantherBookXmlToJson().convertJsonToSolrforApi(jsonString, family_id);
 
         return prunedData.getJsonString();
     }
+
+    @PostMapping(path = "/panther/grafting", consumes="application/json")
+    public @ResponseBody String getGrafterTree(@RequestBody SequenceObj sequenceObj) throws Exception {
+        ClassLoader classLoader = getClass().getClassLoader();
+        //String path = classLoader.getResource("SampleGraft2.json").getPath();
+        String seq = sequenceObj.getSequence();
+        String graftingUrl = "http://panthertest10.med.usc.edu:8090/tempFamilySearch?type=graft_seq&sequence=" +
+                seq +
+                "&taxonFltr=13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,559292,284812";
+
+        System.out.println("Got Grafting Request " + graftingUrl);
+
+        String jsonString = "";
+        try {
+            jsonString = Util.readContentFromWebUrlToJsonString(graftingUrl);
+        }
+        catch(Exception e) {
+            System.out.println("Error "+ e.getMessage());
+            return e.getMessage();
+        }
+        return jsonString;
+    }
+
+    @PostMapping(path = "/panther/grafting/prune", consumes="application/json")
+    public @ResponseBody String getPrunedAndGraftedTree(@RequestBody ObjectNode json) throws Exception {
+
+        String inputSeq = json.get("sequence").asText();
+        ObjectMapper mapper = new ObjectMapper();
+        // acquire reader for the right type
+        ObjectReader reader = mapper.readerFor(new TypeReference<List<String>>() {
+        });
+        List<String> taxonIds = reader.readValue(json.get("taxonIdsToShow"));
+        int[] taxon_array = taxonIds.stream().mapToInt(Integer::parseInt).toArray();
+
+
+        StringBuilder stringBuilder = new StringBuilder();
+        String separator = ",";
+        for (int i = 0; i < taxon_array.length - 1; i++) {
+            stringBuilder.append(taxon_array[i]);
+            stringBuilder.append(separator);
+        }
+        stringBuilder.append(taxon_array[taxon_array.length - 1]);
+        String joined = stringBuilder.toString();
+
+        String graftingUrl = "http://panthertest10.med.usc.edu:8090/tempFamilySearch?type=graft_seq&sequence="+
+                inputSeq + "&taxonFltr=" + joined;
+
+        System.out.println("Got Pruned Grafting Request " + graftingUrl);
+        String jsonString = "";
+        try {
+            jsonString = Util.readContentFromWebUrlToJsonString(graftingUrl);
+        }
+        catch(Exception e) {
+            System.out.println("Error "+ e.getMessage());
+            return e.getMessage();
+        }
+        return jsonString;
+    }
+
 }
-
-
