@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 public class GOAnnotationUrlToJson {
 
 	public GOAnnotationData readGOAnnotationUrlToObject(String uniprot_id) throws Exception  {
-		String url = "https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&aspect=molecular_function&geneProductId="+uniprot_id+"&evidenceCode=ECO%3A0000314%2C%20ECO%3A0000315%2C%20ECO%3A0000316%2C%20ECO%3A0000270%2C%20ECO%3A0000269%2C%20ECO%3A0000353&qualifier=enables&geneProductType=protein";
+		String url = "https://www.ebi.ac.uk/QuickGO/services/annotation/search?includeFields=goName&aspect=molecular_function&geneProductId="+uniprot_id+"&evidenceCode=ECO%3A0000269%2CECO%3A0001171%2CECO%3A0005530%2CECO%3A0005629%2CECO%3A0005645%2CECO%3A0005670%2CECO%3A0006054%2CECO%3A0000279%2CECO%3A0000314%2CECO%3A0001807%2CECO%3A0005589%2CECO%3A0005632%2CECO%3A0005801%2CECO%3A0006003%2CECO%3A0006013%2CECO%3A0006039%2CECO%3A0006042%2CECO%3A0006062%2CECO%3A0006064%2CECO%3A0006067%2CECO%3A0000270%2CECO%3A0005633%2CECO%3A0000316%2CECO%3A0000315%2CECO%3A0001225%2CECO%3A0005667%2CECO%3A0006052%2CECO%3A0006063%2CECO%3A0000353%2CECO%3A0001242%2CECO%3A0005626%2CECO%3A0005631%2CECO%3A0005634%2CECO%3A0005640%2CECO%3A0005643%2CECO%3A0005647%2CECO%3A0005656%2CECO%3A0006030%2CECO%3A0006076&qualifier=enables&geneProductType=protein";
 		String jsonString = Util.readContentFromWebJsonToJson(url);
 		JSONObject obj = new JSONObject(jsonString);
 		JSONArray results = obj.getJSONArray("results");
@@ -44,7 +44,7 @@ public class GOAnnotationUrlToJson {
 		List<GOAnnotationData> goAnnotations = new ArrayList<GOAnnotationData>();
 		List<String> uniprotList = Arrays.asList(uniprot_ids.split(","));
 		do {
-			String url = "https://www.ebi.ac.uk/QuickGO/services/annotation/search?limit=100&page="+page+"&includeFields=goName&aspect=molecular_function&geneProductId="+uniprot_ids+"&evidenceCode=ECO%3A0000314%2C%20ECO%3A0000315%2C%20ECO%3A0000316%2C%20ECO%3A0000270%2C%20ECO%3A0000269%2C%20ECO%3A0000353&qualifier=enables&geneProductType=protein";
+			String url = "https://www.ebi.ac.uk/QuickGO/services/annotation/search?limit=100&page="+page+"&includeFields=goName&aspect=molecular_function&geneProductId="+uniprot_ids+"&evidenceCode=ECO%3A0000269%2CECO%3A0001171%2CECO%3A0005530%2CECO%3A0005629%2CECO%3A0005645%2CECO%3A0005670%2CECO%3A0006054%2CECO%3A0000279%2CECO%3A0000314%2CECO%3A0001807%2CECO%3A0005589%2CECO%3A0005632%2CECO%3A0005801%2CECO%3A0006003%2CECO%3A0006013%2CECO%3A0006039%2CECO%3A0006042%2CECO%3A0006062%2CECO%3A0006064%2CECO%3A0006067%2CECO%3A0000270%2CECO%3A0005633%2CECO%3A0000316%2CECO%3A0000315%2CECO%3A0001225%2CECO%3A0005667%2CECO%3A0006052%2CECO%3A0006063%2CECO%3A0000353%2CECO%3A0001242%2CECO%3A0005626%2CECO%3A0005631%2CECO%3A0005634%2CECO%3A0005640%2CECO%3A0005643%2CECO%3A0005647%2CECO%3A0005656%2CECO%3A0006030%2CECO%3A0006076&qualifier=enables&geneProductType=protein";
 			String jsonString = Util.readContentFromWebJsonToJson(url);
 			JSONObject obj = new JSONObject(jsonString);
 			if (pages==0) {
@@ -74,6 +74,10 @@ public class GOAnnotationUrlToJson {
 	
 	private void addAnnotationToListByPage(JSONArray results, int i, List<String> uniprotList, List<GOAnnotationData> goAnnotations) throws JsonParseException, JsonMappingException, JSONException, IOException {
 		GOAnnotation goAnnotation = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(results.getJSONObject(i).toString(),GOAnnotation.class);
+		if (goAnnotation.getEvidenceCode() == null){
+			System.out.println("no evidence code: " + results.getJSONObject(i).toString());
+			return;
+		}
 		GOAnnotationData goAnnotationData = new GOAnnotationData();
 		String geneProductId = goAnnotation.getGeneProductId().toLowerCase();
 		// check if geneProductId equals to one of uniprot id in the list
@@ -105,5 +109,10 @@ public class GOAnnotationUrlToJson {
 		ObjectWriter ow = new ObjectMapper().writer();
 		goAnnotationData.setGo_annotations(ow.writeValueAsString(goAnnotation));
 		goAnnotations.add(goAnnotationData);
+	}
+
+	public static void main(String args[]) throws  Exception{
+		GOAnnotationUrlToJson g = new GOAnnotationUrlToJson();
+		System.out.println(g.readGOAnnotationUrlToObjectList("Q9FYG0"));
 	}
 }
