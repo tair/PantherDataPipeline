@@ -243,10 +243,10 @@ public class PantherETLPipeline {
 					int ChunkSize = 10000;
 					for (int j=0; j<sequence_info.size(); j += ChunkSize){
 						int end;
-						if (j+ChunkSize-1 < sequence_info.size()){
-							end = j+ChunkSize-1;
+						if (j+ChunkSize < sequence_info.size()){
+							end = j+ChunkSize;
 						}else{
-							end = sequence_info.size()-1;
+							end = sequence_info.size();
 						}
 						partialUpdate.put("add", sequence_info.subList(j,end));
 						sdoc.setField("msa_data", partialUpdate);
