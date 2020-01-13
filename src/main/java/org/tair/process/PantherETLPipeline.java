@@ -3,7 +3,6 @@ package org.tair.process;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
 import com.opencsv.CSVWriter;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -13,7 +12,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import org.tair.module.*;
 import org.tair.util.Util;
 
@@ -408,6 +406,57 @@ public class PantherETLPipeline {
 		System.out.println("Commit! "+committedCount);
 	}
 
+	public void updatePublicationData() throws Exception{
+		PantherPubXmlToJson pantherPubXmlToJson = new PantherPubXmlToJson();
+
+		SolrQuery query = new SolrQuery("*:*");
+		query.setRows(0);
+
+		QueryResponse tempResponse = solr.query(query);
+		int count = (int) tempResponse.getResults().getNumFound();
+		query.setRows(count);
+		query.setFields("id");
+		query.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = solr.query(query);
+		System.out.println(treeIdResponse.getResults().size());
+		// loop through each treeId, and call getUniprotIdsByTreeId(treeId) to get a list of uniprot ids;
+
+
+		for(int i =0; i<treeIdResponse.getResults().size(); i++) { //outer for to keep track index
+
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+
+			System.out.println("processing: " + i + " "+ treeId); //debugging visualization
+
+			//Make a UniProtID library passing a single PTHR treeId
+			//Use pre-existing function to pass treeId
+			Collection<Object> uniprotIds = pantherPubXmlToJson.getUniprotIdsFromTree(treeId); //list of UniProIds and customize Collection
+
+
+			// create hashmap publications<String, List<String>>
+			Map<String,List<String>> pubMap = new HashMap <>(); //Map<String,List<String>> pubMap = new HashMap <String>();
+
+			// loop through each uniprotId, and call getPublicationByUniprotId() to get a list of publications;
+
+			for(Object uProtIDObj: uniprotIds){
+
+				String uniprotId = uProtIDObj.toString();
+
+				List <String> papers = pantherPubXmlToJson.getListofPapersPerUniProtID(uniprotId); //etl is an object
+				// assign the publications list as value to the map key(uniprotId)
+				pubMap.put(uniprotId, papers);
+
+			}
+
+			// convert hashmap to String and store it with atomic update function
+			String publications = new JSONObject(pubMap).toString();
+			pantherPubXmlToJson.atomicUpdatePublication(publications, treeId);
+			System.out.println("finished processing: " + i + " " + treeId);
+		}
+	}
+
+
+
 	public static void main(String args[]) throws Exception {
 		long startTime = System.nanoTime();
 
@@ -439,6 +488,8 @@ public class PantherETLPipeline {
 		//Update msa data without reindex
 //		etl.updateMsaData();
 
+		//Update publication field
+//		etl.updatePublicationData();
 
 		long endTime = System.nanoTime();
 		long timeElapsed = endTime - startTime;
