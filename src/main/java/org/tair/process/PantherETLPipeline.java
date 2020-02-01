@@ -41,6 +41,7 @@ public class PantherETLPipeline {
 	private String PATH_INVALID_MSA_LIST = "src/main/resources/panther/invalidMsaFamilyList.csv";
 
 	PantherServerWrapper pantherServer = new PantherServerWrapper();
+	PantherS3Wrapper pantherS3Server = new PantherS3Wrapper();
 
 	SolrClient solr = new HttpSolrClient.Builder(URL_SOLR).build();
 
@@ -308,7 +309,7 @@ public class PantherETLPipeline {
 		List<PantherData> pantherList = new ArrayList<>();
 		List<String> emptyPantherIds = new ArrayList<>();
 		int commitCount = 100;
-		for(int i = 0; i < 1; i++) {
+		for(int i = 0; i < 10; i++) {
 			PantherData origPantherData = readPantherBooksFromLocal(pantherFamilyList.get(i));
 //			System.out.println(origPantherData);
 			String familyName = idToFamilyNames.get(pantherFamilyList.get(i));
@@ -327,9 +328,10 @@ public class PantherETLPipeline {
 			pantherList.clear();
 
 			//Save json string as local file
-			String json_filepath = PATH_LOCAL_BOOKINFO_JSON + "/" + pantherFamilyList.get(i) + ".json";
+			String fileName = pantherFamilyList.get(i) + ".json";
+			String json_filepath = PATH_LOCAL_BOOKINFO_JSON + "/" + fileName;
 			saveJsonStringAsFile(modiPantherData.getJsonString(), json_filepath);
-
+			pantherS3Server.uploadJsonToS3(fileName, json_filepath);
 //			if(pantherList.size() >= commitCount) {
 //				System.out.println(modiPantherData.getId() + " idx: " + i + " size: " + modiPantherData.getJsonString().length());
 //				saveAndCommitToSolr(pantherList);
