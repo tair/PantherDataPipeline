@@ -20,34 +20,32 @@ public class PantherData {
 	private String id;
 	@Field
 	private String family_name;
-	@Field
+
 	private String jsonString;
-	@Field
-	private List<String> event_types = new ArrayList<String>();
-	@Field
-	private List<String> node_types = new ArrayList<String>();
-	@Field
-	private List<String> organisms = new ArrayList<String>();
-	@Field
-	private List<String> gene_symbols = new ArrayList<String>();
-	@Field
-	private List<String> node_names = new ArrayList<String>();
-	@Field
-	private List<String> uniprot_ids = new ArrayList<String>();
-	@Field
-	private List<String> definitions = new ArrayList<String>();
-	@Field
-	private List<String> branch_lengths = new ArrayList<String>();
+	//Internal Vars
 	@Field
 	private List<String> accessions = new ArrayList<String>();
 	@Field
-	private List<String> gene_ids = new ArrayList<String>();
+	private List<String> sf_ids = new ArrayList<String>();
 	@Field
 	private List<String> sf_names = new ArrayList<String>();
 	@Field
-	private List<String> sf_ids = new ArrayList<String>();
-	@Field
-	private List<String> speciation_events = new ArrayList<String>();
-	@Field
 	private List<String> species_list = new ArrayList<String>();
+	@Field
+	private List<String> taxonomic_ranges = new ArrayList<>();
+	@Field
+	private List<String> branch_lengths = new ArrayList<String>();
+	//Leaf Vars
+	@Field
+	private List<String> gene_ids = new ArrayList<String>();
+	@Field
+	private List<String> gene_symbols = new ArrayList<String>();
+	@Field
+	private List<String> definitions = new ArrayList<String>();
+	@Field
+	private List<String> node_names = new ArrayList<String>();
+	@Field
+	private List<String> organisms = new ArrayList<String>();
+	@Field
+	private List<String> uniprot_ids = new ArrayList<String>();
 }
