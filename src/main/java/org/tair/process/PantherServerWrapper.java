@@ -3,9 +3,13 @@ package org.tair.process;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.json.JSONObject;
+import org.tair.module.MsaData;
 import org.tair.module.PantherData;
+import org.tair.module.SearchResult;
+import org.tair.module.SequenceList;
 import org.tair.util.Util;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -38,6 +42,7 @@ public class PantherServerWrapper {
         return familyName;
     }
 
+    //Get Panther Book Info for given id using id and taxon filters (to get pruned trees)
     public PantherData readPantherTreeById(String family_id) throws Exception {
         String taxonFiltersParam = IntStream.of(taxon_filters_arr)
                 .mapToObj(Integer::toString)
@@ -50,5 +55,32 @@ public class PantherServerWrapper {
         pantherData.setId(family_id);
         pantherData.setJsonString(jsonString);
         return pantherData;
+    }
+
+    public MsaData readMsaByIdFromServer(String family_id) throws Exception {
+        MsaData msaData = null;
+        String taxonFiltersParam = IntStream.of(taxon_filters_arr)
+                .mapToObj(Integer::toString)
+                .collect(Collectors.joining(","));
+        String msaTreeUrl = BASE_URL+"?type=msa_info&book=" + family_id + "&taxonFltr=" + taxonFiltersParam;
+        try{
+            String jsonString = Util.readContentFromWebUrlToJson(MsaData.class, msaTreeUrl);
+
+            // convert json string to MsaData object
+            msaData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+                    MsaData.class);
+        }catch (OutOfMemoryError oe){
+            List<String> sequenceInfoList = Util.saxReader(msaTreeUrl);
+            SearchResult searchResult = new SearchResult();
+            SequenceList sequenceList = new SequenceList();
+            msaData = new MsaData();
+
+            sequenceList.setSequence_info(sequenceInfoList);
+            searchResult.setSequence_list(sequenceList);
+            msaData.setSearch(searchResult);
+        }
+
+        return msaData;
+
     }
 }
