@@ -51,8 +51,8 @@ public class PantherS3Wrapper {
         s3client.putObject(bucketName, filename, new File(filepath));
     }
 
-    public void uploadJsonToS3(String key, String content) {
-        s3client.putObject(BUCKET_NAME, key, content);
+    public void uploadJsonToS3(String bucketName, String key, String content) {
+        s3client.putObject(bucketName, key, content);
     }
 
 //    public void updateMsaData() throws Exception {

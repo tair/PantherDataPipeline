@@ -57,14 +57,15 @@ public class PantherServerWrapper {
         return pantherData;
     }
 
-    public MsaData readMsaByIdFromServer(String family_id) throws Exception {
+    public String readMsaByIdFromServer(String family_id) throws Exception {
         MsaData msaData = null;
         String taxonFiltersParam = IntStream.of(taxon_filters_arr)
                 .mapToObj(Integer::toString)
                 .collect(Collectors.joining(","));
         String msaTreeUrl = BASE_URL+"?type=msa_info&book=" + family_id + "&taxonFltr=" + taxonFiltersParam;
+        String jsonString = "";
         try{
-            String jsonString = Util.readContentFromWebUrlToJson(MsaData.class, msaTreeUrl);
+            jsonString = Util.readContentFromWebUrlToJson(MsaData.class, msaTreeUrl);
 
             // convert json string to MsaData object
             msaData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
@@ -80,7 +81,7 @@ public class PantherServerWrapper {
             msaData.setSearch(searchResult);
         }
 
-        return msaData;
+        return jsonString;
 
     }
 }

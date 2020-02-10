@@ -32,6 +32,7 @@ public class PantherETLPipeline {
 	private String PATH_FAMILY_LIST = "src/main/resources/panther/familyList.json";
 	private String PATH_FAMILY_NAMES_LIST = "src/main/resources/panther/familyNamesList.json";
 	private String PATH_LOCAL_PRUNED_TREES = "src/main/resources/panther/pruned_panther_files/";
+	private String PATH_LOCAL_MSA_DATA = "src/main/resources/panther/msa_files/";
 	private String PATH_LOCAL_BOOKINFO_JSON = "src/main/resources/panther/panther_jsons/";
 
 	private String PATH_HT_LIST = "src/main/resources/panther/familyHTList.csv";
@@ -52,64 +53,6 @@ public class PantherETLPipeline {
 	int committedCount = 0;
 
 	List<String> noPlantsIdList = new ArrayList<>();
-
-	public void setUniprotIdsCount() throws Exception {
-//		SolrQuery sq = new SolrQuery("*:*");
-//		sq.setRows(8900);
-//		sq.setFields("id, uniprot_ids");
-//		sq.setSort("id", SolrQuery.ORDER.asc);
-//
-//		QueryResponse treeIdResponse = solr.query(sq);
-//		System.out.println(treeIdResponse.getResults().size());
-//
-//		int totalDocsFound = treeIdResponse.getResults().size();
-//		for (int i = 0; i < totalDocsFound; i++) {
-//			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
-//			System.out.println("processing: " + i + " "+ treeId); //debugging visualization
-//			if(treeIdResponse.getResults().get(i).getFieldValues("uniprot_ids") != null) {
-//				int uniprotIdsCount = treeIdResponse.getResults().get(i).getFieldValues("uniprot_ids").size();
-//				System.out.println(uniprotIdsCount);
-//				SolrInputDocument sdoc = new SolrInputDocument();
-//				Map<String, String> partialUpdate = new HashMap<>();
-//				partialUpdate.put("set", Integer.toString(uniprotIdsCount));
-//				sdoc.addField("id", treeId);
-//				sdoc.addField("uniprot_ids_count", partialUpdate);
-//				solr.add(sdoc);
-//				solr.commit();
-//			} else {
-//				System.out.println("null");
-//			}
-//		}
-	}
-
-	public void setGoAnnotationsCount() throws Exception {
-		SolrQuery sq = new SolrQuery("*:*");
-		sq.setRows(8900);
-		sq.setFields("id, go_annotations");
-		sq.setSort("id", SolrQuery.ORDER.asc);
-
-		QueryResponse treeIdResponse = solr.query(sq);
-		System.out.println(treeIdResponse.getResults().size());
-
-		int totalDocsFound = treeIdResponse.getResults().size();
-		for (int i = 7007; i < totalDocsFound; i++) {
-			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
-			System.out.println("processing: " + i + " "+ treeId); //debugging visualization
-			if(treeIdResponse.getResults().get(i).getFieldValues("go_annotations") != null) {
-				int uniprotIdsCount = treeIdResponse.getResults().get(i).getFieldValues("go_annotations").size();
-				System.out.println(uniprotIdsCount);
-				SolrInputDocument sdoc = new SolrInputDocument();
-				Map<String, String> partialUpdate = new HashMap<>();
-				partialUpdate.put("set", Integer.toString(uniprotIdsCount));
-				sdoc.addField("id", treeId);
-				sdoc.addField("go_annotations_count", partialUpdate);
-				solr.add(sdoc);
-				solr.commit();
-			} else {
-				System.out.println("null");
-			}
-		}
-	}
 
 	public void atomicUpdateSolr() throws Exception {
 //		List<String> pantherFamilyList = getLocalPantherFamilyList();
@@ -146,28 +89,6 @@ public class PantherETLPipeline {
 		String[] line = {pantherId, errorData};
 		csvWriter.writeNext(line);
 		csvWriter.close();
-	}
-
-	//Analyze panther trees and find out all trees with Hori_Transfer node in it. Write the ids to a csv
-	public void analyzePantherTrees() throws Exception {
-		List<String> pantherFamilyList = getLocalPantherFamilyList();
-
-		File csvFile = new File(PATH_HT_LIST);
-		FileWriter outputfile = new FileWriter(csvFile);
-		CSVWriter writer = new CSVWriter(outputfile);
-		String[] header = {"PantherID"};
-		writer.writeNext(header);
-		int total = 0;
-		for(int i = 0; i < pantherFamilyList.size(); i++) {
-			PantherData origPantherData = readPantherBooksFromLocal(pantherFamilyList.get(i));
-			//Is Horizontal Transfer
-			boolean isHorizTransfer = new PantherBookXmlToJson().isHoriz_Transfer(origPantherData);
-			if(isHorizTransfer) {
-				String[] data1 = {pantherFamilyList.get(i)};
-				writer.writeNext(data1);
-			}
-		}
-		writer.close();
 	}
 
 	public void savePantherJsonToLocal(String filePath, PantherData dataInJson) throws Exception {
@@ -221,6 +142,34 @@ public class PantherETLPipeline {
 		for(int i = startingIdx; i < familyList.size(); i++) {
 			String familyId = familyList.get(i);
 			savePantherTreeLocallyById(familyId, i);
+		}
+	}
+
+	//Save/update the latest msa data from panther server Locally and on S3 server
+	public void updateOrSaveMSAData() throws Exception {
+		List<String> familyList = getLocalPantherFamilyList();
+		loadNoPlantsIDList();
+		for(int i = 0; i < familyList.size(); i++) {
+			if (noPlantsIdList.contains(familyList.get(i))) {
+				System.out.println("ID " + familyList.get(i) + " has been deleted");
+				continue;
+			}
+			String msaData = pantherServer.readMsaByIdFromServer(familyList.get(i));
+			//Save json string as local file
+			String fileName = familyList.get(i) + ".json";
+			String json_filepath = PATH_LOCAL_MSA_DATA + "/" + fileName;
+
+			JSONObject jo = new JSONObject();
+			Collection<JSONObject> items = new ArrayList<JSONObject>();
+			JSONObject item = new JSONObject();
+			item.put("id", familyList.get(i));
+			item.put("msa_data", msaData);
+			items.add(item);
+			jo.put("familyNames", new JSONArray(items));
+			String bucketName = "test-phg-msadata";
+			pantherS3Server.uploadJsonToS3(bucketName, fileName, jo.toString());
+			saveJsonStringAsFile(jo.toString(), json_filepath);
+			System.out.println("IDx saved " + i);
 		}
 	}
 
@@ -284,7 +233,9 @@ public class PantherETLPipeline {
 			String jsonStr = modiPantherData.getJsonString();
 
 			saveJsonStringAsFile(jsonStr, json_filepath);
-			pantherS3Server.uploadJsonToS3(fileName, jsonStr);
+
+			String BUCKET_NAME = "test-swapp-bucket";
+			pantherS3Server.uploadJsonToS3(BUCKET_NAME, fileName, jsonStr);
 //			if(pantherList.size() >= commitCount) {
 //				System.out.println(modiPantherData.getId() + " idx: " + i + " size: " + modiPantherData.getJsonString().length());
 //				saveAndCommitToSolr(pantherList);
@@ -325,7 +276,8 @@ public class PantherETLPipeline {
 		writer.close();
 	}
 
-	private void updateMsaData() throws Exception {
+	//Older code for setting msa inside solr (now its saved in S3 bucket)
+	private void updateMsaData_old() throws Exception {
 		List<String> pantherFamilyList = getLocalPantherFamilyList();
 		PantherMsaXmlToJson pantherMsaXmlToJson = new PantherMsaXmlToJson();
 		File largeMsaFile = new File(PATH_LARGE_MSA_LIST);
@@ -393,6 +345,95 @@ public class PantherETLPipeline {
 		largeMsaCSVWriter.close();
 	}
 
+	//Set "uniprot_ids_count" field for panther solr
+	public void setUniprotIdsCount() throws Exception {
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(8900);
+		sq.setFields("id, uniprot_ids");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+
+		QueryResponse treeIdResponse = solr.query(sq);
+		System.out.println(treeIdResponse.getResults().size());
+
+		int totalDocsFound = treeIdResponse.getResults().size();
+		for (int i = 0; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			System.out.println("processing: " + i + " "+ treeId); //debugging visualization
+			if(treeIdResponse.getResults().get(i).getFieldValues("uniprot_ids") != null) {
+				int uniprotIdsCount = treeIdResponse.getResults().get(i).getFieldValues("uniprot_ids").size();
+				System.out.println(uniprotIdsCount);
+				SolrInputDocument sdoc = new SolrInputDocument();
+				Map<String, String> partialUpdate = new HashMap<>();
+				partialUpdate.put("set", Integer.toString(uniprotIdsCount));
+				sdoc.addField("id", treeId);
+				sdoc.addField("uniprot_ids_count", partialUpdate);
+				solr.add(sdoc);
+				solr.commit();
+			} else {
+				System.out.println("null");
+			}
+		}
+	}
+
+	//Set "go_annotations_count" field for panther solr
+	public void setGoAnnotationsCount() throws Exception {
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id, go_annotations");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+
+		QueryResponse treeIdResponse = solr.query(sq);
+		System.out.println(treeIdResponse.getResults().size());
+
+		int totalDocsFound = treeIdResponse.getResults().size();
+		for (int i = 0; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			System.out.println("processing: " + i + " "+ treeId); //debugging visualization
+			if(treeIdResponse.getResults().get(i).getFieldValues("go_annotations") != null) {
+				int uniprotIdsCount = treeIdResponse.getResults().get(i).getFieldValues("go_annotations").size();
+				System.out.println(uniprotIdsCount);
+				SolrInputDocument sdoc = new SolrInputDocument();
+				Map<String, String> partialUpdate = new HashMap<>();
+				partialUpdate.put("set", Integer.toString(uniprotIdsCount));
+				sdoc.addField("id", treeId);
+				sdoc.addField("go_annotations_count", partialUpdate);
+				solr.add(sdoc);
+				solr.commit();
+			} else {
+				System.out.println("null");
+			}
+		}
+	}
+
+	//Analyze panther trees and find out all trees with Hori_Transfer node in it. Write the ids to a csv
+	public void analyzePantherTrees() throws Exception {
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = solr.query(sq);
+
+		int totalDocsFound = treeIdResponse.getResults().size();
+		System.out.println("totalDocsFound "+ totalDocsFound);
+
+		File csvFile = new File(PATH_HT_LIST);
+		FileWriter outputfile = new FileWriter(csvFile);
+		String[] header = {"PantherID"};
+		CSVWriter writer = new CSVWriter(outputfile);
+		writer.writeNext(header);
+
+		for (int i = 0; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			PantherData origPantherData = readPantherBooksFromLocal(treeId);
+			//Is Horizontal Transfer
+			boolean isHorizTransfer = new PantherBookXmlToJson().isHoriz_Transfer(origPantherData);
+			if(isHorizTransfer) {
+				String[] data1 = {treeId};
+				writer.writeNext(data1);
+			}
+		}
+		writer.close();
+	}
 	//################## utils
 
 	//Get Panther Family List from local file if it exists
@@ -428,8 +469,6 @@ public class PantherETLPipeline {
 		jsonFile.createNewFile();
 		mapper.writeValue(jsonFile, jsonObj);
 	}
-
-	//Update and save csv
 
 	//Get Panther Family Name List from local file if it exists
 	public Map<String, String> getLocalPantherFamilyNamesList() throws Exception {
@@ -493,20 +532,19 @@ public class PantherETLPipeline {
 //		etl.deleteTreesWithoutPlantGenes();
 		// 5. Reindex Solr DB based on local panther files and change in solr schema.
 //		etl.indexSolrDB();
+		// 6. Save MSA data from server to s3 and local
+//		etl.updateOrSaveMSAData();
+		// 7. Go to GoAnnotationETLPipeline and update "uniprotdb" on solr with the mapping of uniprot Ids with GO Annotations
+		// 8. Go to UpdateGOAnnotations to update/add go annotations field for panther trees loaded using the "uniprot" core on solr.
 
+		//9. Set uniprotIds and GoAnnotations Count on solr
 //		etl.setUniprotIdsCount();
 //		etl.setGoAnnotationsCount();
 
-
+		//10. Analyze panther trees
+		etl.analyzePantherTrees();
 		//Update a single fild in solr without reindex
 //		etl.atomicUpdateSolr();
-
-//		etl.analyzePantherTrees();
-
-
-		//Update msa data without reindex
-//		etl.updateMsaData();
-
 
 		long endTime = System.nanoTime();
 		long timeElapsed = endTime - startTime;
