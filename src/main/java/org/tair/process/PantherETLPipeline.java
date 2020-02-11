@@ -55,32 +55,33 @@ public class PantherETLPipeline {
 	List<String> noPlantsIdList = new ArrayList<>();
 
 	public void atomicUpdateSolr() throws Exception {
-//		List<String> pantherFamilyList = getLocalPantherFamilyList();
-//		int plantGenomeCount = 0;
-//		int commitedCount = 0;
-//		int errorCount = 0;
-//		for(int i = 0; i < pantherFamilyList.size(); i++) {
-//			PantherData origPantherData = readPantherBooksFromLocal(pantherFamilyList.get(i));
-//			boolean hasPlantGenome = new PantherBookXmlToJson().hasPlantGenome(origPantherData);
-//			if(hasPlantGenome) {
-//				SolrInputDocument sdoc = new SolrInputDocument();
-//				sdoc.addField("id", pantherFamilyList.get(i));
-//
-//				List<String> speciation_events = new PantherBookXmlToJson().getFieldValue(origPantherData);
-//				if (speciation_events != null) {
-//					Map<String, List<String>> partialUpdate = new HashMap<>();
-//					partialUpdate.put("set", speciation_events);
-//					sdoc.addField("species_list", partialUpdate);
-//					solr.add(sdoc);
-//					solr.commit();
-//					commitedCount++;
-//				} else {
-//					errorCount++;
-//				}
-//			} else {
-//				plantGenomeCount++;
-//			}
-//		}
+		//Example code to update just one field
+		List<String> pantherFamilyList = getLocalPantherFamilyList();
+		int plantGenomeCount = 0;
+		int commitedCount = 0;
+		int errorCount = 0;
+		for(int i = 0; i < pantherFamilyList.size(); i++) {
+			PantherData origPantherData = readPantherBooksFromLocal(pantherFamilyList.get(i));
+			boolean hasPlantGenome = new PantherBookXmlToJson().hasPlantGenome(origPantherData);
+			if(hasPlantGenome) {
+				SolrInputDocument sdoc = new SolrInputDocument();
+				sdoc.addField("id", pantherFamilyList.get(i));
+
+				List<String> speciation_events = new PantherBookXmlToJson().getFieldValue(origPantherData);
+				if (speciation_events != null) {
+					Map<String, List<String>> partialUpdate = new HashMap<>();
+					partialUpdate.put("set", speciation_events);
+					sdoc.addField("species_list", partialUpdate);
+					solr.add(sdoc);
+					solr.commit();
+					commitedCount++;
+				} else {
+					errorCount++;
+				}
+			} else {
+				plantGenomeCount++;
+			}
+		}
 	}
 
 	private void logErrorFamilyList(String pantherId, File outputFile, String errorData) throws IOException {
@@ -138,7 +139,7 @@ public class PantherETLPipeline {
 	public void updateOrSavePantherTrees_Json() throws Exception {
 		List<String> familyList = getLocalPantherFamilyList();
 		//#14712
-		int startingIdx = 14712;
+		int startingIdx = 0;
 		for(int i = startingIdx; i < familyList.size(); i++) {
 			String familyId = familyList.get(i);
 			savePantherTreeLocallyById(familyId, i);

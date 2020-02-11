@@ -175,9 +175,7 @@ public class PantherBookXmlToJson {
 				System.out.println("Error in: " + this.pantherData.getId());
 			} else {
 				Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
-//				System.out.println(rootNodeAnnotation);
 				if(rootNodeAnnotation == null) {
-//					System.out.println(this.pantherData.getSearch().getParameters().getBook());
 					this.pantherData = null;
 				} else {
 					addToListFromAnnotation(rootNodeAnnotation);
@@ -193,20 +191,20 @@ public class PantherBookXmlToJson {
 		return this.pantherData;
 	}
 
-//	public List<String> getFieldValue(PantherData orig) throws Exception {
-//		String jsonString = orig.getJsonString();
-//		List<String> fieldValue = new ArrayList<>();
-//		// convert json string to Panther object
-//		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
-//										PantherData.class);
-//		try {
-//			Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
-//			fieldValue.add(rootNodeAnnotation.getSpeciation_event());
-//		} catch(NullPointerException e) {
-//			return null;
-//		}
-//		return fieldValue;
-//	}
+	public List<String> getFieldValue(PantherData orig) throws Exception {
+		String jsonString = orig.getJsonString();
+		List<String> fieldValue = new ArrayList<>();
+		// convert json string to Panther object
+		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+										PantherData.class);
+		try {
+			Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
+			fieldValue.add(rootNodeAnnotation.getSpecies());
+		} catch(NullPointerException e) {
+			return null;
+		}
+		return fieldValue;
+	}
 
 	public boolean isHoriz_Transfer(PantherData orig) throws Exception {
 		this.annotations = new ArrayList<Annotation>();

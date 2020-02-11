@@ -55,20 +55,4 @@ public class PantherS3Wrapper {
         s3client.putObject(bucketName, key, content);
     }
 
-//    public void updateMsaData() throws Exception {
-//        List<String> pantherFamilyList = pantherEtl.getLocalPantherFamilyList();
-//        for(int i = 0; i < pantherFamilyList.size(); i++) {
-//            String pantherId = pantherFamilyList.get(i);
-//            System.out.println("Processing : " + pantherId + " idx: " + i);
-//            QueryResponse resp = pantherEtl.getMsaFromSolrById(pantherId);
-//            if(resp.getResults().getNumFound() > 0) {
-//                String filePath = "src/main/resources/panther/msa_solr_files/" + pantherId + ".json";
-//                gson.toJson(resp.getResults(), new FileWriter(filePath));
-//                String filename = pantherId + ".json";
-//                uploadObjectToBucket("phg-msadata", filename, filePath);
-//                System.out.println("Saved " + filename);
-//            }
-//        }
-//    }
-
 }
