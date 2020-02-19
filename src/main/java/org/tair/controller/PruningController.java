@@ -21,8 +21,9 @@ import java.util.stream.IntStream;
 @CrossOrigin
 public class PruningController {
     private String BASE_URL = "http://panthertest3.med.usc.edu:8083/tempFamilySearch";
+    private String GRAFTING_BASE_URL = "http://panthertest10.med.usc.edu:8090/tempFamilySearch";
     private String BOOK_INFO_URL = BASE_URL+"?type=book_info";
-    private String GRAFT_URL = BASE_URL+"?type=graft_seq";
+    private String GRAFT_URL = GRAFTING_BASE_URL+"?type=graft_seq";
 
     //Panther 15.0 -
     private int[] taxon_filters_arr = {13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,
@@ -46,6 +47,7 @@ public class PruningController {
         String joined = stringBuilder.toString();
 
         String prunedTreeUrl = BOOK_INFO_URL + "&book=" + family_id + "&taxonFltr=" + joined;
+        System.out.println(prunedTreeUrl);
         String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, prunedTreeUrl);
 
         PantherData prunedData = new PantherBookXmlToJson().convertJsonToSolrforApi(jsonString, family_id);

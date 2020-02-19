@@ -24,24 +24,25 @@ import java.util.*;
 public class PantherETLPipeline {
 
 	private String URL_SOLR = "http://localhost:8983/solr/panther";
-	//	String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
+//		String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 	private String URL_PTHR_FAMILY_LIST = "http://pantherdb.org/tempFamilySearch?type=family_list&taxonFltr=13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,559292,284812";
 	private String URL_PTHR_FAMILY_NAME = "http://pantherdb.org/tempFamilySearch?type=family_name&book=";
+	private String RESOURCES_BASE = "/Users/swapp1990/Documents/projects/Pheonix_Projects/phylogenes_data/PantherPipelineResources/panther15/panther";
 
 	//Change this to the location of where you have saved panther data
-	private String PATH_FAMILY_LIST = "src/main/resources/panther/familyList.json";
-	private String PATH_FAMILY_NAMES_LIST = "src/main/resources/panther/familyNamesList.json";
-	private String PATH_LOCAL_PRUNED_TREES = "src/main/resources/panther/pruned_panther_files/";
-	private String PATH_LOCAL_MSA_DATA = "src/main/resources/panther/msa_files/";
-	private String PATH_LOCAL_BOOKINFO_JSON = "src/main/resources/panther/panther_jsons/";
+	private String PATH_FAMILY_LIST = RESOURCES_BASE + "/familyList.json";
+	private String PATH_FAMILY_NAMES_LIST = RESOURCES_BASE + "/familyNamesList.json";
+	private String PATH_LOCAL_PRUNED_TREES = RESOURCES_BASE + "/pruned_panther_files/";
+	private String PATH_LOCAL_MSA_DATA = RESOURCES_BASE +"/panther/msa_files/";
+	private String PATH_LOCAL_BOOKINFO_JSON = RESOURCES_BASE + "/panther_jsons/";
 
-	private String PATH_HT_LIST = "src/main/resources/panther/familyHTList.csv";
-	private String PATH_NP_LIST = "src/main/resources/panther/familyNoPlantsList.csv";
-	private String PATH_EMPTY_LIST = "src/main/resources/panther/familyEmptyWhileIndexingList.csv";
+	private String PATH_HT_LIST = RESOURCES_BASE + "/familyHTList.csv";
+	private String PATH_NP_LIST = RESOURCES_BASE + "/familyNoPlantsList.csv";
+	private String PATH_EMPTY_LIST = RESOURCES_BASE + "/familyEmptyWhileIndexingList.csv";
 	// log family that has large msa data
-	private String PATH_LARGE_MSA_LIST = "src/main/resources/panther/largeMsaFamilyList.csv";
+	private String PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
 	// log family that has invalid msa data
-	private String PATH_INVALID_MSA_LIST = "src/main/resources/panther/invalidMsaFamilyList.csv";
+	private String PATH_INVALID_MSA_LIST = RESOURCES_BASE + "/invalidMsaFamilyList.csv";
 
 	PantherServerWrapper pantherServer = new PantherServerWrapper();
 	PantherS3Wrapper pantherS3Server = new PantherS3Wrapper();
@@ -190,7 +191,7 @@ public class PantherETLPipeline {
 	}
 
 	//Reindex Solr DB with modified panther data
-	public void indexSolrDB() throws Exception {
+	public void indexSolrDB(boolean saveToS3) throws Exception {
 		Map<String, String> idToFamilyNames = getLocalPantherFamilyNamesList();
 		List<String> pantherFamilyList = getLocalPantherFamilyList();
 		List<PantherData> pantherList = new ArrayList<>();
@@ -229,19 +230,16 @@ public class PantherETLPipeline {
 			pantherList.clear();
 
 			//Save json string as local file
-			String fileName = pantherFamilyList.get(i) + ".json";
-			String json_filepath = PATH_LOCAL_BOOKINFO_JSON + "/" + fileName;
-			String jsonStr = modiPantherData.getJsonString();
+			if(saveToS3) {
+				String fileName = pantherFamilyList.get(i) + ".json";
+				String json_filepath = PATH_LOCAL_BOOKINFO_JSON + "/" + fileName;
+				String jsonStr = modiPantherData.getJsonString();
 
-			saveJsonStringAsFile(jsonStr, json_filepath);
+				saveJsonStringAsFile(jsonStr, json_filepath);
 
-			String BUCKET_NAME = "test-swapp-bucket";
-			pantherS3Server.uploadJsonToS3(BUCKET_NAME, fileName, jsonStr);
-//			if(pantherList.size() >= commitCount) {
-//				System.out.println(modiPantherData.getId() + " idx: " + i + " size: " + modiPantherData.getJsonString().length());
-//				saveAndCommitToSolr(pantherList);
-//				pantherList.clear();
-//			}
+				String BUCKET_NAME = "test-swapp-bucket";
+				pantherS3Server.uploadJsonToS3(BUCKET_NAME, fileName, jsonStr);
+			}
 		}
 		writer.close();
 //		saveAndCommitToSolr(pantherList);
@@ -532,7 +530,8 @@ public class PantherETLPipeline {
 		// 4. Delete panther trees without plant genes.
 //		etl.deleteTreesWithoutPlantGenes();
 		// 5. Reindex Solr DB based on local panther files and change in solr schema.
-//		etl.indexSolrDB();
+		// Set saveToS3 = true, if you want to overwrite s3 book_info files also
+		etl.indexSolrDB(false);
 		// 6. Save MSA data from server to s3 and local
 //		etl.updateOrSaveMSAData();
 		// 7. Go to GoAnnotationETLPipeline and update "uniprotdb" on solr with the mapping of uniprot Ids with GO Annotations
@@ -543,7 +542,7 @@ public class PantherETLPipeline {
 //		etl.setGoAnnotationsCount();
 
 		//10. Analyze panther trees
-		etl.analyzePantherTrees();
+//		etl.analyzePantherTrees();
 		//Update a single fild in solr without reindex
 //		etl.atomicUpdateSolr();
 

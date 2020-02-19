@@ -73,8 +73,10 @@ public class PantherBookXmlToJson {
 		if (annotation.getSf_name() != null && !this.pantherData.getSf_names().contains(annotation.getSf_name()))
 			this.pantherData.getSf_names().add(annotation.getSf_name());
 		//"prop_sf_id" - not indexed
-		//"species"
-		if (annotation.getSpecies() != null && !this.pantherData.getSpecies_list().contains(annotation.getSpecies()))
+		//"species" - only add the top species from the list
+		if (annotation.getSpecies() != null
+				&& !this.pantherData.getSpecies_list().contains(annotation.getSpecies())
+				&& this.pantherData.getSpecies_list().size() == 0)
 			this.pantherData.getSpecies_list().add(annotation.getSpecies());
 		//"taxonomic_range"
 		if (annotation.getTaxonomic_range() != null && !this.pantherData.getTaxonomic_ranges().contains(annotation.getTaxonomic_range()))
