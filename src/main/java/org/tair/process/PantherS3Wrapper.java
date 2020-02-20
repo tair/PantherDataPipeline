@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.util.List;
 
 public class PantherS3Wrapper {
-    AWSCredentials credentials = new BasicAWSCredentials("AKIAI6PSGD35RIGRJS7A", "+VjjBEjmTK7lDd+R2wk0//XAAs+T32cCceFOxA5x");
+    String accessKey = "AKIAT2DXR6T2DIN4ITVL";
+    String secretKey = "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";
+    AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
     AmazonS3 s3client = AmazonS3ClientBuilder.standard()
             .withCredentials(new AWSStaticCredentialsProvider(credentials))
             .withRegion(Regions.US_WEST_2)
@@ -45,6 +47,10 @@ public class PantherS3Wrapper {
         for(Bucket b : buckets) {
             System.out.println(b.getName());
         }
+    }
+
+    public void uploadObjectToBucket(String bucketName, String filename, File file) {
+        s3client.putObject(bucketName, filename, file);
     }
 
     public void uploadObjectToBucket(String bucketName, String filename, String filepath) {

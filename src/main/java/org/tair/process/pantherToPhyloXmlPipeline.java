@@ -25,26 +25,50 @@ import javax.xml.transform.stream.StreamResult;
 */
 public class pantherToPhyloXmlPipeline
 {
+    private static String RESOURCES_BASE = "/Users/swapp1990/Documents/projects/Pheonix_Projects/phylogenes_data/PantherPipelineResources/panther15/panther";
+    PantherS3Wrapper pantherS3Server = new PantherS3Wrapper();
+
     public static void main(String args[])
     {
-        PantherJsonToPhyloXml("PTHR11705");
+//        PantherJsonToPhyloXml("PTHR11705");
 
 //
-//          convertAllInDirectory();   // converts all panther json files in pruned_panther_files directory
+//        convertAllInDirectory();   // converts all panther json files in pruned_panther_files directory
+        pantherToPhyloXmlPipeline pxml = new pantherToPhyloXmlPipeline();
+        pxml.uploadAlltoS3();
     }
 
     // specifically converts all pruned pantherForPhylo files from resource directory
     // and places them into phyloxml directory
     static void convertAllInDirectory()
     {
-        File dir = new File("src/main/resources/panther/pruned_panther_files");
+        File dir = new File(RESOURCES_BASE + "/pruned_panther_files");
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null)
         {
+            int fileCount = 0;
             for (File child : directoryListing)
             {
                 if (child.getName().charAt(0) != '.') // to ignore files such as .gitignore and .ds_store
+                    fileCount++;
                     PantherJsonToPhyloXml(child.getName().replace(".json", ""));
+                    System.out.println("Saved "+ fileCount + " " + child.getName());
+            }
+        }
+    }
+
+    void uploadAlltoS3() {
+        File dir = new File(RESOURCES_BASE + "/phyloXml");
+        String bucketName = "phyloxml-15";
+        File[] directoryListing = dir.listFiles();
+        if (directoryListing != null) {
+            int fileCount = 0;
+            for (File child : directoryListing) {
+                if (child.getName().charAt(0) != '.') {// to ignore files such as .gitignore and .ds_store
+                    fileCount++;
+                    pantherS3Server.uploadObjectToBucket(bucketName, child.getName(), child);
+                    System.out.println("Saved S3: "+ fileCount + " " + child.getName());
+                }
             }
         }
     }
@@ -61,7 +85,7 @@ public class pantherToPhyloXmlPipeline
         try
         {
             // mapping pantherForPhylo json file to pantherj java object
-            panther = objectMapper.readValue(new File("src/main/resources/panther/pruned_panther_files/"+fileName+".json"), Panther.class);
+            panther = objectMapper.readValue(new File(RESOURCES_BASE + "/pruned_panther_files/"+fileName+".json"), Panther.class);
         }
         catch (IOException e)
         {
@@ -75,7 +99,8 @@ public class pantherToPhyloXmlPipeline
             // transformation pantherForPhylo object to phyloxml object, build phyloxml tree while level order traversal
             constructPhyloTreeWithAnnoTree(panther.getSearch().getAnnotation_node(), phylo.getPhylogeny().getClade());
             // transform phlyo java object to xml local file
-            phyloObjToXML(phylo, fileName);
+            String xmlLocalFile_fullPath = RESOURCES_BASE + "/phyloXml/" + fileName+".xml";
+            phyloObjToXML(phylo, xmlLocalFile_fullPath);
         }
     }
 
@@ -90,7 +115,7 @@ public class pantherToPhyloXmlPipeline
         try
         {
             // loading in hashmap values for family name and id key value pairs
-            InputStream input = new FileInputStream("src/main/resources/panther/familyNamesList.json");
+            InputStream input = new FileInputStream(RESOURCES_BASE + "/familyNamesList.json");
             String data = mapper.readValue(input, String.class);
             fam = mapper.readValue(data, familyList.class); //.enable(SerializationFeature.INDENT_OUTPUT)
             for (int i = 0; i < fam.getFamilyNames().size(); i++)
@@ -198,7 +223,7 @@ public class pantherToPhyloXmlPipeline
 //    the parameter to change the amount of indent space
 //    https://stackoverflow.com/questions/46708498/jaxb-marshaller-indentation fixed indent bug looking at this
 //    change path to place phyloxml elsewhere
-    private static void phyloObjToXML(Phyloxml phylo, String fileName)
+    private static void phyloObjToXML(Phyloxml phylo, String filePath)
     {
         try
         {
@@ -209,7 +234,7 @@ public class pantherToPhyloXmlPipeline
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
             //Store XML to File
-            File file = new File("src/main/resources/phyloxml/"+fileName+".xml");
+            File file = new File(filePath);
 
             DOMResult domResult = new DOMResult();
             //Writes XML file to file-system
@@ -221,6 +246,7 @@ public class pantherToPhyloXmlPipeline
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             transformer.transform(new DOMSource(domResult.getNode()), new StreamResult(file));
+
         }
         catch (JAXBException e)
         {
