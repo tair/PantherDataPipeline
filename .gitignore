@@ -28,3 +28,5 @@ mvnw.cmd
 /dist/
 /nbdist/
 /.nb-gradle/
+
+/src/main/resources/
