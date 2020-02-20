@@ -18,6 +18,7 @@ public class PantherMsaXmlToJson {
 	public MsaData readMsaById(String id) throws Exception {
 
 		// read the xml data from web.
+		String base_url = "http://pantherdb.org/tempFamilySearch?type=msa_info&book=" + id;
 		String url = "http://pantherdb.org/tempFamilySearch?type=msa_info&book=" + id
 			 + "&taxonFltr=13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,559292,284812";
 		try{
