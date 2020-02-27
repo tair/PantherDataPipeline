@@ -532,7 +532,7 @@ public class PantherETLPipeline {
 //		etl.deleteTreesWithoutPlantGenes();
 		// 5. Reindex Solr DB based on local panther files and change in solr schema.
 		// Set saveToS3 = true, if you want to overwrite s3 book_info files also
-		etl.indexSolrDB(false);
+//		etl.indexSolrDB(false);
 		// 6. Save MSA data from server to s3 and local
 //		etl.updateOrSaveMSAData();
 		// 7. Go to GoAnnotationETLPipeline and update "uniprotdb" on solr with the mapping of uniprot Ids with GO Annotations
@@ -546,6 +546,8 @@ public class PantherETLPipeline {
 //		etl.analyzePantherTrees();
 		//Update a single fild in solr without reindex
 //		etl.atomicUpdateSolr();
+
+		//11. Go to pantherToPhyloXmlPipeline Update PhyloXML files locally and on S3
 
 		long endTime = System.nanoTime();
 		long timeElapsed = endTime - startTime;
