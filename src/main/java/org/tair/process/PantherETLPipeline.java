@@ -27,6 +27,7 @@ public class PantherETLPipeline {
 //		String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 	private String URL_PTHR_FAMILY_LIST = "http://pantherdb.org/tempFamilySearch?type=family_list&taxonFltr=13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,559292,284812";
 	private String URL_PTHR_FAMILY_NAME = "http://pantherdb.org/tempFamilySearch?type=family_name&book=";
+	//Change resources base to your local resources panther folder
 	private String RESOURCES_BASE = "/Users/swapp1990/Documents/projects/Pheonix_Projects/phylogenes_data/PantherPipelineResources/panther15/panther";
 
 	//Change this to the location of where you have saved panther data
@@ -531,7 +532,7 @@ public class PantherETLPipeline {
 //		etl.deleteTreesWithoutPlantGenes();
 		// 5. Reindex Solr DB based on local panther files and change in solr schema.
 		// Set saveToS3 = true, if you want to overwrite s3 book_info files also
-		etl.indexSolrDB(false);
+//		etl.indexSolrDB(false);
 		// 6. Save MSA data from server to s3 and local
 //		etl.updateOrSaveMSAData();
 		// 7. Go to GoAnnotationETLPipeline and update "uniprotdb" on solr with the mapping of uniprot Ids with GO Annotations
@@ -545,6 +546,8 @@ public class PantherETLPipeline {
 //		etl.analyzePantherTrees();
 		//Update a single fild in solr without reindex
 //		etl.atomicUpdateSolr();
+
+		//11. Go to pantherToPhyloXmlPipeline Update PhyloXML files locally and on S3
 
 		long endTime = System.nanoTime();
 		long timeElapsed = endTime - startTime;
