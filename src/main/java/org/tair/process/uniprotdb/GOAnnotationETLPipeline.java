@@ -37,16 +37,15 @@ public class GOAnnotationETLPipeline {
 		List<Count> counts = uniprot_ids.getValues();
 		System.out.println("Total number to load: " + counts.size());
 
-		for (int i = 0; i<counts.size()/500+1; i++) {
+		int iter = counts.size()/500+1;
+		for (int i = 0; i<iter; i++) {
 			List<String> uniprotIdList = new ArrayList<String>();
-			for (int j =i*500; j<(i+1)*500; j++) {
-				if(j== counts.size()) 
+			for (int j = i * 500; j < (i + 1) * 500; j++) {
+				if (j == counts.size())
 					break;
 				uniprotIdList.add(counts.get(j).getName());
 			}
-
 			System.out.println("Loading: " + i*500 +"-" +(i+1)*500);
-			
 			List<GOAnnotationData> goAnnotations = GOAnnotationUrlToJson.readGOAnnotationUrlToObjectList(String.join(",", uniprotIdList));
 			if (goAnnotations.size() >0) {
 				solrClient.addBeans("uniprot_db",goAnnotations);
