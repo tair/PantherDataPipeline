@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.tair.module.PantherData;
 import org.tair.process.PantherBookXmlToJson;
@@ -20,7 +21,8 @@ import java.util.stream.IntStream;
 @RestController
 @CrossOrigin
 public class PruningController {
-    private String BASE_URL = "http://panthertest3.med.usc.edu:8083/tempFamilySearch";
+//    private String BASE_URL = "http://panthertest3.med.usc.edu:8083/tempFamilySearch";
+    private String BASE_URL = "http://pantherdb.org/tempFamilySearch";
     private String GRAFTING_BASE_URL = "http://panthertest10.med.usc.edu:8090/tempFamilySearch";
     private String BOOK_INFO_URL = BASE_URL+"?type=book_info";
     private String GRAFT_URL = GRAFTING_BASE_URL+"?type=graft_seq";
@@ -33,6 +35,7 @@ public class PruningController {
     @PostMapping(path = "/panther/pruning/{id}", consumes = "application/json")
     public @ResponseBody String getPrunedTree(@PathVariable("id") String treeId,
                                               @RequestBody TaxonObj taxonObj) throws Exception {
+
         PantherETLPipeline etl = new PantherETLPipeline();
         List<String> taxonIdsToShow = taxonObj.getTaxonIdsToShow();
         String family_id = treeId;
