@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.gson.Gson;
+
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.tair.module.MsaData;
 import org.tair.module.PantherData;
@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class PantherS3Wrapper {
-    String accessKey = "AKIAT2DXR6T2DIN4ITVL";
-    String secretKey = "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";
+    String accessKey = "AKIAT2DXR6T2BY4CBKN2";
+    String secretKey = "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";
     AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
     AmazonS3 s3client = AmazonS3ClientBuilder.standard()
             .withCredentials(new AWSStaticCredentialsProvider(credentials))

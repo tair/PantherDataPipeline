@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.json.JSONObject;
 import org.tair.module.MsaData;
-import org.tair.module.PantherData;
-import org.tair.module.SearchResult;
+import org.tair.module.panther.SearchResult;
 import org.tair.module.SequenceList;
 import org.tair.util.Util;
 
@@ -15,7 +14,9 @@ import java.util.stream.IntStream;
 
 // Class contains all calls to the Panther server
 public class PantherServerWrapper {
-    private String BASE_URL = "http://panthertest3.med.usc.edu:8083/tempFamilySearch";
+//    private String BASE_URL = "http://panthertest3.med.usc.edu:8083/tempFamilySearch";
+    private String BASE_URL = "http://pantherdb.org/services/oai/pantherdb/treeinfo";
+    private String BASE_MSA_URL = "http://pantherdb.org/services/oai/pantherdb/familymsa";
     private String URL_PTHR_FAMILY_LIST = BASE_URL+"?type=family_list";
     private String URL_PTHR_FAMILY_NAME = BASE_URL+"?type=family_name";
 
@@ -25,36 +26,27 @@ public class PantherServerWrapper {
             559292,284812,3708,4072,71139,51240,4236,3983,4432,88036,4113,3562};
 
     //Get Panther Family List from server and convert to a json string
-    public String getPantherFamilyListFromServer() throws Exception {
-        String taxonFiltersParam = IntStream.of(taxon_filters_arr)
-                .mapToObj(Integer::toString)
-                .collect(Collectors.joining(","));
-        String url = URL_PTHR_FAMILY_LIST + "&taxonFltr=" + taxonFiltersParam;
-        System.out.println(url);
-        return Util.readContentFromWebUrlToJsonString(url);
+    public String getPantherFamilyListFromServer(String url) throws Exception {
+        //If URL returns XML, use readContentFromWebUrlToJsonString
+        return Util.readJsonFromUrl(url);
     }
 
     //Get Panther Family Name for given id using panther url
     public String getFamilyNameFromServer(String family_id) throws Exception {
-        String flUrl = URL_PTHR_FAMILY_NAME + "&book="+family_id;
+        String flUrl = URL_PTHR_FAMILY_NAME + "&family="+family_id;
         String jsonString = Util.readFamilyNameFromUrl(flUrl);
         String familyName = new JSONObject(jsonString).getJSONObject("search").getString("family_name");
         return familyName;
     }
 
     //Get Panther Book Info for given id using id and taxon filters (to get pruned trees)
-    public PantherData readPantherTreeById(String family_id) throws Exception {
+    public String readPantherTreeById(String family_id) throws Exception {
         String taxonFiltersParam = IntStream.of(taxon_filters_arr)
                 .mapToObj(Integer::toString)
                 .collect(Collectors.joining(","));
-        String prunedTreeUrl = BASE_URL+"?type=book_info&book=" + family_id + "&taxonFltr=" + taxonFiltersParam;
-        String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, prunedTreeUrl);
-        // convert json string to Panther object
-        PantherData pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
-                PantherData.class);
-        pantherData.setId(family_id);
-        pantherData.setJsonString(jsonString);
-        return pantherData;
+        String prunedTreeUrl = BASE_URL+"?family=" + family_id + "&taxonFltr=" + taxonFiltersParam;
+        String jsonString = Util.readJsonFromUrl(prunedTreeUrl);
+        return jsonString;
     }
 
     public String readMsaByIdFromServer(String family_id) throws Exception {
@@ -62,14 +54,15 @@ public class PantherServerWrapper {
         String taxonFiltersParam = IntStream.of(taxon_filters_arr)
                 .mapToObj(Integer::toString)
                 .collect(Collectors.joining(","));
-        String msaTreeUrl = BASE_URL+"?type=msa_info&book=" + family_id + "&taxonFltr=" + taxonFiltersParam;
+        String msaTreeUrl = BASE_MSA_URL+"?family=" + family_id + "&taxonFltr=" + taxonFiltersParam;
         String jsonString = "";
         try{
             jsonString = Util.readContentFromWebUrlToJson(MsaData.class, msaTreeUrl);
-
-            // convert json string to MsaData object
-            msaData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
-                    MsaData.class);
+            if(jsonString != "") {
+                // convert json string to MsaData object
+                msaData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+                        MsaData.class);
+            }
         }catch (OutOfMemoryError oe){
             List<String> sequenceInfoList = Util.saxReader(msaTreeUrl);
             SearchResult searchResult = new SearchResult();

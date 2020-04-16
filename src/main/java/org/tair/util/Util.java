@@ -1,15 +1,17 @@
 package org.tair.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.XML;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -29,9 +31,55 @@ public class Util {
 		return contentBuilder.toString();
 	}
 
-	public static <T> String readContentFromWebUrlToJson(Class<T> cls, String url) throws Exception {
+    //Save Json String as File
+    public static void saveJsonStringAsFile(String jsonString, String filepath) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        File jsonFile = new File(filepath);
+        jsonFile.setExecutable(true);
+        jsonFile.setReadable(true);
+        jsonFile.setWritable(true);
+        jsonFile.createNewFile();
+        mapper.writeValue(jsonFile, jsonString);
+    }
 
-		BufferedReader in = new BufferedReader(new InputStreamReader(new URL(url).openConnection().getInputStream()));
+	public static String loadJsonStringFromFile(String filepath) throws Exception {
+		ObjectMapper mapper = new ObjectMapper();
+		InputStream input = new FileInputStream(filepath);
+		return mapper.readValue(input, String.class);
+	}
+
+	private static String readAll(Reader rd) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		int cp;
+		while ((cp = rd.read()) != -1) {
+			sb.append((char) cp);
+		}
+		return sb.toString();
+	}
+
+	public static String readJsonFromUrl(String url) throws IOException, JSONException {
+		InputStream is = new URL(url).openStream();
+		try {
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+			String jsonText = readAll(rd);
+			JSONObject json = new JSONObject(jsonText);
+//			System.out.println(json.toString());
+			return json.toString();
+		} catch(Exception e) {
+            return "";
+        } finally {
+			is.close();
+		}
+	}
+
+	public static <T> String readContentFromWebUrlToJson(Class<T> cls, String url) throws Exception {
+		BufferedReader in;
+		try {
+			in = new BufferedReader(new InputStreamReader(new URL(url).openConnection().getInputStream()));
+		}
+		catch(Exception e) {
+			return "";
+		}
 		StringBuffer buff = new StringBuffer();
 		String inputLine;
 		while ((inputLine = in.readLine()) != null)

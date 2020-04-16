@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.tair.module.MsaData;
-import org.tair.module.SearchResult;
+import org.tair.module.panther.SearchResult;
 import org.tair.module.SequenceList;
 import org.tair.util.Util;
 
