@@ -42,6 +42,17 @@ public class Util {
         mapper.writeValue(jsonFile, jsonString);
     }
 
+    //Save Java Object as Json File
+	public static void saveJavaObjectAsFile(Object jsonObj, String filepath) throws IOException, Exception {
+		ObjectMapper mapper = new ObjectMapper();
+		File jsonFile = new File(filepath);
+		jsonFile.setExecutable(true);
+		jsonFile.setReadable(true);
+		jsonFile.setWritable(true);
+		jsonFile.createNewFile();
+		mapper.writeValue(jsonFile, jsonObj);
+	}
+
 	public static String loadJsonStringFromFile(String filepath) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		InputStream input = new FileInputStream(filepath);

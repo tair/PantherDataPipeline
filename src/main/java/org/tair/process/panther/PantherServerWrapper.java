@@ -1,11 +1,11 @@
-package org.tair.process;
+package org.tair.process.panther;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.json.JSONObject;
-import org.tair.module.MsaData;
+import org.tair.module.panther.MSAList;
+import org.tair.module.panther.MsaData;
 import org.tair.module.panther.SearchResult;
-import org.tair.module.SequenceList;
 import org.tair.util.Util;
 
 import java.util.List;
@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
 // Class contains all calls to the Panther server
 public class PantherServerWrapper {
 //    private String BASE_URL = "http://panthertest3.med.usc.edu:8083/tempFamilySearch";
+    private String PANTHER_FL_URL = "http://pantherdb.org/services/oai/pantherdb/supportedpantherfamilies";
     private String BASE_URL = "http://pantherdb.org/services/oai/pantherdb/treeinfo";
     private String BASE_MSA_URL = "http://pantherdb.org/services/oai/pantherdb/familymsa";
     private String URL_PTHR_FAMILY_LIST = BASE_URL+"?type=family_list";
@@ -25,8 +26,17 @@ public class PantherServerWrapper {
             70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,
             559292,284812,3708,4072,71139,51240,4236,3983,4432,88036,4113,3562};
 
-    //Get Panther Family List from server and convert to a json string
-    public String getPantherFamilyListFromServer(String url) throws Exception {
+    public int getCount_allFamilies() throws Exception {
+        String url = PANTHER_FL_URL;
+        String jsonText = Util.readJsonFromUrl(url);
+        JSONObject jsonObj = new JSONObject(jsonText);
+        int number_of_families = jsonObj.getJSONObject("search").getInt("number_of_families");
+        return number_of_families;
+    }
+
+    //Get Panther Family List json from server with startIdx
+    public String getPantherFamilyListFromServer(int startIdx) throws Exception {
+        String url = PANTHER_FL_URL + "?startIndex="+startIdx;
         //If URL returns XML, use readContentFromWebUrlToJsonString
         return Util.readJsonFromUrl(url);
     }
@@ -50,31 +60,15 @@ public class PantherServerWrapper {
     }
 
     public String readMsaByIdFromServer(String family_id) throws Exception {
-        MsaData msaData = null;
         String taxonFiltersParam = IntStream.of(taxon_filters_arr)
                 .mapToObj(Integer::toString)
                 .collect(Collectors.joining(","));
         String msaTreeUrl = BASE_MSA_URL+"?family=" + family_id + "&taxonFltr=" + taxonFiltersParam;
-        String jsonString = "";
-        try{
-            jsonString = Util.readContentFromWebUrlToJson(MsaData.class, msaTreeUrl);
-            if(jsonString != "") {
-                // convert json string to MsaData object
-                msaData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
-                        MsaData.class);
-            }
-        }catch (OutOfMemoryError oe){
-            List<String> sequenceInfoList = Util.saxReader(msaTreeUrl);
-            SearchResult searchResult = new SearchResult();
-            SequenceList sequenceList = new SequenceList();
-            msaData = new MsaData();
+        return Util.readJsonFromUrl(msaTreeUrl);
+    }
 
-            sequenceList.setSequence_info(sequenceInfoList);
-            searchResult.setSequence_list(sequenceList);
-            msaData.setSearch(searchResult);
-        }
-
-        return jsonString;
-
+    public static void main(String args[]) throws Exception {
+        PantherServerWrapper ps = new PantherServerWrapper();
+        ps.readMsaByIdFromServer("PTHR10000");
     }
 }
