@@ -8,20 +8,22 @@ import org.json.JSONObject;
 import org.tair.module.FamilyNode;
 import org.tair.module.PantherData;
 import org.tair.module.PantherFamilyList;
+import org.tair.module.pantherForPhylo.Panther;
 import org.tair.util.Util;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 public class PantherLocalWrapper {
+    private String RESOURCES_DIR = "src/main/resources";
     //Change resources base to your local resources panther folder
-    private String RESOURCES_BASE = "/Users/swapp1990/Documents/projects/Pheonix_Projects/phylogenes_data/PantherPipelineResources/panther15_newApi_temp";
+    private String RESOURCES_BASE = "panther_resources";
 
     //Change this to the location of where you have saved panther data
     private String PATH_FAMILY_LIST = RESOURCES_BASE + "/familyList/";
-    private String PATH_FAMILY_NAMES_LIST = RESOURCES_BASE + "/familyNamesList.json";
     private String PATH_LOCAL_PRUNED_TREES = RESOURCES_BASE + "/pruned_panther_files/";
     private String PATH_LOCAL_MSA_DATA = RESOURCES_BASE +"/msa_jsons/";
     private String PATH_LOCAL_SOLRTREE_JSON = RESOURCES_BASE + "/solr_trees_files/";
@@ -43,10 +45,44 @@ public class PantherLocalWrapper {
     CSVWriter HTListCsvWriter;
 
     public PantherLocalWrapper() {
+        loadProps();
+        System.out.println(PATH_NP_LIST);
         mapper = new ObjectMapper();
         csvFile_noplants = new File(PATH_NP_LIST);
         csvFile_empty = new File(PATH_EMPTY_LIST);
         csvFile_ht = new File(PATH_HT_LIST);
+    }
+
+    private void loadProps() {
+        try {
+            InputStream input = new FileInputStream(RESOURCES_DIR + "/application.properties");
+            // load props
+            Properties prop = new Properties();
+            prop.load(input);
+            System.out.println(prop);
+            if(prop.containsKey("RESOURCES_BASE")) {
+                RESOURCES_BASE = prop.getProperty("RESOURCES_BASE");
+                makeDir(RESOURCES_BASE);
+            }
+            initPaths();
+        } catch (Exception e) {
+            System.out.println("Prop file not found!");
+        }
+    }
+
+    private void initPaths() {
+        PATH_FAMILY_LIST = RESOURCES_BASE + "/familyList/";
+        PATH_LOCAL_PRUNED_TREES = RESOURCES_BASE + "/pruned_panther_files/";
+        PATH_LOCAL_MSA_DATA = RESOURCES_BASE +"/msa_jsons/";
+        PATH_LOCAL_SOLRTREE_JSON = RESOURCES_BASE + "/solr_trees_files/";
+
+        PATH_HT_LIST = RESOURCES_BASE + "/familyHTList.csv";
+        PATH_NP_LIST = RESOURCES_BASE + "/familyNoPlantsList.csv";
+        PATH_EMPTY_LIST = RESOURCES_BASE + "/familyEmptyWhileIndexingList.csv";
+        // log family that has large msa data
+        PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
+        // log family that has invalid msa data
+        PATH_INVALID_MSA_LIST = RESOURCES_BASE + "/invalidMsaFamilyList.csv";
     }
 
     public String getLocalFamiliListPath() {
@@ -212,4 +248,10 @@ public class PantherLocalWrapper {
             System.out.println("Making dir "+ dirPath);
         }
     }
+
+    public static void main(String args[]) throws Exception {
+        PantherLocalWrapper lw = new PantherLocalWrapper();
+        lw.initLogWriter(0);
+    }
+
 }

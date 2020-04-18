@@ -16,14 +16,18 @@ import org.tair.module.PantherData;
 import org.tair.process.PantherBookXmlToJson;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class PhylogenesServerWrapper {
+	private String RESOURCES_DIR = "src/main/resources";
     //S3 Keys
-    String accessKey = "AKIAT2DXR6T2BY4CBKN2";
-    String secretKey = "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";
+    String S3_ACCESS_KEY = "AKIAT2DXR6T2BY4CBKN2";
+    String S3_SECRET_KEY = "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";
     String PG_TREE_BUCKET_NAME = "phg-panther-data";
     String PG_MSA_BUCKET_NAME = "phg-msa-data";
 
@@ -37,15 +41,43 @@ public class PhylogenesServerWrapper {
     PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
 
     public PhylogenesServerWrapper() {
+    	loadProps();
         mysolr = new HttpSolrClient.Builder(URL_SOLR).build();
         committedCount = 0;
 
-        AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+        AWSCredentials credentials = new BasicAWSCredentials(S3_ACCESS_KEY, S3_SECRET_KEY);
         s3_server = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion(Regions.US_WEST_2)
                 .build();
     }
+
+	private void loadProps() {
+		try {
+			InputStream input = new FileInputStream(RESOURCES_DIR + "/application.properties");
+			// load props
+			Properties prop = new Properties();
+			prop.load(input);
+			System.out.println(prop);
+			if(prop.containsKey("URL_SOLR")) {
+				PG_MSA_BUCKET_NAME = prop.getProperty("URL_SOLR");
+			}
+			if(prop.containsKey("S3_ACCESS_KEY")) {
+				S3_ACCESS_KEY = prop.getProperty("S3_ACCESS_KEY");
+			}
+			if(prop.containsKey("S3_SECRET_KEY")) {
+				S3_SECRET_KEY = prop.getProperty("S3_SECRET_KEY");
+			}
+			if(prop.containsKey("PG_TREE_BUCKET_NAME")) {
+				PG_TREE_BUCKET_NAME = prop.getProperty("PG_TREE_BUCKET_NAME");
+			}
+			if(prop.containsKey("PG_MSA_BUCKET_NAME")) {
+				PG_MSA_BUCKET_NAME = prop.getProperty("PG_MSA_BUCKET_NAME");
+			}
+		} catch (Exception e) {
+			System.out.println("Prop file not found!");
+		}
+	}
 
 	public void saveAndCommitToSolr(List<PantherData> pantherList) throws Exception {
         mysolr.addBeans(pantherList);

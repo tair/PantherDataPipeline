@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import org.tair.module.*;
 import org.tair.process.PantherBookXmlToJson;
+import org.tair.process.uniprotdb.UpdateGOAnnotations;
 
 import java.util.*;
 
@@ -26,7 +27,6 @@ public class PantherETLPipeline {
 		updateOrSavePantherTrees_Json();
 		deleteTreesWithoutPlantGenes();
 		updateOrSaveMSAData();
-
 	}
 
 	public void uploadToServer() throws Exception {
@@ -34,7 +34,7 @@ public class PantherETLPipeline {
 		 * 6. Reindex Solr DB based on local panther files and change in solr schema.
 		 *
 		 */
-		indexSolrDB(false);
+//		indexSolrDB(false);
 
 		/**
 		 * 7. update "uniprotdb" on solr with the mapping of uniprot Ids with GO Annotations
@@ -48,8 +48,8 @@ public class PantherETLPipeline {
 		/**
 		 * 8. update/add go annotations field for panther trees loaded using the "uniprot" core on solr.
 		 */
-//		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
-//		UpdateGOAnnotations.updateGOAnnotations();
+		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
+		UpdateGOAnnotations.updateGOAnnotations();
 
 		/**
 		 * 9. Set uniprotIds and GoAnnotations Count on solr for each tree
@@ -213,8 +213,8 @@ public class PantherETLPipeline {
 						pgServer.uploadJsonToPGTreeBucket(filename, jsonStr);
 					}
 				} else {
-					System.out.println("Error in panther tree parsing " + id);
-					pantherLocal.logEmptyId(id);
+					System.out.println("File not found (Deleted)" + id);
+//					pantherLocal.logEmptyId(id);
 					continue;
 				}
 			}
