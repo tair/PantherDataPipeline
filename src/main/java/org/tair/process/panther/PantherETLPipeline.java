@@ -48,8 +48,8 @@ public class PantherETLPipeline {
 		/**
 		 * 8. update/add go annotations field for panther trees loaded using the "uniprot" core on solr.
 		 */
-		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
-		UpdateGOAnnotations.updateGOAnnotations();
+//		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
+//		UpdateGOAnnotations.updateGOAnnotations();
 
 		/**
 		 * 9. Set uniprotIds and GoAnnotations Count on solr for each tree
