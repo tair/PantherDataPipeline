@@ -13,7 +13,7 @@ public class PantherETLPipeline {
 	PantherServerWrapper pantherServer = new PantherServerWrapper();
 	PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
 	PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
-	int batchLimit = 1001;
+	int batchLimit = 16001;
 
 	//############################################## Panther 15 ########################################################
 	public void storePantherFilesLocally() throws Exception {
@@ -23,10 +23,10 @@ public class PantherETLPipeline {
 	  * 3. Delete panther trees without plant genes.
 	  * 4. Download all MSA json files from panther server to local folder
 	  */
-		updateOrSaveFamilyList_Json();
-		updateOrSavePantherTrees_Json();
-		deleteTreesWithoutPlantGenes();
-		updateOrSaveMSAData();
+//		updateOrSaveFamilyList_Json();
+//		updateOrSavePantherTrees_Json();
+//		deleteTreesWithoutPlantGenes();
+//		updateOrSaveMSAData();
 	}
 
 	public void uploadToServer() throws Exception {
@@ -34,7 +34,7 @@ public class PantherETLPipeline {
 		 * 6. Reindex Solr DB based on local panther files and change in solr schema.
 		 *
 		 */
-//		indexSolrDB(false);
+//		indexSolrDB(true);
 
 		/**
 		 * 7. update "uniprotdb" on solr with the mapping of uniprot Ids with GO Annotations
@@ -48,8 +48,8 @@ public class PantherETLPipeline {
 		/**
 		 * 8. update/add go annotations field for panther trees loaded using the "uniprot" core on solr.
 		 */
-//		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
-//		UpdateGOAnnotations.updateGOAnnotations();
+		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
+		UpdateGOAnnotations.updateGOAnnotations();
 
 		/**
 		 * 9. Set uniprotIds and GoAnnotations Count on solr for each tree
@@ -88,6 +88,7 @@ public class PantherETLPipeline {
 	public void updateOrSavePantherTrees_Json() throws Exception {
 	    int si = 1;
 		System.out.println("PATH_LOCAL_PRUNED_TREES: "+ pantherLocal.getLocalPrunedTreesPath());
+		pantherLocal.initLogWriter(1);
 		while(si < batchLimit) {
             List<FamilyNode> familyListBatch = pantherLocal.getLocalPantherFamilyList(si);
             int ei = familyListBatch.size();
@@ -98,6 +99,7 @@ public class PantherETLPipeline {
             }
             si += 1000;
         }
+        pantherLocal.closeLogWriter(1);
 	}
 
 	//Save/update the latest msa data from panther server Locally and on S3 server
@@ -133,6 +135,7 @@ public class PantherETLPipeline {
 		String origPantherData = pantherServer.readPantherTreeById(familyId);
 		if(origPantherData.isEmpty()) {
             System.out.println("Json is empty "+ familyId);
+            pantherLocal.logEmptyId(familyId);
             return;
         }
 
@@ -147,6 +150,7 @@ public class PantherETLPipeline {
 			System.out.println("Saved: "+familyId + " idx: " + idx + " duration " + duration/1000000 + "ms");
 		} catch(Exception e) {
 			System.out.println("Error in saving "+familyId);
+			pantherLocal.logEmptyId(familyId);
 		}
 	}
 
@@ -154,7 +158,7 @@ public class PantherETLPipeline {
 	public void deleteTreesWithoutPlantGenes() throws Exception {
 		int si = 1;
 		pantherLocal.initLogWriter(0);
-		while(si < batchLimit) {
+		while(si < 16001) {
 			System.out.println("index "+ si);
 			List<FamilyNode> familyListBatch = pantherLocal.getLocalPantherFamilyList(si);
 			for (int i = 0; i < familyListBatch.size(); i++) {
