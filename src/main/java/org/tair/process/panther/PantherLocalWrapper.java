@@ -216,6 +216,17 @@ public class PantherLocalWrapper {
         }
     }
 
+    public CSVWriter createLogWriter(String filename, String headerStr) throws Exception {
+        String newLogFile = RESOURCES_BASE + "/" + filename;
+        File csvFile_custom = new File(newLogFile);
+        System.out.println("Log file created "+ newLogFile);
+        FileWriter outputfile = new FileWriter(newLogFile);
+        String[] header = {headerStr};
+        CSVWriter currWriter = new CSVWriter(outputfile);;
+        currWriter.writeNext(header);
+        return currWriter;
+    }
+
     public void logDeletedId(String id) throws Exception{
         String[] data = {id};
         deleteNoPlantsWriter.writeNext(data);
