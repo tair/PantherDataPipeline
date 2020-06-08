@@ -59,7 +59,7 @@ public class PantherLocalWrapper {
             // load props
             Properties prop = new Properties();
             prop.load(input);
-            System.out.println(prop);
+//            System.out.println(prop);
             if(prop.containsKey("RESOURCES_BASE")) {
                 RESOURCES_BASE = prop.getProperty("RESOURCES_BASE");
                 makeDir(RESOURCES_BASE);

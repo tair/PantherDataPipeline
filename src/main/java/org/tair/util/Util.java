@@ -1,9 +1,12 @@
 package org.tair.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
+import org.json.simple.parser.JSONParser;
+import org.tair.module.paint.flatfile.GoBasic;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -57,6 +60,13 @@ public class Util {
 		ObjectMapper mapper = new ObjectMapper();
 		InputStream input = new FileInputStream(filepath);
 		return mapper.readValue(input, String.class);
+	}
+
+	public static GoBasic loadJsonFromFile(String filepath) throws Exception {
+		ObjectMapper mapper = new ObjectMapper();
+//		InputStream is = GoBasic.class.getResourceAsStream(filepath);
+		GoBasic obj = mapper.readValue(new File(filepath), GoBasic.class);
+		return obj;
 	}
 
 	private static String readAll(Reader rd) throws IOException {
