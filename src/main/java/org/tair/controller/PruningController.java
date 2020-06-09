@@ -25,7 +25,7 @@ public class PruningController {
     private String BASE_URL = "http://pantherdb.org/tempFamilySearch";
     private String GRAFTING_BASE_URL = "http://panthertest10.med.usc.edu:8090/tempFamilySearch";
     private String BOOK_INFO_URL = BASE_URL+"?type=book_info";
-    private String GRAFT_URL = GRAFTING_BASE_URL+"?type=graft_seq";
+    private String GRAFT_URL = BASE_URL+"?type=graft_seq";
 
     //Panther 15.0 -
     private int[] taxon_filters_arr = {13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,
@@ -112,6 +112,42 @@ public class PruningController {
             return e.getMessage();
         }
         return jsonString;
+    }
+
+    public void testPruningApi() throws Exception {
+        String family_id = "PTHR10683";
+        String filterIds = "3702";
+        String prunedTreeUrl = BOOK_INFO_URL + "&book=" + family_id + "&taxonFltr=" + filterIds;
+        System.out.println(prunedTreeUrl);
+        String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, prunedTreeUrl);
+
+        PantherData prunedData = new PantherBookXmlToJson().convertJsonToSolrforApi(jsonString, family_id);
+    }
+
+    public void testGraftingApi() throws Exception {
+        String taxonFiltersParam = IntStream.of(taxon_filters_arr)
+                .mapToObj(Integer::toString)
+                .collect(Collectors.joining(","));
+        String seq = "MPTFEIHDEAWYPWILGGLFALSLVTYWACDRITAPYGRHVKRGWGPAWGVRECWIVMESPALWAMVLFYSMGEQKLGRVPLILLRLHQVHYFNRVLIYPMRMKVRGKGMPIIVAACAFAFNILNSYVQARWLSNYGSYPDSWLTSPKFILGATLFGLGFLGNFWSDSYLFSLRADEDDRSYKIPKAGLFKFITCPNYFSEMVEWLGWAIMTWSPAGLAFFIYTIANLAPRAVSNHQWYLSKFNDYPKERRILIPFVY";
+        String graftingUrl = GRAFT_URL + "&sequence=" + seq +
+                "&taxonFltr=" + taxonFiltersParam;
+        System.out.println("Got Grafting Request " + graftingUrl);
+
+        String jsonString = "";
+        try {
+            jsonString = Util.readContentFromWebUrlToJsonString(graftingUrl);
+            System.out.println(jsonString);
+        }
+        catch(Exception e) {
+            System.out.println("Error "+ e.getMessage());
+            return;
+        }
+    }
+
+    public static void main(String args[]) throws Exception {
+        PruningController controller = new PruningController();
+//        controller.testPruningApi();
+        controller.testGraftingApi();
     }
 
 }
