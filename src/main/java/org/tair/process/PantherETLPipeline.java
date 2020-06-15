@@ -16,6 +16,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import org.tair.module.*;
+import org.tair.process.uniprotdb.GOAnnotationETLPipeline;
+import org.tair.process.uniprotdb.UpdateGOAnnotations;
 import org.tair.util.Util;
 
 import java.io.*;
@@ -535,8 +537,15 @@ public class PantherETLPipeline {
 //		etl.indexSolrDB(false);
 		// 6. Save MSA data from server to s3 and local
 //		etl.updateOrSaveMSAData();
-		// 7. Go to GoAnnotationETLPipeline and update "uniprotdb" on solr with the mapping of uniprot Ids with GO Annotations
-		// 8. Go to UpdateGOAnnotations to update/add go annotations field for panther trees loaded using the "uniprot" core on solr.
+		// 7. update "uniprotdb" on solr with the mapping of uniprot Ids with GO Annotations
+		// important: if the url of gaf file or obo file changes, we need to update them in applications.properties file, otherwise it may not reflect the correct data;
+		// if the format of gaf file or obo file has been changed, we need to change the code accordingly.
+//		GOAnnotationETLPipeline goAnnotationETLPipeline = new GOAnnotationETLPipeline();
+//		goAnnotationETLPipeline.storeGOAnnotationFromApiToUniprotDb();
+//		goAnnotationETLPipeline.updateGOAnnotationFromFileToUniprotDb();
+		// 8. update/add go annotations field for panther trees loaded using the "uniprot" core on solr.
+//		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
+//		UpdateGOAnnotations.updateGOAnnotations();
 
 		//9. Set uniprotIds and GoAnnotations Count on solr
 //		etl.setUniprotIdsCount();
