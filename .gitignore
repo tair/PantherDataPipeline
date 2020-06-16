@@ -31,3 +31,4 @@ mvnw.cmd
 
 /src/main/resources/
 /src/main/logs/
+!/src/main/logs/uniprot_db/.keep
