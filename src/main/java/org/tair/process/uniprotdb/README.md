@@ -21,7 +21,7 @@ In this method, the following process will happen:
 - Read and parse all gaf files and get the attributes of an annotation per line.
 - Commit GOAnnotation object to uniprot_db collection of solr database.
 
-**important: if the url of gaf file or obo file changes, we need to update them in applications.properties file, otherwise it may not reflect the correct data; if the format of gaf file or obo file has been changed, we need to change the code accordingly.**
+** important: if the url of gaf file or obo file changes, we need to update them in applications.properties file, otherwise it may not reflect the correct data; if the format of gaf file or obo file has been changed, we need to change the code accordingly. **
 
 The above 2 methods are called from GOAnnotationETLPipelilne.java's main method.
 
