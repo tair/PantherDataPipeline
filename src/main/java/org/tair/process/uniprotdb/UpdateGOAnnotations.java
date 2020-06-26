@@ -34,12 +34,12 @@ public class UpdateGOAnnotations {
 		SolrQuery query = new SolrQuery("*:*");
 		query.setFields("id","uniprot_ids");
 		query.setSort("id", ORDER.asc);
-		
+
 		QueryResponse tempResponse = solrClient.query("panther", query);
 		int total = (int)tempResponse.getResults().getNumFound();
 		query.setRows(total);
 		QueryResponse response = solrClient.query("panther", query);
-		
+
 		//using facet to get uniprot_db's max length result, and set the number to uniprot_db's rows.
 		SolrQuery uniprotFacetQuery = new SolrQuery("*:*");
 		uniprotFacetQuery.setRows(0);
@@ -47,7 +47,7 @@ public class UpdateGOAnnotations {
 		uniprotFacetQuery.addFacetField("uniprot_id");
 		uniprotFacetQuery.setFacetLimit(-1); // -1 means unlimited
 		uniprotFacetQuery.setFacetSort(FacetParams.FACET_SORT_COUNT);
-		
+
 		QueryResponse uniprotFacetResponse = solrClient.query("paint_db", uniprotFacetQuery);
 		FacetField uniprotIdFacets = uniprotFacetResponse.getFacetField("uniprot_id");
 		uniprot_rows = (int)uniprotIdFacets.getValues().get(0).getCount();
@@ -69,24 +69,6 @@ public class UpdateGOAnnotations {
 			solrClient.commit("panther");
 			System.out.println("commited: "+ id);
 		}
-//			SolrDocument result = response.getResults().get(i);
-//			Collection<Object> uniprotIds = result.getFieldValues("uniprot_ids");
-//			if (uniprotIds == null) continue;
-//			String id = (String) result.getFieldValue("id");
-//			System.out.println("Processing: "+id +" idx: "+i);
-//			List<String> goAnnotationDataList = getGOAnnotationsForTree(uniprotIds);
-//
-//			SolrInputDocument doc = new SolrInputDocument();
-//			doc.addField("id", id);
-//			Map<String, List<String>> partialUpdate = new HashMap<>();
-//			partialUpdate.put("set", goAnnotationDataList);
-//			doc.addField("go_annotations", partialUpdate);
-//			solrClient.add("panther", doc);
-//			solrClient.commit("panther");
-//
-//			System.out.println("commited: "+ id);
-//		}
-		
 	}
 
 	public void testUniprot() throws SolrServerException, IOException {
@@ -106,16 +88,20 @@ public class UpdateGOAnnotations {
 		for (Object uniprotId : uniprotIds) {
 			query.setQuery("uniprot_id:"+uniprotId.toString().toUpperCase());
 			query.setRows(uniprot_rows);
-			QueryResponse response = solrClient.query("paint_db", query);
-			SolrDocumentList results = response.getResults();
+			QueryResponse response1 = solrClient.query("paint_db", query);
+			query.setQuery("uniprot_id:"+uniprotId.toString().toLowerCase());
+			query.setRows(uniprot_rows);
+			QueryResponse response2 = solrClient.query("uniprot_db", query);
 			List<String> goAnnotations = new ArrayList<String>();
 
-
-			for (SolrDocument result: results) {
+			for (SolrDocument result: response1.getResults()) {
+				goAnnotations.add((String) result.getFieldValue("go_annotations"));
+			}
+			for (SolrDocument result: response2.getResults()) {
 				goAnnotations.add((String) result.getFieldValue("go_annotations"));
 			}
 			if (goAnnotations.size()>0) {
-				System.out.println(uniprotId.toString().toLowerCase() + " results: " + results.getNumFound());
+//				System.out.println(uniprotId.toString().toLowerCase() + " results1: " + response1.getResults().getNumFound() + ", " + response2.getResults().getNumFound());
 //				System.out.println(goAnnotations.toString());
 				GOAnnotationData goAnnotationData = new GOAnnotationData();
 				goAnnotationData.setGo_annotations(goAnnotations.toString());
@@ -127,7 +113,7 @@ public class UpdateGOAnnotations {
 		}
 		return goAnnotationDataList;
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		long startTime = System.nanoTime();
 

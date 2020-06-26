@@ -61,18 +61,23 @@ public class GOAnnotationETLPipeline {
 
     }
 
+    private void saveGAFResourcesLocally(GOAnnotationGafUtils goAnnotationGafUtils) throws Exception {
+        // prepare for resources
+        FileUtils.cleanDirectory(new File(GO_IBA_RESOURCES_DIR));
+        goAnnotationGafUtils.loadGoIbaAnnotationsResources(GO_IBA_RESOURCES_DIR);
+        goAnnotationGafUtils.generatePropFromObo(GO_IBA_RESOURCES_DIR);
+    }
     /***
      * Load go annotations from gaf file into solr's uniprot_db collection by the following steps:
      * 1. prepare for resources including gaf file, obo file, properties file
      * 2. traverse all gaf files and read go annotation data
      * 3. commit go annotation data in batch to uniprot_db collection
      ***/
-    public void updateGOAnnotationFromFileToUniprotDb() throws Exception {
-        // prepare for resources
-        FileUtils.cleanDirectory(new File(GO_IBA_RESOURCES_DIR));
+    public void updateGOAnnotationFromFileToUniprotDb(Boolean loadResources) throws Exception {
         GOAnnotationGafUtils goAnnotationGafUtils = new GOAnnotationGafUtils();
-        goAnnotationGafUtils.loadGoIbaAnnotationsResources(GO_IBA_RESOURCES_DIR);
-        goAnnotationGafUtils.generatePropFromObo(GO_IBA_RESOURCES_DIR);
+        if(loadResources) {
+            saveGAFResourcesLocally(goAnnotationGafUtils);
+        }
 
         try (
                 BufferedWriter writer = new BufferedWriter(new FileWriter(GO_IBA_LOGS_DIR + "/errorsLoadingGoAnnotationsFromFile.log"));
@@ -102,6 +107,9 @@ public class GOAnnotationETLPipeline {
                         }
                         // read from line and create GOAnnotation obj
                         GOAnnotation goAnnotation = GOAnnotation.readFromGafLine(thisLine, prop);
+                        if(goAnnotation == null) {
+                            continue;
+                        }
                         // create GOAnnotationData obj from GOAnnotation obj
                         GOAnnotationData goAnnotationData = GOAnnotationData.createFromGOAnnotation(goAnnotation);
 
@@ -134,7 +142,7 @@ public class GOAnnotationETLPipeline {
         // important: if the url of gaf file or obo file changes, we need to update them in applications.properties file, otherwise it may not reflect the correct data;
         // if the format of gaf file or obo file has been changed, we need to change the code accordingly.
 //        goAnnotationETLPipeline.storeGOAnnotationFromApiToUniprotDb();
-//        goAnnotationETLPipeline.updateGOAnnotationFromFileToUniprotDb();
+//        goAnnotationETLPipeline.updateGOAnnotationFromFileToUniprotDb(false);
         long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;
         System.out.println("Execution time in nanoseconds  : " + timeElapsed);
