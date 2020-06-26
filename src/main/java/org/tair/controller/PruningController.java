@@ -8,13 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.tair.module.PantherData;
 import org.tair.process.PantherBookXmlToJson;
-import org.tair.process.PantherETLPipeline;
+import org.tair.process.panther.PantherETLPipeline;
 import org.tair.util.Util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
