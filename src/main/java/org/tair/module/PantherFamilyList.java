@@ -5,32 +5,30 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.apache.solr.client.solrj.beans.Field;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PantherFamilyList {
-    private SearchResultFL search;
+    Search search;
 
-    public List<String> getFamilyList() {
-        FamilyList fl = search.getFamily_list();
-        return fl.getFamily_id();
+    public List<FamilyNode> getFamilyNodes() {
+        return search.getPanther_family_subfam_list().getFamily();
     }
 }
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class SearchResultFL {
-    private Parameters parameters;
-    private FamilyList family_list;
+class Search {
+    FamilyList panther_family_subfam_list;
 }
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class FamilyList {
-    List<String> family_id = new ArrayList<>();
+    List<FamilyNode> family;
 }
+
