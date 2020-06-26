@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.Data;
 import org.apache.solr.client.solrj.beans.Field;
+import org.tair.module.panther.SearchResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,4 +49,6 @@ public class PantherData {
 	private List<String> organisms = new ArrayList<String>();
 	@Field
 	private List<String> uniprot_ids = new ArrayList<String>();
+	@Field
+	private List<String> persistent_ids = new ArrayList<String>();
 }
