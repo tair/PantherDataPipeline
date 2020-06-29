@@ -13,6 +13,7 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.tair.module.GOAnnotation;
 import org.tair.module.GOAnnotationData;
+import org.tair.process.paint.GOAnnotationPaintETLPipeline;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -27,6 +28,10 @@ public class GOAnnotationETLPipeline {
     private static String GO_IBA_RESOURCES_DIR = "src/main/resources/panther/GO_IBA_annotations";
     private static String GO_IBA_LOGS_DIR = "src/main/logs/uniprot_db";
 
+    /***
+     * Old code for loading GO annotations to "uniprot_db" from the api. This is changed to load from paint instead.
+     * @throws Exception
+     */
     public void storeGOAnnotationFromApiToUniprotDb() throws Exception {
         // remove all data from this collection
         solrClient.deleteByQuery("uniprot_db", "*:*");
@@ -135,14 +140,17 @@ public class GOAnnotationETLPipeline {
 
     public static void main(String args[]) throws Exception {
         long startTime = System.nanoTime();
+        //First load all the paint annotations to "paint_db" solr
+        GOAnnotationPaintETLPipeline paintPipeline = new GOAnnotationPaintETLPipeline();
+        paintPipeline.loadPaintAnnotations();
 
-        GOAnnotationETLPipeline goAnnotationETLPipeline = new GOAnnotationETLPipeline();
-
+        GOAnnotationETLPipeline ibaPipeline = new GOAnnotationETLPipeline();
         // uncomment based on your needs
         // important: if the url of gaf file or obo file changes, we need to update them in applications.properties file, otherwise it may not reflect the correct data;
         // if the format of gaf file or obo file has been changed, we need to change the code accordingly.
-//        goAnnotationETLPipeline.storeGOAnnotationFromApiToUniprotDb();
-//        goAnnotationETLPipeline.updateGOAnnotationFromFileToUniprotDb(false);
+        // "loadResources": to true if the GAF files for IBA annotations are not in the resources folder, or want to redownload it.
+        ibaPipeline.updateGOAnnotationFromFileToUniprotDb(true);
+
         long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;
         System.out.println("Execution time in nanoseconds  : " + timeElapsed);

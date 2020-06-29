@@ -1,78 +1,41 @@
 /***
- * Load go annotations from api into solr's uniprot_db collection
+ * Load go annotations from paint csv file into solr's paint_db collection.
+ * "go_basic.json": Is used to
  ***/
 
 package org.tair.process.paint;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.tair.module.GOAnnotation;
-import org.tair.module.GOAnnotationData;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 
 public class GOAnnotationPaintETLPipeline {
 
     private String solrUrl = "http://localhost:8983/solr";
-    private SolrClient solrClient = new HttpSolrClient.Builder(solrUrl).build();
+    private SolrClient solrClient = null;
+    //Change resources base to your local resources panther folder
+    private String RESOURCES_DIR = "src/main/resources";
+    private String PAINT_TSV_NAME = "Pthr_GO_14.1.tsv";
+    private String GO_BASIC_NAME = "go-basic.json";
+    //Solr Collection (Make sure this collection is added to your solr database)
+    private String solr_collection = "paint_db";
+
     private PaintServerWrapper paintServerWrapper = new PaintServerWrapper();
-//    private GOAnnotationUrlToJson GOAnnotationUrlToJson = new GOAnnotationUrlToJson();
-//    private static String GO_IBA_RESOURCES_DIR = "src/main/resources/panther/GO_IBA_annotations";
-//    private static String GO_IBA_LOGS_DIR = "src/main/logs/uniprot_db";
 
-    public void storeGOAnnotationFromPaintApiToPersistentIdDb() throws Exception {
-        // remove all data from this collection
-//        solrClient.deleteByQuery("uniprot_db", "*:*");
+    public GOAnnotationPaintETLPipeline() {
+        solrClient = new HttpSolrClient.Builder(solrUrl).build();
+    }
 
-        final SolrQuery query = new SolrQuery("*:*");
-        query.setRows(0);
-        query.setFacet(true);
-        query.addFacetField("persistent_ids");
-        query.setFacetLimit(-1); // -1 means unlimited
-
-        final QueryResponse response = solrClient.query("panther", query);
-        final FacetField persistent_ids = response.getFacetField("persistent_ids");
-        List<Count> counts = persistent_ids.getValues();
-        System.out.println("Total number to load: " + counts.size());
-        int starting_idx = 18500;
-        for(int i=starting_idx; i < counts.size(); i++) {
-            if(i%100 == 0) {
-                System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Saving "+ i);
-            }
-            String persId = counts.get(i).getName();
-            paintServerWrapper.storeGoAnnosLocally(persId);
-        }
-//        int iter = counts.size() / 500 + 1;
-//        for (int i = 0; i < iter; i++) {
-//            List<String> uniprotIdList = new ArrayList<String>();
-//            for (int j = i * 500; j < (i + 1) * 500; j++) {
-//                if (j == counts.size())
-//                    break;
-//                uniprotIdList.add(counts.get(j).getName());
-//            }
-//            System.out.println("Loading: " + i * 500 + "-" + (i + 1) * 500);
-//            List<GOAnnotationData> goAnnotations = GOAnnotationUrlToJson.readGOAnnotationUrlToObjectList(String.join(",", uniprotIdList));
-//            if (goAnnotations.size() > 0) {
-//                solrClient.addBeans("uniprot_db", goAnnotations);
-//                solrClient.commit("uniprot_db");
-//            }
-//        }
-//        System.out.println("finished commits to uniprot_db collection");
-
+    public void loadPaintAnnotations() throws Exception {
+        String csv_path = RESOURCES_DIR + "/" + PAINT_TSV_NAME;
+        String go_basic_path = RESOURCES_DIR + "/" + GO_BASIC_NAME;
+        paintServerWrapper.savePaintAnnotationsToSolr(csv_path, go_basic_path, solrClient, solr_collection);
     }
 
     public static void main(String args[]) throws Exception {
         long startTime = System.nanoTime();
         GOAnnotationPaintETLPipeline paintPipeline = new GOAnnotationPaintETLPipeline();
-        paintPipeline.storeGOAnnotationFromPaintApiToPersistentIdDb();
+        paintPipeline.loadPaintAnnotations();
+
         long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;
         System.out.println("Execution time in nanoseconds  : " + timeElapsed);
