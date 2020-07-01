@@ -79,6 +79,9 @@ public class GOAnnotationETLPipeline {
      * 3. commit go annotation data in batch to uniprot_db collection
      ***/
     public void updateGOAnnotationFromFileToUniprotDb(Boolean loadResources) throws Exception {
+        // remove all data from this collection
+        solrClient.deleteByQuery("uniprot_db", "*:*");
+
         GOAnnotationGafUtils goAnnotationGafUtils = new GOAnnotationGafUtils();
         if(loadResources) {
             saveGAFResourcesLocally(goAnnotationGafUtils);
