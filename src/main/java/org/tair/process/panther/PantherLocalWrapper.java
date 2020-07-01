@@ -59,7 +59,7 @@ public class PantherLocalWrapper {
             // load props
             Properties prop = new Properties();
             prop.load(input);
-            System.out.println(prop);
+//            System.out.println(prop);
             if(prop.containsKey("RESOURCES_BASE")) {
                 RESOURCES_BASE = prop.getProperty("RESOURCES_BASE");
                 makeDir(RESOURCES_BASE);
@@ -214,6 +214,17 @@ public class PantherLocalWrapper {
             String[] header = {"Ids with horizontal transfer"};
             HTListCsvWriter.writeNext(header);
         }
+    }
+
+    public CSVWriter createLogWriter(String filename, String headerStr) throws Exception {
+        String newLogFile = RESOURCES_BASE + "/" + filename;
+        File csvFile_custom = new File(newLogFile);
+        System.out.println("Log file created "+ newLogFile);
+        FileWriter outputfile = new FileWriter(newLogFile);
+        String[] header = {headerStr};
+        CSVWriter currWriter = new CSVWriter(outputfile);;
+        currWriter.writeNext(header);
+        return currWriter;
     }
 
     public void logDeletedId(String id) throws Exception{
