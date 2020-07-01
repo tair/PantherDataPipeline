@@ -7,6 +7,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
+import com.opencsv.CSVWriter;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -18,10 +19,7 @@ import org.tair.process.PantherBookXmlToJson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class PhylogenesServerWrapper {
 	private String RESOURCES_DIR = "src/main/resources";
@@ -162,23 +160,49 @@ public class PhylogenesServerWrapper {
 	public void analyzePantherTrees() throws Exception {
 		SolrQuery sq = new SolrQuery("*:*");
 		sq.setRows(9000);
-		sq.setFields("id");
+		sq.setFields("id", "gene_ids");
 		sq.setSort("id", SolrQuery.ORDER.asc);
 		QueryResponse treeIdResponse = mysolr.query(sq);
 
 		int totalDocsFound = treeIdResponse.getResults().size();
 		System.out.println("totalDocsFound "+ totalDocsFound);
-        pantherLocal.initLogWriter(2);
+        CSVWriter writer = pantherLocal.createLogWriter("tair_locus_ids.csv", "Tair Locus IDs");
+		int totalLocusId = 0;
+		int totalTrees = 0;
 		for (int i = 0; i < totalDocsFound; i++) {
-			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
-			PantherData origPantherData = pantherLocal.readPantherTreeById(treeId);
-			//Is Horizontal Transfer
-			boolean isHorizTransfer = new PantherBookXmlToJson().isHoriz_Transfer(origPantherData);
-			if(isHorizTransfer) {
-				pantherLocal.logHTId(treeId);
+			Object[] src = treeIdResponse.getResults().get(i).getFieldValues("gene_ids").toArray();
+			String[] gene_ids = new String[src.length];
+//			System.out.println(Arrays.toString(gene_ids));
+			System.arraycopy(src, 0, gene_ids, 0, src.length);
+			for(int j=0; j< gene_ids.length; j++) {
+				if(gene_ids[j].contains("TAIR:")) {
+					String genePrefix = gene_ids[j].split("=")[0];
+					if (genePrefix.contains("locus")) {
+						totalLocusId += 1;
+					}
+					String[] data = {gene_ids[j]};
+					writer.writeNext(data);
+				}
 			}
+			totalTrees += 1;
 		}
-        pantherLocal.initLogWriter(2);
+		String totalLocusStr = "Total IDs containing 'locus=xxx': "  + totalLocusId;
+		String[] data = {totalLocusStr};
+		writer.writeNext(data);
+		String totalTreesStr = "Total Trees having this genes "  + totalTrees;
+		String[] data2 = {totalTreesStr};
+		writer.writeNext(data2);
+		writer.close();
+		System.out.println("Total locus ids found "+ totalLocusId);
+//			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+
+//			//Is Horizontal Transfer
+//			boolean isHorizTransfer = new PantherBookXmlToJson().isHoriz_Transfer(origPantherData);
+//			if(isHorizTransfer) {
+//				pantherLocal.logHTId(treeId);
+//			}
+//		}
+//        pantherLocal.initLogWriter(2);
 	}
 
 	public void uploadJsonToPGTreeBucket(String filename, String jsonStr) {
@@ -223,4 +247,13 @@ public class PhylogenesServerWrapper {
     public void uploadJsonToS3(String bucketName, String key, String content) {
         s3_server.putObject(bucketName, key, content);
     }
+
+    public static void main(String args[]) {
+    	PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
+    	try {
+			pgServer.analyzePantherTrees();
+		} catch (Exception e) {
+    		System.out.println(e);
+		}
+	}
 }
