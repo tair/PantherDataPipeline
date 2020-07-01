@@ -13,6 +13,7 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.tair.module.GOAnnotation;
 import org.tair.module.GOAnnotationData;
+import org.tair.process.paint.GOAnnotationPaintETLPipeline;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -27,6 +28,10 @@ public class GOAnnotationETLPipeline {
     private static String GO_IBA_RESOURCES_DIR = "src/main/resources/panther/GO_IBA_annotations";
     private static String GO_IBA_LOGS_DIR = "src/main/logs/uniprot_db";
 
+    /***
+     * Old code for loading GO annotations to "uniprot_db" from the api. This is changed to load from paint instead.
+     * @throws Exception
+     */
     public void storeGOAnnotationFromApiToUniprotDb() throws Exception {
         // remove all data from this collection
         solrClient.deleteByQuery("uniprot_db", "*:*");
@@ -61,18 +66,26 @@ public class GOAnnotationETLPipeline {
 
     }
 
+    private void saveGAFResourcesLocally(GOAnnotationGafUtils goAnnotationGafUtils) throws Exception {
+        // prepare for resources
+        FileUtils.cleanDirectory(new File(GO_IBA_RESOURCES_DIR));
+        goAnnotationGafUtils.loadGoIbaAnnotationsResources(GO_IBA_RESOURCES_DIR);
+        goAnnotationGafUtils.generatePropFromObo(GO_IBA_RESOURCES_DIR);
+    }
     /***
      * Load go annotations from gaf file into solr's uniprot_db collection by the following steps:
      * 1. prepare for resources including gaf file, obo file, properties file
      * 2. traverse all gaf files and read go annotation data
      * 3. commit go annotation data in batch to uniprot_db collection
      ***/
-    public void updateGOAnnotationFromFileToUniprotDb() throws Exception {
-        // prepare for resources
-        FileUtils.cleanDirectory(new File(GO_IBA_RESOURCES_DIR));
+    public void updateGOAnnotationFromFileToUniprotDb(Boolean loadResources) throws Exception {
+        // remove all data from this collection
+        solrClient.deleteByQuery("uniprot_db", "*:*");
+
         GOAnnotationGafUtils goAnnotationGafUtils = new GOAnnotationGafUtils();
-        goAnnotationGafUtils.loadGoIbaAnnotationsResources(GO_IBA_RESOURCES_DIR);
-        goAnnotationGafUtils.generatePropFromObo(GO_IBA_RESOURCES_DIR);
+        if(loadResources) {
+            saveGAFResourcesLocally(goAnnotationGafUtils);
+        }
 
         try (
                 BufferedWriter writer = new BufferedWriter(new FileWriter(GO_IBA_LOGS_DIR + "/errorsLoadingGoAnnotationsFromFile.log"));
@@ -102,6 +115,9 @@ public class GOAnnotationETLPipeline {
                         }
                         // read from line and create GOAnnotation obj
                         GOAnnotation goAnnotation = GOAnnotation.readFromGafLine(thisLine, prop);
+                        if(goAnnotation == null) {
+                            continue;
+                        }
                         // create GOAnnotationData obj from GOAnnotation obj
                         GOAnnotationData goAnnotationData = GOAnnotationData.createFromGOAnnotation(goAnnotation);
 
@@ -127,14 +143,17 @@ public class GOAnnotationETLPipeline {
 
     public static void main(String args[]) throws Exception {
         long startTime = System.nanoTime();
+        //First load all the paint annotations to "paint_db" solr
+        GOAnnotationPaintETLPipeline paintPipeline = new GOAnnotationPaintETLPipeline();
+        paintPipeline.loadPaintAnnotations();
 
-        GOAnnotationETLPipeline goAnnotationETLPipeline = new GOAnnotationETLPipeline();
-
+        GOAnnotationETLPipeline ibaPipeline = new GOAnnotationETLPipeline();
         // uncomment based on your needs
         // important: if the url of gaf file or obo file changes, we need to update them in applications.properties file, otherwise it may not reflect the correct data;
         // if the format of gaf file or obo file has been changed, we need to change the code accordingly.
-//        goAnnotationETLPipeline.storeGOAnnotationFromApiToUniprotDb();
-//        goAnnotationETLPipeline.updateGOAnnotationFromFileToUniprotDb();
+        // "loadResources": to true if the GAF files for IBA annotations are not in the resources folder, or want to redownload it.
+        ibaPipeline.updateGOAnnotationFromFileToUniprotDb(true);
+
         long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;
         System.out.println("Execution time in nanoseconds  : " + timeElapsed);
