@@ -24,8 +24,8 @@ import java.util.*;
 public class PhylogenesServerWrapper {
 	private String RESOURCES_DIR = "src/main/resources";
     //S3 Keys
-    String S3_ACCESS_KEY = "AKIAT2DXR6T2BY4CBKN2";
-    String S3_SECRET_KEY = "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";
+    String S3_ACCESS_KEY = "";
+    String S3_SECRET_KEY = "";
     String PG_TREE_BUCKET_NAME = "phg-panther-data";
     String PG_MSA_BUCKET_NAME = "phg-msa-data";
 
