@@ -163,7 +163,6 @@ public class PantherBookXmlToJson {
 			e.printStackTrace();
 			System.out.println("Error in building list: " + e.getMessage());
 		}
-
 		return this.pantherData;
 	}
 
