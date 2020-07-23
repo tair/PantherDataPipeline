@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*")
 public class PruningController {
 //    private String BASE_URL = "http://panthertest3.med.usc.edu:8083/tempFamilySearch";
     private String BASE_URL = "http://pantherdb.org/tempFamilySearch";
