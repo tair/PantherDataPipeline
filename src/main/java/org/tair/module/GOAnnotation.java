@@ -18,9 +18,11 @@ public class GOAnnotation {
     private String geneProductId;
     private String goId;
     private String goName;
+    private String goAspect;
+
     private String evidenceCode;
     private String reference;
-    private List<ConnectedXref> withFrom;
+//    private List<ConnectedXref> withFrom;
 
     @JsonProperty("geneProductId")
     private void buildGeneProductId(String geneProductId) {
@@ -38,21 +40,21 @@ public class GOAnnotation {
         }
     }
 
-    @JsonProperty("withFrom")
-    private void buildWithFrom(List<WithFromItem> withFrom) {
-        if (withFrom != null) {
-            List<ConnectedXref> withFromList = new ArrayList<ConnectedXref>();
-            for (WithFromItem withFromItem : withFrom) {
-                List<ConnectedXref> connectedXrefs = withFromItem.getConnectedXrefs();
-                for (ConnectedXref connectedXref : connectedXrefs) {
-                    withFromList.add(connectedXref);
-                }
-            }
-            this.withFrom = withFromList;
-        } else {
-            this.withFrom = null;
-        }
-    }
+//    @JsonProperty("withFrom")
+//    private void buildWithFrom(List<WithFromItem> withFrom) {
+//        if (withFrom != null) {
+//            List<ConnectedXref> withFromList = new ArrayList<ConnectedXref>();
+//            for (WithFromItem withFromItem : withFrom) {
+//                List<ConnectedXref> connectedXrefs = withFromItem.getConnectedXrefs();
+//                for (ConnectedXref connectedXref : connectedXrefs) {
+//                    withFromList.add(connectedXref);
+//                }
+//            }
+//            this.withFrom = withFromList;
+//        } else {
+//            this.withFrom = null;
+//        }
+//    }
 
     @JsonProperty("evidenceCode")
     private void buildEvidence(String evidenceCode) {
@@ -95,17 +97,13 @@ public class GOAnnotation {
         goAnnotation.setReference(attributes[5]);
         // compose evidence code string for IBA, if in the future there are more evidence codes, this should be changed accordingly
         goAnnotation.setEvidenceCode("ECO:0000318," + attributes[6] + ",phylogeny");
-        String withFrom = attributes[7];
-        List<ConnectedXref> connectedXrefs = new ArrayList<>();
-        for (String entry : withFrom.split("\\|")) {
-            String db = entry.split(":")[0];
-            String id = entry.substring(db.length() + 1);
-            ConnectedXref connectedXref = new ConnectedXref();
-            connectedXref.setDb(db);
-            connectedXref.setId(id);
-            connectedXrefs.add(connectedXref);
+
+        String goAspect = attributes[8];
+        if(goAspect.equals("C")) {
+            System.out.println("Ignore C");
+            return null;
         }
-        goAnnotation.setWithFrom(connectedXrefs);
+        goAnnotation.setGoAspect(goAspect);
         return goAnnotation;
     }
 }

@@ -2,7 +2,7 @@ package org.tair.process;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.tair.module.Annotation;
+import org.tair.module.panther.Annotation;
 import org.tair.module.Children;
 import org.tair.module.PantherData;
 import org.tair.util.Util;
@@ -25,6 +25,7 @@ public class PantherBookXmlToJson {
 		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
 				PantherData.class);
 		this.pantherData.setId(book_id);
+		System.out.println(this.pantherData);
 		return this.pantherData;
 	}
 
@@ -63,8 +64,8 @@ public class PantherBookXmlToJson {
 	private void addToListFromAnnotation(Annotation annotation) {
 		//Internal Node Variables
 		//"accession"
-		if (annotation.getAccession() != null && !this.pantherData.getAccessions().contains(annotation.getAccession()))
-			this.pantherData.getAccessions().add(annotation.getAccession());
+//		if (annotation.getAccession() != null && !this.pantherData.getAccessions().contains(annotation.getAccession()))
+//			this.pantherData.getAccessions().add(annotation.getAccession());
 		//"public_id" - not indexed
 		//"sf_id"
 		if (annotation.getSf_id() != null && !this.pantherData.getSf_ids().contains(annotation.getSf_id()))
@@ -106,6 +107,10 @@ public class PantherBookXmlToJson {
 				if(!this.pantherData.getUniprot_ids().contains(uniProtId))
 					this.pantherData.getUniprot_ids().add(uniProtId);
 			}
+		}
+		//"persistent_id"
+		if (annotation.getPersistent_id() != null && !this.pantherData.getPersistent_ids().contains(annotation.getPersistent_id())) {
+			this.pantherData.getPersistent_ids().add(annotation.getPersistent_id());
 		}
 		//"organism"
 		if (annotation.getOrganism() != null && !this.pantherData.getOrganisms().contains(annotation.getOrganism()))
@@ -158,7 +163,6 @@ public class PantherBookXmlToJson {
 			e.printStackTrace();
 			System.out.println("Error in building list: " + e.getMessage());
 		}
-
 		return this.pantherData;
 	}
 
@@ -244,13 +248,15 @@ public class PantherBookXmlToJson {
 				PantherData.class);
 		this.pantherData.setId(orig.getId());
 		if(this.pantherData.getSearch() != null) {
-			Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
-			if(rootNodeAnnotation == null) {
-				return true;
-			}
-			this.annotations.add(rootNodeAnnotation);
-			if(rootNodeAnnotation != null) {
-				flattenTree(this.pantherData.getSearch().getAnnotation_node().getChildren());
+			if(this.pantherData.getSearch().getAnnotation_node() != null) {
+				Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
+				if (rootNodeAnnotation == null) {
+					return true;
+				}
+				this.annotations.add(rootNodeAnnotation);
+				if (rootNodeAnnotation != null) {
+					flattenTree(this.pantherData.getSearch().getAnnotation_node().getChildren());
+				}
 			}
 		}
 
@@ -341,4 +347,8 @@ public class PantherBookXmlToJson {
 		return this.pantherData;
 	}
 
+	public static void main(String s[]) throws Exception {
+		PantherBookXmlToJson panther = new PantherBookXmlToJson();
+		panther.readBookById("PTHR10000");
+	}
 }

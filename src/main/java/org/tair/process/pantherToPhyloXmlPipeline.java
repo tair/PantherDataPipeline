@@ -2,6 +2,8 @@ package org.tair.process;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.tair.module.pantherForPhylo.*;
 import org.tair.module.phyloxml.*;
+import org.tair.process.panther.PhylogenesServerWrapper;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,8 +28,7 @@ import javax.xml.transform.stream.StreamResult;
 public class pantherToPhyloXmlPipeline
 {
     private static String RESOURCES_BASE = "/Users/swapp1990/Documents/projects/Pheonix_Projects/phylogenes_data/PantherPipelineResources/panther15/panther";
-    PantherS3Wrapper pantherS3Server = new PantherS3Wrapper();
-
+    PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
     public static void main(String args[])
     {
 //        PantherJsonToPhyloXml("PTHR11705");
@@ -66,7 +67,7 @@ public class pantherToPhyloXmlPipeline
             for (File child : directoryListing) {
                 if (child.getName().charAt(0) != '.') {// to ignore files such as .gitignore and .ds_store
                     fileCount++;
-                    pantherS3Server.uploadObjectToBucket(bucketName, child.getName(), child);
+                    pgServer.uploadObjectToBucket(bucketName, child.getName(), child);
                     System.out.println("Saved S3: "+ fileCount + " " + child.getName());
                 }
             }

@@ -8,18 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.tair.module.PantherData;
 import org.tair.process.PantherBookXmlToJson;
-import org.tair.process.PantherETLPipeline;
+import org.tair.process.panther.PantherETLPipeline;
 import org.tair.util.Util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@CrossOrigin(origins = "*")
 @RestController
-@CrossOrigin
 public class PruningController {
 //    private String BASE_URL = "http://panthertest3.med.usc.edu:8083/tempFamilySearch";
     private String BASE_URL = "http://pantherdb.org/tempFamilySearch";
@@ -52,9 +49,7 @@ public class PruningController {
         String prunedTreeUrl = BOOK_INFO_URL + "&book=" + family_id + "&taxonFltr=" + joined;
         System.out.println(prunedTreeUrl);
         String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, prunedTreeUrl);
-
-        PantherData prunedData = new PantherBookXmlToJson().convertJsonToSolrforApi(jsonString, family_id);
-        return prunedData.getJsonString();
+        return jsonString;
     }
 
     @PostMapping(path = "/panther/grafting", consumes="application/json")
@@ -120,8 +115,9 @@ public class PruningController {
         String prunedTreeUrl = BOOK_INFO_URL + "&book=" + family_id + "&taxonFltr=" + filterIds;
         System.out.println(prunedTreeUrl);
         String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, prunedTreeUrl);
-
+        System.out.println(jsonString);
         PantherData prunedData = new PantherBookXmlToJson().convertJsonToSolrforApi(jsonString, family_id);
+        System.out.println(prunedData);
     }
 
     public void testGraftingApi() throws Exception {
@@ -146,8 +142,8 @@ public class PruningController {
 
     public static void main(String args[]) throws Exception {
         PruningController controller = new PruningController();
-//        controller.testPruningApi();
-        controller.testGraftingApi();
+        controller.testPruningApi();
+//        controller.testGraftingApi();
     }
 
 }
