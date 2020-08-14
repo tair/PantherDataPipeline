@@ -94,8 +94,7 @@ public class PruningController {
         stringBuilder.append(taxon_array[taxon_array.length - 1]);
         String joined = stringBuilder.toString();
 
-        String graftingUrl = "http://panthertest10.med.usc.edu:8090/tempFamilySearch?type=graft_seq&sequence="+
-                inputSeq + "&taxonFltr=" + joined;
+        String graftingUrl = GRAFT_URL+"&sequence="+inputSeq + "&taxonFltr=" + joined;
 
         System.out.println("Got Pruned Grafting Request " + graftingUrl);
         String jsonString = "";
