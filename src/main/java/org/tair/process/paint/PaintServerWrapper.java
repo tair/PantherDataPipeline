@@ -28,30 +28,46 @@ public class PaintServerWrapper {
 
     PaintAnno processPaintAnno(String[] cols, GoBasic go_basic) {
         if(cols.length < 3) return null;
-        String[] db_references = new String[]{"PMID", "GO_REF", "DOI", "AGRICOLA_IND"};
+        PaintAnno anno = new PaintAnno();
+        //UniprotId
+        String uniprotId = cols[0].split("UniProtKB=")[1];
+        anno.setGeneProductId(uniprotId);
+        //Evidence Code
         String evidence_code = cols[2];
+        anno.setEvidenceCode(evidence_code);
+        //GoId
+        anno.setGoId(cols[1]);
+        String go_id = cols[1].split("GO:")[1];
+        //dbReference
+        String main_db = "PMID";
         String reference_id = "";
         if(cols.length == 4) {
             reference_id = cols[3];
         } else if(cols.length == 5) {
             reference_id = cols[4];
         }
-        String reference_db = reference_id.split(":")[0];
-        boolean matchedRefDb = Arrays.asList(db_references).contains(reference_db);
-        if(!matchedRefDb) {
-            System.out.println("Not matched " + matchedRefDb);
-            return null;
+
+        if(reference_id.contains("|")) {
+            //Multiple references found!
+            String[] reference_db_list = reference_id.split("\\|");
+            boolean matchedMainRefDb = false;
+            //Find if there is a main ref match
+            for(int i=0; i<reference_db_list.length; i++) {
+                String ref_db = reference_db_list[i];
+                String ref_db_name = ref_db.split(":")[0];
+                if(ref_db_name.equals(main_db)) {
+                    reference_id = ref_db;
+                    matchedMainRefDb = true;
+                    break;
+                }
+            }
+            if(!matchedMainRefDb) {
+                System.out.println("Ref db did not match "+ reference_id);
+            }
         }
-        PaintAnno anno = new PaintAnno();
-        //UniprotId
-        String uniprotId = cols[0].split("UniProtKB=")[1];
-        anno.setGeneProductId(uniprotId);
-        //Evidence Code
-        anno.setEvidenceCode(evidence_code);
-        //GoId
-        anno.setGoId(cols[1]);
-        String go_id = cols[1].split("GO:")[1];
-        //GoName
+        anno.setReference(reference_id);
+
+        //GoName, goAspect
         boolean goLabelFound = false;
         for(int i=0; i<go_basic.getNodes().size(); i++) {
             Nodes nodes = go_basic.getNodes().get(i);
@@ -66,9 +82,9 @@ public class PaintServerWrapper {
             }
         }
         if(!goLabelFound) {
-            System.out.println("Go Label not foubd!");
+            System.out.println("Go Label not found!");
         }
-        anno.setReference(reference_id);
+
         return anno;
     }
 
@@ -76,33 +92,45 @@ public class PaintServerWrapper {
         GoBasic go_basic = Util.loadJsonFromFile(go_basic_path);
 
         String[] evidence_codes = new String[]{"EXP", "IDA", "IEP", "IGI", "IMP", "IPI"};
-        // remove all data from this collection
+        // remove all data from this collection (make sure to take a backup of old solr data)
         solrClient.deleteByQuery("paint_db", "*:*");
+        System.out.println("Emptied paint_db in solr!");
         try (BufferedReader br = new BufferedReader(new FileReader(csv_path))) {
             String line;
             int count = 0;
+            int notAdded_count = 0;
             while ((line = br.readLine()) != null) {
                 String[] cols = line.split("\\s+");
+//                String uniprotId = cols[0].split("UniProtKB=")[1];
                 boolean matchedEvidence = Arrays.asList(evidence_codes).contains(cols[2]);
                 if(matchedEvidence) {
+//                    System.out.println(line);
                     PaintAnno anno = processPaintAnno(cols, go_basic);
                     if(anno == null) {
-                        System.out.println("Anno null ");
+                        System.out.println("Anno null " + line);
+                        notAdded_count++;
                         continue;
                     }
-                    count = count+1;
-                    System.out.println(count);
-
+//                    System.out.println("Loaded " + count);
                     SolrInputDocument doc = new SolrInputDocument();
                     doc.addField("uniprot_id", anno.getGeneProductId());
                     ObjectWriter ow = new ObjectMapper().writer();
                     String goAnnotationDataStr = ow.writeValueAsString(anno);
                     doc.addField("go_annotations", goAnnotationDataStr);
                     solrClient.add("paint_db", doc);
+                } else {
+//                    System.out.println("Not added "+ count + " " + cols[2]);
+                    notAdded_count++;
+                }
+                if(count % 1000 == 0) {
+                    System.out.println("Processed " + count);
+                    System.out.println("Not added " + notAdded_count);
                     solrClient.commit("paint_db");
                 }
+                count = count+1;
             }
-            System.out.println(count);
+            System.out.println("Total records in paint "+ count);
+            System.out.println("Total records added to solr "+ (count - notAdded_count));
         }
     }
 

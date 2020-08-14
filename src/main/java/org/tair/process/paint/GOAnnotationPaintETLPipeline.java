@@ -11,6 +11,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 public class GOAnnotationPaintETLPipeline {
 
     private String solrUrl = "http://localhost:8983/solr";
+//    private String solrUrl = "http://18.237.20.208:8983/solr";
     private SolrClient solrClient = null;
     //Change resources base to your local resources panther folder
     private String RESOURCES_DIR = "src/main/resources";
@@ -26,7 +27,8 @@ public class GOAnnotationPaintETLPipeline {
     }
 
     public void loadPaintAnnotations() throws Exception {
-        String csv_path = RESOURCES_DIR + "/" + PAINT_TSV_NAME;
+        String local_paint = "/Users/swapp1990/Documents/projects/Pheonix_Projects/phylogenes_data";
+        String csv_path = local_paint + "/" + PAINT_TSV_NAME;
         String go_basic_path = RESOURCES_DIR + "/" + GO_BASIC_NAME;
         paintServerWrapper.savePaintAnnotationsToSolr(csv_path, go_basic_path, solrClient, solr_collection);
     }
