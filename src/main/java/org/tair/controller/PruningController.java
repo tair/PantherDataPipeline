@@ -72,7 +72,19 @@ public class PruningController {
         List<String> taxonIds = reader.readValue(json.get("taxonIdsToShow"));
         int[] taxon_array = taxonIds.stream().mapToInt(Integer::parseInt).toArray();
 
-        return pantherServer.readPrunedPantherTreeById(inputSeq, taxon_array);
+        String graftingUrl = GRAFT_URL + "?sequence=" + inputSeq +
+                "&taxonFltr=" + taxon_array;
+        System.out.println("Got Grafting Request " + graftingUrl);
+
+        String jsonString = "";
+        try {
+            jsonString = Util.readJsonFromUrl(graftingUrl);
+        }
+        catch(Exception e) {
+            System.out.println("Error "+ e.getMessage());
+            return e.getMessage();
+        }
+        return jsonString;
     }
 
     public void testPruningApi() throws Exception {
