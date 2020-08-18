@@ -44,7 +44,7 @@ public class PantherServerWrapper {
             }
 
         } catch (Exception e) {
-            System.out.println("Prop file not found!");
+//            System.out.println("Prop file not found!");
         }
     }
 
@@ -69,6 +69,17 @@ public class PantherServerWrapper {
                 .mapToObj(Integer::toString)
                 .collect(Collectors.joining(","));
         String prunedTreeUrl = PANTHER_BASE_URL+"?family=" + family_id + "&taxonFltr=" + taxonFiltersParam;
+        String jsonString = Util.readJsonFromUrl(prunedTreeUrl);
+        return jsonString;
+    }
+
+    //Get Panther Tree dynamically using selected taxon ids
+    public String readPrunedPantherTreeById(String family_id, int[] selected_taxons) throws Exception {
+        String taxonFiltersParam = IntStream.of(selected_taxons)
+                .mapToObj(Integer::toString)
+                .collect(Collectors.joining(","));
+        String prunedTreeUrl = PANTHER_BASE_URL+"?family=" + family_id + "&taxonFltr=" + taxonFiltersParam;
+        System.out.println(prunedTreeUrl);
         String jsonString = Util.readJsonFromUrl(prunedTreeUrl);
         return jsonString;
     }
