@@ -64,6 +64,7 @@ public class PruningController {
 
     @PostMapping(path = "/panther/grafting/prune", consumes="application/json")
     public @ResponseBody String getPrunedAndGraftedTree(@RequestBody ObjectNode json) throws Exception {
+//        System.out.println(json);
         String inputSeq = json.get("sequence").asText();
         ObjectMapper mapper = new ObjectMapper();
         // acquire reader for the right type
@@ -71,9 +72,12 @@ public class PruningController {
         });
         List<String> taxonIds = reader.readValue(json.get("taxonIdsToShow"));
         int[] taxon_array = taxonIds.stream().mapToInt(Integer::parseInt).toArray();
+        String taxonFiltersParam = IntStream.of(taxon_array)
+                .mapToObj(Integer::toString)
+                .collect(Collectors.joining(","));
 
         String graftingUrl = GRAFT_URL + "?sequence=" + inputSeq +
-                "&taxonFltr=" + taxon_array;
+                "&taxonFltr=" + taxonFiltersParam;
         System.out.println("Got Grafting Request " + graftingUrl);
 
         String jsonString = "";
