@@ -4,7 +4,6 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
@@ -169,6 +168,104 @@ public class PhylogenesServerWrapper {
 		}
 	}
 
+	public void analyzePantherAnnos2() throws Exception {
+//		SolrQuery sq = new SolrQuery("id:PTHR10012");
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id", "go_annotations", "uniprot_ids");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		File file = new File("annos_stats_aug19.csv");
+		CsvWriter csvWriter = new CsvWriter();
+		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
+			csvAppender.appendLine("treeId", "UniprotIds_count", "genes_count_1F",  "genes_count_1P", "goTerms_count_F", "goTerms_count_P");
+			int totalDocsFound = treeIdResponse.getResults().size();
+			System.out.println("totalDocsFound " + totalDocsFound);
+			for (int i = 0; i < totalDocsFound; i++) {
+				String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+				Object[] uniprot_ids = treeIdResponse.getResults().get(i).getFieldValues("uniprot_ids").toArray();
+				System.out.println(treeId + ":" + uniprot_ids.length);
+				csvAppender.appendField(treeId);
+				csvAppender.appendField(String.valueOf(uniprot_ids.length));
+
+				if (treeIdResponse.getResults().get(i).getFieldValues("go_annotations") == null) {
+					System.out.println("No Annotations");
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.endLine();
+					continue;
+				}
+
+				Object[] go_annotations = treeIdResponse.getResults().get(i).getFieldValues("go_annotations").toArray();
+				int n_genes_with_onef = 0;
+				int n_genes_with_oneb = 0;
+				List<String> go_terms_f = new ArrayList<>();
+				List<String> go_terms_b = new ArrayList<>();
+				if (go_annotations != null) {
+					for (int j = 0; j < go_annotations.length; j++) {
+						String annoStr = go_annotations[j].toString();
+						JSONObject obj = new JSONObject(annoStr);
+						String arrStr = obj.getString("go_annotations");
+						JSONArray jsonArray = new JSONArray(arrStr);
+						boolean found_anno_f = false;
+						boolean found_anno_p = false;
+
+						for (int k = 0; k < jsonArray.length(); k++) {
+							try {
+								GOAnno_new anno = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+										.readValue(jsonArray.getJSONObject(k).toString(), GOAnno_new.class);
+
+								if (anno.getGoAspect().equals("F") || anno.getGoAspect().equals("molecular_function")) {
+									if (!anno.getEvidenceCode().contains("IBA")) {
+										if (!go_terms_f.contains(anno.getGoName())) {
+											go_terms_f.add(anno.getGoName());
+//										System.out.println("term f "+ anno.getGoName());
+										}
+										if (!found_anno_f) {
+											found_anno_f = true;
+											n_genes_with_onef++;
+										}
+									}
+								}
+								if (anno.getGoAspect().equals("P") || anno.getGoAspect().equals("biological_process")) {
+									if (!anno.getEvidenceCode().contains("IBA")) {
+										if (!go_terms_b.contains(anno.getGoName())) {
+											go_terms_b.add(anno.getGoName());
+//										System.out.println("term b "+ anno.getGoName());
+										}
+										if (!found_anno_p) {
+											found_anno_p = true;
+											n_genes_with_oneb++;
+										}
+									}
+								}
+							} catch (Exception e) {
+								if (e.getMessage() != null) {
+									System.out.println(e.getMessage());
+								}
+							}
+						}
+					}
+					csvAppender.appendField(String.valueOf(n_genes_with_onef));
+					csvAppender.appendField(String.valueOf(n_genes_with_oneb));
+					csvAppender.appendField(String.valueOf(go_terms_f.size()));
+					csvAppender.appendField(String.valueOf(go_terms_b.size()));
+					csvAppender.endLine();
+					System.out.println(go_terms_f.size() + "," + go_terms_b.size());
+					System.out.println(n_genes_with_onef + "," + n_genes_with_oneb);
+				} else {
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.endLine();
+				}
+			}
+		}
+	}
+
 	public void analyzePantherAnnotations() throws Exception {
         SolrQuery sq = new SolrQuery("*:*");
         sq.setRows(9000);
@@ -176,7 +273,7 @@ public class PhylogenesServerWrapper {
         sq.setSort("id", SolrQuery.ORDER.asc);
         QueryResponse treeIdResponse = mysolr.query(sq);
 
-		File file = new File("annos_stats_aug13.csv");
+		File file = new File("annos_stats_aug19.csv");
 		CsvWriter csvWriter = new CsvWriter();
 
 		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8))
@@ -357,7 +454,7 @@ public class PhylogenesServerWrapper {
     public static void main(String args[]) {
     	PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
     	try {
-			pgServer.analyzePantherAnnotations();
+			pgServer.analyzePantherAnnos2();
 		} catch (Exception e) {
     		System.out.println(e);
 		}
