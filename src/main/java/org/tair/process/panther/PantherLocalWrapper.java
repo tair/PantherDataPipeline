@@ -3,6 +3,7 @@ package org.tair.process.panther;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
+import com.opencsv.CSVReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.tair.module.FamilyNode;
@@ -12,10 +13,7 @@ import org.tair.module.pantherForPhylo.Panther;
 import org.tair.util.Util;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class PantherLocalWrapper {
     private String RESOURCES_DIR = "src/main/resources";
@@ -31,6 +29,7 @@ public class PantherLocalWrapper {
     private String PATH_HT_LIST = RESOURCES_BASE + "/familyHTList.csv";
     private String PATH_NP_LIST = RESOURCES_BASE + "/familyNoPlantsList.csv";
     private String PATH_EMPTY_LIST = RESOURCES_BASE + "/familyEmptyWhileIndexingList.csv";
+    private String PATH_LOCUSID_TAIR_MAPPING = RESOURCES_DIR + "/AGI_locusId_mapping_20200410.csv";
     // log family that has large msa data
     private String PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
     // log family that has invalid msa data
@@ -184,7 +183,7 @@ public class PantherLocalWrapper {
             return mapper.readValue(input, PantherData.class);
         }
         catch(Exception e) {
-            System.out.println("File reading failed! " + e);
+//            System.out.println("File reading failed! " + e);
             return null;
         }
     }
@@ -236,6 +235,20 @@ public class PantherLocalWrapper {
         CSVWriter currWriter = new CSVWriter(outputfile);;
         currWriter.writeNext(header);
         return currWriter;
+    }
+
+    public HashMap<String, String> read_mapping_csv() throws Exception {
+        CSVReader reader = new CSVReader(new FileReader(PATH_LOCUSID_TAIR_MAPPING), ' ');
+        // read line by line
+        String[] record = null;
+        HashMap<String, String> mapping_dict = new HashMap<String, String>();
+        while ((record = reader.readNext()) != null) {
+            String agiId = record[0].split(",")[0];
+            String locusId = record[0].split(",")[1];
+//            System.out.println(agiId);
+            mapping_dict.put(locusId, agiId);
+        }
+        return mapping_dict;
     }
 
     public void logDeletedId(String id) throws Exception{
