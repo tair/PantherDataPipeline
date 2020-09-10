@@ -17,6 +17,11 @@ public class SearchResult {
 		if(tree_topology == null || tree_topology.getAnnotation_node() == null) return null;
 		return tree_topology.getAnnotation_node();
 	}
+
+	public void setAnnotation_node(Annotation root) {
+		if(tree_topology == null) return;
+		tree_topology.setAnnotation_node(root);
+	}
 }
 
 @Data

@@ -40,8 +40,8 @@ public class PhylogenesServerWrapper {
     String PG_TREE_BUCKET_NAME = "phg-panther-data";
     String PG_MSA_BUCKET_NAME = "phg-msa-data";
 
-    private String URL_SOLR = "http://localhost:8983/solr/panther";
-//    private String URL_SOLR = "http://18.237.20.208:8983/solr/panther";
+//    private String URL_SOLR = "http://localhost:8983/solr/panther";
+    private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
     //		String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 
     SolrClient mysolr = null;
@@ -96,14 +96,49 @@ public class PhylogenesServerWrapper {
 		System.out.println("Total file commited to solr until now "+committedCount);
 	}
 
+	//Update a specific field values for all trees saved in solr
+	public void updateAllSolrTrees() throws Exception {
+		HashMap<String, String> tair_locus2id_mapping = pantherLocal.read_mapping_csv();
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id", "gene_ids");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		int totalDocsFound = treeIdResponse.getResults().size();
+		System.out.println("totalDocsFound " + totalDocsFound);
+		for (int i = 0; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			System.out.println(treeId);
+			Object[] gene_ids = treeIdResponse.getResults().get(i).getFieldValues("gene_ids").toArray();
+			List<String> new_gene_ids = new ArrayList<>();
+			for (int j = 0; j < gene_ids.length; j++) {
+				String gene_id = gene_ids[j].toString();
+				String code = gene_id.split(":")[0];
+				if(code.equals("TAIR")) {
+					String locus_val = gene_id.split(":")[1];
+					String local_val_id = locus_val.split("=")[1];
+					String updatedGeneId = tair_locus2id_mapping.get(local_val_id);
+					if(updatedGeneId != null) {
+						System.out.println(gene_id + "->" + code + ":" + updatedGeneId);
+						gene_id = code + ":" + updatedGeneId;
+					} else {
+						System.out.println(gene_id + " -> No Mapping found");
+					}
+				}
+				new_gene_ids.add(gene_id);
+			}
+			atomicUpdateSolr(treeId, "gene_ids", new_gene_ids);
+		}
+	}
+
 	//Update a single field in solr
-	public void atomicUpdateSolr(String id, List<String> value) throws Exception {
+	public void atomicUpdateSolr(String id, String field_name, List<String> value) throws Exception {
         //Example code to update just one field
         SolrInputDocument sdoc = new SolrInputDocument();
         sdoc.addField("id", id);
         Map<String, List<String>> partialUpdate = new HashMap<>();
         partialUpdate.put("set", value);
-        sdoc.addField("species_list", partialUpdate);
+        sdoc.addField(field_name, partialUpdate);
         mysolr.add(sdoc);
         mysolr.commit();
 	}
@@ -454,7 +489,8 @@ public class PhylogenesServerWrapper {
     public static void main(String args[]) {
     	PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
     	try {
-			pgServer.analyzePantherAnnos2();
+//			pgServer.analyzePantherAnnos2();
+			pgServer.updateAllSolrTrees();
 		} catch (Exception e) {
     		System.out.println(e);
 		}
