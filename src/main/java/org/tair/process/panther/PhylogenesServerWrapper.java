@@ -203,6 +203,23 @@ public class PhylogenesServerWrapper {
 		}
 	}
 
+	//XXX genes from XXX families have at least one GO annotation with the evidence code IBA
+	public void analyzePantherAnnos() throws Exception {
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id", "go_annotations", "uniprot_ids");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		int totalDocsFound = treeIdResponse.getResults().size();
+		System.out.println("totalDocsFound " + totalDocsFound);
+		for (int i = 0; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			if (treeIdResponse.getResults().get(i).getFieldValues("go_annotations") == null) {
+				continue;
+			}
+
+		}
+	}
 	public void analyzePantherAnnos2() throws Exception {
 //		SolrQuery sq = new SolrQuery("id:PTHR10012");
 		SolrQuery sq = new SolrQuery("*:*");
@@ -213,7 +230,7 @@ public class PhylogenesServerWrapper {
 		File file = new File("annos_stats_aug19.csv");
 		CsvWriter csvWriter = new CsvWriter();
 		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
-			csvAppender.appendLine("treeId", "UniprotIds_count", "genes_count_1F",  "genes_count_1P", "goTerms_count_F", "goTerms_count_P");
+			csvAppender.appendLine("treeId", "UniprotIds_count", "genes_count_1F",  "genes_count_1P", "genes_count_1IBA", "goTerms_count_F", "goTerms_count_P");
 			int totalDocsFound = treeIdResponse.getResults().size();
 			System.out.println("totalDocsFound " + totalDocsFound);
 			for (int i = 0; i < totalDocsFound; i++) {
@@ -229,6 +246,7 @@ public class PhylogenesServerWrapper {
 					csvAppender.appendField(String.valueOf(0));
 					csvAppender.appendField(String.valueOf(0));
 					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
 					csvAppender.endLine();
 					continue;
 				}
@@ -236,6 +254,7 @@ public class PhylogenesServerWrapper {
 				Object[] go_annotations = treeIdResponse.getResults().get(i).getFieldValues("go_annotations").toArray();
 				int n_genes_with_onef = 0;
 				int n_genes_with_oneb = 0;
+				int n_genes_with_iba = 0;
 				List<String> go_terms_f = new ArrayList<>();
 				List<String> go_terms_b = new ArrayList<>();
 				if (go_annotations != null) {
@@ -246,6 +265,7 @@ public class PhylogenesServerWrapper {
 						JSONArray jsonArray = new JSONArray(arrStr);
 						boolean found_anno_f = false;
 						boolean found_anno_p = false;
+						boolean found_anno_iba = false;
 
 						for (int k = 0; k < jsonArray.length(); k++) {
 							try {
@@ -262,6 +282,11 @@ public class PhylogenesServerWrapper {
 											found_anno_f = true;
 											n_genes_with_onef++;
 										}
+									} else {
+										if(!found_anno_iba) {
+											found_anno_iba = true;
+											n_genes_with_iba++;
+										}
 									}
 								}
 								if (anno.getGoAspect().equals("P") || anno.getGoAspect().equals("biological_process")) {
@@ -274,6 +299,11 @@ public class PhylogenesServerWrapper {
 											found_anno_p = true;
 											n_genes_with_oneb++;
 										}
+									} else {
+										if(!found_anno_iba) {
+											found_anno_iba = true;
+											n_genes_with_iba++;
+										}
 									}
 								}
 							} catch (Exception e) {
@@ -285,12 +315,15 @@ public class PhylogenesServerWrapper {
 					}
 					csvAppender.appendField(String.valueOf(n_genes_with_onef));
 					csvAppender.appendField(String.valueOf(n_genes_with_oneb));
+					csvAppender.appendField(String.valueOf(n_genes_with_iba));
 					csvAppender.appendField(String.valueOf(go_terms_f.size()));
 					csvAppender.appendField(String.valueOf(go_terms_b.size()));
 					csvAppender.endLine();
 					System.out.println(go_terms_f.size() + "," + go_terms_b.size());
 					System.out.println(n_genes_with_onef + "," + n_genes_with_oneb);
+					System.out.println("n_genes_with_iba "+n_genes_with_iba);
 				} else {
+					csvAppender.appendField(String.valueOf(0));
 					csvAppender.appendField(String.valueOf(0));
 					csvAppender.appendField(String.valueOf(0));
 					csvAppender.appendField(String.valueOf(0));
@@ -489,8 +522,8 @@ public class PhylogenesServerWrapper {
     public static void main(String args[]) {
     	PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
     	try {
-//			pgServer.analyzePantherAnnos2();
-			pgServer.updateAllSolrTrees();
+			pgServer.analyzePantherAnnos2();
+//			pgServer.updateAllSolrTrees();
 		} catch (Exception e) {
     		System.out.println(e);
 		}

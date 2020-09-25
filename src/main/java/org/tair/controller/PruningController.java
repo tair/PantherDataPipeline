@@ -29,12 +29,16 @@ public class PruningController {
             70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,
             559292,284812,3708,4072,71139,51240,4236,3983,4432,88036,4113,3562};
 
+    PantherETLPipeline etl = new PantherETLPipeline();
+
     @PostMapping(path = "/panther/pruning/{id}", consumes = "application/json")
     public @ResponseBody String getPrunedTree(@PathVariable("id") String treeId,
                                               @RequestBody TaxonObj taxonObj) throws Exception {
         List<String> taxonIdsToShow = taxonObj.getTaxonIdsToShow();
         int[] taxon_array = taxonIdsToShow.stream().mapToInt(Integer::parseInt).toArray();
-        return pantherServer.readPrunedPantherTreeById(treeId, taxon_array);
+        String prunedTree = pantherServer.readPrunedPantherTreeById(treeId, taxon_array);
+        String processedTree = etl.processPrunedTree(prunedTree);
+        return processedTree;
     }
 
     @PostMapping(path = "/panther/grafting", consumes="application/json")
@@ -100,6 +104,13 @@ public class PruningController {
         System.out.println(jsonString);
     }
 
+    public void testPruningProcess() throws Exception{
+        int[] taxon_array = {3702};
+        String treeId = "PTHR11913";
+        String prunedTree = pantherServer.readPrunedPantherTreeById(treeId, taxon_array);
+        etl.processPrunedTree(prunedTree);
+    }
+
     public void testGraftingApi() throws Exception {
         String seq = "MPTFEIHDEAWYPWILGGLFALSLVTYWACDRITAPYGRHVKRGWGPAWGVRECWIVMESPALWAMVLFYSMGEQKLGRVPLILLRLHQVHYFNRVLIYPMRMKVRGKGMPIIVAACAFAFNILNSYVQARWLSNYGSYPDSWLTSPKFILGATLFGLGFLGNFWSDSYLFSLRADEDDRSYKIPKAGLFKFITCPNYFSEMVEWLGWAIMTWSPAGLAFFIYTIANLAPRAVSNHQWYLSKFNDYPKERRILIPFVY";
         String jsonStr = callGraftingApi(seq, taxon_filters_arr);
@@ -117,7 +128,8 @@ public class PruningController {
         PruningController controller = new PruningController();
 //        controller.testPruningApi();
 //        controller.testGraftingApi();
-        controller.testPrunedGraftingApi();
+//        controller.testPrunedGraftingApi();
+//        controller.testPruningProcess();
     }
 
 }

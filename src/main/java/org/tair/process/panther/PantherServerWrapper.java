@@ -1,10 +1,15 @@
 package org.tair.process.panther;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.json.JSONObject;
+import org.tair.module.PantherData;
+import org.tair.module.panther.Annotation;
 import org.tair.util.Util;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -94,6 +99,9 @@ public class PantherServerWrapper {
 
     public static void main(String args[]) throws Exception {
         PantherServerWrapper ps = new PantherServerWrapper();
-        ps.readMsaByIdFromServer("PTHR10000");
+        int[] taxonIds = {3702};
+//        ps.readMsaByIdFromServer("PTHR10000");
+        ps.readPrunedPantherTreeById("PTHR11913", taxonIds);
+
     }
 }
