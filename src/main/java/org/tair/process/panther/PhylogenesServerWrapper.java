@@ -4,7 +4,6 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
@@ -41,8 +40,8 @@ public class PhylogenesServerWrapper {
     String PG_TREE_BUCKET_NAME = "phg-panther-data";
     String PG_MSA_BUCKET_NAME = "phg-msa-data";
 
-    private String URL_SOLR = "http://localhost:8983/solr/panther";
-//    private String URL_SOLR = "http://18.237.20.208:8983/solr/panther";
+//    private String URL_SOLR = "http://localhost:8983/solr/panther";
+    private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
     //		String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 
     SolrClient mysolr = null;
@@ -97,14 +96,49 @@ public class PhylogenesServerWrapper {
 		System.out.println("Total file commited to solr until now "+committedCount);
 	}
 
+	//Update a specific field values for all trees saved in solr
+	public void updateAllSolrTrees() throws Exception {
+		HashMap<String, String> tair_locus2id_mapping = pantherLocal.read_mapping_csv();
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id", "gene_ids");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		int totalDocsFound = treeIdResponse.getResults().size();
+		System.out.println("totalDocsFound " + totalDocsFound);
+		for (int i = 0; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			System.out.println(treeId);
+			Object[] gene_ids = treeIdResponse.getResults().get(i).getFieldValues("gene_ids").toArray();
+			List<String> new_gene_ids = new ArrayList<>();
+			for (int j = 0; j < gene_ids.length; j++) {
+				String gene_id = gene_ids[j].toString();
+				String code = gene_id.split(":")[0];
+				if(code.equals("TAIR")) {
+					String locus_val = gene_id.split(":")[1];
+					String local_val_id = locus_val.split("=")[1];
+					String updatedGeneId = tair_locus2id_mapping.get(local_val_id);
+					if(updatedGeneId != null) {
+						System.out.println(gene_id + "->" + code + ":" + updatedGeneId);
+						gene_id = code + ":" + updatedGeneId;
+					} else {
+						System.out.println(gene_id + " -> No Mapping found");
+					}
+				}
+				new_gene_ids.add(gene_id);
+			}
+			atomicUpdateSolr(treeId, "gene_ids", new_gene_ids);
+		}
+	}
+
 	//Update a single field in solr
-	public void atomicUpdateSolr(String id, List<String> value) throws Exception {
+	public void atomicUpdateSolr(String id, String field_name, List<String> value) throws Exception {
         //Example code to update just one field
         SolrInputDocument sdoc = new SolrInputDocument();
         sdoc.addField("id", id);
         Map<String, List<String>> partialUpdate = new HashMap<>();
         partialUpdate.put("set", value);
-        sdoc.addField("species_list", partialUpdate);
+        sdoc.addField(field_name, partialUpdate);
         mysolr.add(sdoc);
         mysolr.commit();
 	}
@@ -169,6 +203,104 @@ public class PhylogenesServerWrapper {
 		}
 	}
 
+	public void analyzePantherAnnos2() throws Exception {
+//		SolrQuery sq = new SolrQuery("id:PTHR10012");
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id", "go_annotations", "uniprot_ids");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		File file = new File("annos_stats_aug19.csv");
+		CsvWriter csvWriter = new CsvWriter();
+		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
+			csvAppender.appendLine("treeId", "UniprotIds_count", "genes_count_1F",  "genes_count_1P", "goTerms_count_F", "goTerms_count_P");
+			int totalDocsFound = treeIdResponse.getResults().size();
+			System.out.println("totalDocsFound " + totalDocsFound);
+			for (int i = 0; i < totalDocsFound; i++) {
+				String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+				Object[] uniprot_ids = treeIdResponse.getResults().get(i).getFieldValues("uniprot_ids").toArray();
+				System.out.println(treeId + ":" + uniprot_ids.length);
+				csvAppender.appendField(treeId);
+				csvAppender.appendField(String.valueOf(uniprot_ids.length));
+
+				if (treeIdResponse.getResults().get(i).getFieldValues("go_annotations") == null) {
+					System.out.println("No Annotations");
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.endLine();
+					continue;
+				}
+
+				Object[] go_annotations = treeIdResponse.getResults().get(i).getFieldValues("go_annotations").toArray();
+				int n_genes_with_onef = 0;
+				int n_genes_with_oneb = 0;
+				List<String> go_terms_f = new ArrayList<>();
+				List<String> go_terms_b = new ArrayList<>();
+				if (go_annotations != null) {
+					for (int j = 0; j < go_annotations.length; j++) {
+						String annoStr = go_annotations[j].toString();
+						JSONObject obj = new JSONObject(annoStr);
+						String arrStr = obj.getString("go_annotations");
+						JSONArray jsonArray = new JSONArray(arrStr);
+						boolean found_anno_f = false;
+						boolean found_anno_p = false;
+
+						for (int k = 0; k < jsonArray.length(); k++) {
+							try {
+								GOAnno_new anno = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+										.readValue(jsonArray.getJSONObject(k).toString(), GOAnno_new.class);
+
+								if (anno.getGoAspect().equals("F") || anno.getGoAspect().equals("molecular_function")) {
+									if (!anno.getEvidenceCode().contains("IBA")) {
+										if (!go_terms_f.contains(anno.getGoName())) {
+											go_terms_f.add(anno.getGoName());
+//										System.out.println("term f "+ anno.getGoName());
+										}
+										if (!found_anno_f) {
+											found_anno_f = true;
+											n_genes_with_onef++;
+										}
+									}
+								}
+								if (anno.getGoAspect().equals("P") || anno.getGoAspect().equals("biological_process")) {
+									if (!anno.getEvidenceCode().contains("IBA")) {
+										if (!go_terms_b.contains(anno.getGoName())) {
+											go_terms_b.add(anno.getGoName());
+//										System.out.println("term b "+ anno.getGoName());
+										}
+										if (!found_anno_p) {
+											found_anno_p = true;
+											n_genes_with_oneb++;
+										}
+									}
+								}
+							} catch (Exception e) {
+								if (e.getMessage() != null) {
+									System.out.println(e.getMessage());
+								}
+							}
+						}
+					}
+					csvAppender.appendField(String.valueOf(n_genes_with_onef));
+					csvAppender.appendField(String.valueOf(n_genes_with_oneb));
+					csvAppender.appendField(String.valueOf(go_terms_f.size()));
+					csvAppender.appendField(String.valueOf(go_terms_b.size()));
+					csvAppender.endLine();
+					System.out.println(go_terms_f.size() + "," + go_terms_b.size());
+					System.out.println(n_genes_with_onef + "," + n_genes_with_oneb);
+				} else {
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.appendField(String.valueOf(0));
+					csvAppender.endLine();
+				}
+			}
+		}
+	}
+
 	public void analyzePantherAnnotations() throws Exception {
         SolrQuery sq = new SolrQuery("*:*");
         sq.setRows(9000);
@@ -176,7 +308,7 @@ public class PhylogenesServerWrapper {
         sq.setSort("id", SolrQuery.ORDER.asc);
         QueryResponse treeIdResponse = mysolr.query(sq);
 
-		File file = new File("annos_stats_aug13.csv");
+		File file = new File("annos_stats_aug19.csv");
 		CsvWriter csvWriter = new CsvWriter();
 
 		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8))
@@ -357,7 +489,8 @@ public class PhylogenesServerWrapper {
     public static void main(String args[]) {
     	PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
     	try {
-			pgServer.analyzePantherAnnotations();
+//			pgServer.analyzePantherAnnos2();
+			pgServer.updateAllSolrTrees();
 		} catch (Exception e) {
     		System.out.println(e);
 		}

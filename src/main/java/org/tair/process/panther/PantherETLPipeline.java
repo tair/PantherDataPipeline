@@ -1,8 +1,11 @@
 package org.tair.process.panther;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.json.JSONObject;
 
 import org.tair.module.*;
+import org.tair.module.panther.Annotation;
 import org.tair.process.PantherBookXmlToJson;
 import org.tair.process.uniprotdb.UpdateGOAnnotations;
 
@@ -48,8 +51,8 @@ public class PantherETLPipeline {
 		/**
 		 * 8. update/add go annotations field for panther trees loaded using the "uniprot" core on solr.
 		 */
-		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
-		UpdateGOAnnotations.updateGOAnnotations();
+//		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
+//		UpdateGOAnnotations.updateGOAnnotations();
 
 		/**
 		 * 9. Set uniprotIds and GoAnnotations Count on solr for each tree
@@ -181,6 +184,74 @@ public class PantherETLPipeline {
 		pantherLocal.closeLogWriter(0);
 	}
 
+	//Update each node in the tree recursively.
+	public Annotation updatePantherTree(Annotation node,HashMap<String, String> mapping) throws Exception {
+		//Update Gene_id from mapping
+		if(node.getChildren() != null) {
+			for(int i=0; i<node.getChildren().getAnnotation_node().size(); i++) {
+				Annotation childNode = node.getChildren().getAnnotation_node().get(i);
+				if(childNode.getGene_id() != null) {
+//					System.out.println(childNode.getGene_id());
+					String code = childNode.getGene_id().split(":")[0];
+					if(code.equals("TAIR")) {
+						String val = childNode.getGene_id().split(":")[1];
+						val = val.split("=")[1];
+						String updatedGeneId = mapping.get(val);
+						childNode.setGene_id(code + ":" + updatedGeneId);
+					}
+				}
+				updatePantherTree(childNode, mapping);
+			}
+		}
+		return node;
+	}
+
+	public void updatePantherFile() throws Exception {
+		HashMap<String, String> mapping = pantherLocal.read_mapping_csv();
+		int si = 1;
+		while(si < 16001) {
+			List<FamilyNode> pantherFamilyList = pantherLocal.getLocalPantherFamilyList(si);
+			List<PantherData> pantherList = new ArrayList<>();
+			for (int i = 0; i < pantherFamilyList.size(); i++) {
+				String id = pantherFamilyList.get(i).getFamily_id();
+//				if (id.equals("PTHR11913")) {
+					PantherData origPantherData = pantherLocal.readPantherTreeById(id);
+					if (origPantherData != null) {
+						String familyName = pantherFamilyList.get(i).getFamily_name();
+						PantherData modiPantherData = new PantherBookXmlToJson().convertJsonToSolrDocument(origPantherData, familyName);
+						List<String> gene_ids = modiPantherData.getGene_ids();
+						for (int j = 0; j < gene_ids.size(); j++) {
+							String code = gene_ids.get(j).split(":")[0];
+							if(code.equals("TAIR")) {
+								String val = gene_ids.get(j).split(":")[1];
+								val = val.split("=")[1];
+								String updatedGeneId = mapping.get(val);
+//								System.out.println(val + " _ " + updatedGeneId);
+								gene_ids.set(j, code + ":" + updatedGeneId);
+							}
+						}
+						modiPantherData.setGene_ids(gene_ids);
+//						pantherList.add(modiPantherData);
+//						pgServer.saveAndCommitToSolr(pantherList);
+						//Update s3 tree
+						Annotation rootNodeAnnotation = modiPantherData.getSearch().getAnnotation_node();
+						rootNodeAnnotation = updatePantherTree(rootNodeAnnotation, mapping);
+						modiPantherData.getSearch().setAnnotation_node(rootNodeAnnotation);
+						ObjectMapper mapper = new ObjectMapper();
+						String newJsonStr = mapper.writeValueAsString(modiPantherData);
+						String filename = id+".json";
+						pgServer.uploadJsonToPGTreeBucket(filename, newJsonStr);
+						pantherLocal.saveSolrIndexedTreeAsFile(id, newJsonStr);
+					}
+					if(i%100 == 0) {
+						System.out.println("processed "+ i);
+					}
+//				}
+			}
+			si = si+1000;
+		}
+	}
+
 	//Index solr db with panther trees saved locally, also save the json to S3 bucket
 	public void indexSolrDB(boolean saveToS3) throws Exception {
 		int si = 1;
@@ -232,7 +303,8 @@ public class PantherETLPipeline {
 
 		PantherETLPipeline etl = new PantherETLPipeline();
 //		etl.storePantherFilesLocally();
-		etl.uploadToServer();
+//		etl.uploadToServer();
+		etl.updatePantherFile();
 
 		long endTime = System.nanoTime();
 		long timeElapsed = endTime - startTime;
