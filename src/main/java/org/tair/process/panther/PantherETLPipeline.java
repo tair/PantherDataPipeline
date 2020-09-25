@@ -184,6 +184,21 @@ public class PantherETLPipeline {
 		pantherLocal.closeLogWriter(0);
 	}
 
+	//Process Pruned Tree Json String by updating values using local mapping files
+	public String processPrunedTree(String jsonString) throws Exception {
+		PantherData pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+				PantherData.class);
+		//Mapping to convert tair locus ids to tair gene names
+		HashMap<String, String> tair_locus2id_mapping = pantherLocal.read_mapping_csv();
+		Annotation rootNodeAnnotation = pantherData.getSearch().getAnnotation_node();
+		rootNodeAnnotation = updatePantherTree(rootNodeAnnotation, tair_locus2id_mapping);
+		pantherData.getSearch().setAnnotation_node(rootNodeAnnotation);
+		//Convert Java Object to Json String
+		ObjectMapper mapper = new ObjectMapper();
+		String newJsonStr = mapper.writeValueAsString(pantherData);
+		return newJsonStr;
+	}
+
 	//Update each node in the tree recursively.
 	public Annotation updatePantherTree(Annotation node,HashMap<String, String> mapping) throws Exception {
 		//Update Gene_id from mapping
