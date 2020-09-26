@@ -7,7 +7,6 @@ import org.json.JSONObject;
 import org.tair.module.*;
 import org.tair.module.panther.Annotation;
 import org.tair.process.PantherBookXmlToJson;
-import org.tair.process.uniprotdb.UpdateGOAnnotations;
 
 import java.util.*;
 
