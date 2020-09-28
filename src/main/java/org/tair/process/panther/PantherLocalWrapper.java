@@ -17,7 +17,7 @@ import java.util.*;
 
 public class PantherLocalWrapper {
     private String RESOURCES_DIR = "src/main/resources";
-    private String WEB_RESOURCES_DIR = "src/main/webapp/WEB-INF";
+    private String WEB_RESOURCES_DIR = "WEB-INF";
     //Change resources base to your local resources panther folder
     private String RESOURCES_BASE = "panther_resources";
 
