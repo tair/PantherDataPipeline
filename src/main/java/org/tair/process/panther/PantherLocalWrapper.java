@@ -17,6 +17,7 @@ import java.util.*;
 
 public class PantherLocalWrapper {
     private String RESOURCES_DIR = "src/main/resources";
+    private String WEB_RESOURCES_DIR = "src/main/webapp/WEB-INF";
     //Change resources base to your local resources panther folder
     private String RESOURCES_BASE = "panther_resources";
 
@@ -29,7 +30,7 @@ public class PantherLocalWrapper {
     private String PATH_HT_LIST = RESOURCES_BASE + "/familyHTList.csv";
     private String PATH_NP_LIST = RESOURCES_BASE + "/familyNoPlantsList.csv";
     private String PATH_EMPTY_LIST = RESOURCES_BASE + "/familyEmptyWhileIndexingList.csv";
-    private String PATH_LOCUSID_TAIR_MAPPING = RESOURCES_DIR + "/AGI_locusId_mapping_20200410.csv";
+    private String PATH_LOCUSID_TAIR_MAPPING = WEB_RESOURCES_DIR + "/AGI_locusId_mapping_20200410.csv";
     // log family that has large msa data
     private String PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
     // log family that has invalid msa data
