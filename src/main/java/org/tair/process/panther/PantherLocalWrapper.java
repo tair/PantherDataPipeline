@@ -1,5 +1,6 @@
 package org.tair.process.panther;
 
+import com.amazonaws.services.snowball.model.Ec2RequestFailedException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
@@ -30,7 +31,7 @@ public class PantherLocalWrapper {
     private String PATH_HT_LIST = RESOURCES_BASE + "/familyHTList.csv";
     private String PATH_NP_LIST = RESOURCES_BASE + "/familyNoPlantsList.csv";
     private String PATH_EMPTY_LIST = RESOURCES_BASE + "/familyEmptyWhileIndexingList.csv";
-    private String PATH_LOCUSID_TAIR_MAPPING = WEB_RESOURCES_DIR + "/AGI_locusId_mapping_20200410.csv";
+    private String PATH_LOCUSID_TAIR_MAPPING = "/AGI_locusId_mapping_20200410.csv";
     // log family that has large msa data
     private String PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
     // log family that has invalid msa data
@@ -44,13 +45,32 @@ public class PantherLocalWrapper {
     CSVWriter emptyTreeCsvWriter;
     CSVWriter HTListCsvWriter;
 
+    private HashMap<String, String> locus2tairId_mapping;
+
     public PantherLocalWrapper() {
         loadProps();
-        System.out.println(PATH_NP_LIST);
+//        System.out.println(PATH_NP_LIST);
         mapper = new ObjectMapper();
         csvFile_noplants = new File(PATH_NP_LIST);
         csvFile_empty = new File(PATH_EMPTY_LIST);
         csvFile_ht = new File(PATH_HT_LIST);
+        locus2tairId_mapping = new HashMap<String, String>();
+        try {
+            File csv_tair_mapping = new File(getClass().getResource(PATH_LOCUSID_TAIR_MAPPING).toURI());
+            CSVReader reader = new CSVReader(new FileReader(csv_tair_mapping), ' ');
+            // read line by line
+            String[] record = null;
+
+            while ((record = reader.readNext()) != null) {
+                String agiId = record[0].split(",")[0];
+                String locusId = record[0].split(",")[1];
+//                System.out.println(agiId);
+                locus2tairId_mapping.put(locusId, agiId);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        System.out.println("Locus2idmapping loaded "+ locus2tairId_mapping.size());
     }
 
     private void loadProps() {
@@ -66,7 +86,7 @@ public class PantherLocalWrapper {
             }
             initPaths();
         } catch (Exception e) {
-            System.out.println("Prop file not found!");
+//            System.out.println("Prop file not found!");
         }
     }
 
@@ -239,17 +259,18 @@ public class PantherLocalWrapper {
     }
 
     public HashMap<String, String> read_mapping_csv() throws Exception {
-        CSVReader reader = new CSVReader(new FileReader(PATH_LOCUSID_TAIR_MAPPING), ' ');
-        // read line by line
-        String[] record = null;
-        HashMap<String, String> mapping_dict = new HashMap<String, String>();
-        while ((record = reader.readNext()) != null) {
-            String agiId = record[0].split(",")[0];
-            String locusId = record[0].split(",")[1];
-//            System.out.println(agiId);
-            mapping_dict.put(locusId, agiId);
-        }
-        return mapping_dict;
+//        File file = new File(this.getClass().getResource(PATH_LOCUSID_TAIR_MAPPING).toURI());
+//        CSVReader reader = new CSVReader(new FileReader(file), ' ');
+//        // read line by line
+//        String[] record = null;
+//        HashMap<String, String> mapping_dict = new HashMap<String, String>();
+//        while ((record = reader.readNext()) != null) {
+//            String agiId = record[0].split(",")[0];
+//            String locusId = record[0].split(",")[1];
+////            System.out.println(agiId);
+//            mapping_dict.put(locusId, agiId);
+//        }
+        return this.locus2tairId_mapping;
     }
 
     public void logDeletedId(String id) throws Exception{
@@ -287,7 +308,9 @@ public class PantherLocalWrapper {
 
     public static void main(String args[]) throws Exception {
         PantherLocalWrapper lw = new PantherLocalWrapper();
-        lw.initLogWriter(0);
+//        lw.initLogWriter(0);
+//        lw.read_mapping_csv();
     }
+
 
 }
