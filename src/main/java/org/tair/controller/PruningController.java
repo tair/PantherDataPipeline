@@ -1,17 +1,32 @@
 package org.tair.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import de.siegmar.fastcsv.writer.CsvAppender;
+import de.siegmar.fastcsv.writer.CsvWriter;
+import org.apache.commons.lang3.ArrayUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.tair.module.PantherData;
+import org.tair.module.ortho.OrthoMapping;
 import org.tair.process.PantherBookXmlToJson;
 import org.tair.process.panther.PantherETLPipeline;
+import org.tair.process.panther.PantherLocalWrapper;
 import org.tair.process.panther.PantherServerWrapper;
 import org.tair.util.Util;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,16 +35,27 @@ import java.util.stream.IntStream;
 @RestController
 public class PruningController {
     PantherServerWrapper pantherServer = new PantherServerWrapper();
+    PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
     private String BASE_URL = "http://pantherdb.org/tempFamilySearch";
     private String BOOK_INFO_URL = BASE_URL+"?type=book_info";
     private String GRAFT_URL = "http://pantherdb.org/services/oai/pantherdb/graftsequence";
+    private String ORTHO_URL = "http://pantherdb.org/services/oai/pantherdb/ortholog/matchortho?geneInputList=";
 
     //Panther 15.0 -
     private int[] taxon_filters_arr = {13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,
             70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,
             559292,284812,3708,4072,71139,51240,4236,3983,4432,88036,4113,3562};
 
+    private int[] organism_taxon_ids = {3702,13333,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,
+            70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,3708,4072,71139,
+            51240,4236,3983,4432,88036,4113,3562};
+
     PantherETLPipeline etl = new PantherETLPipeline();
+    HashMap<String, String> tair_locus2id_mapping;
+
+    PruningController() throws Exception {
+        tair_locus2id_mapping = pantherLocal.read_mapping_csv();
+    }
 
     @PostMapping(path = "/panther/pruning/{id}", consumes = "application/json")
     public @ResponseBody String getPrunedTree(@PathVariable("id") String treeId,
@@ -46,6 +72,14 @@ public class PruningController {
         String seq = sequenceObj.getSequence();
         return callGraftingApi(seq, taxon_filters_arr);
     }
+
+    @PostMapping(path="/panther/orthomapping", consumes="application/json")
+    public @ResponseBody String getOrthoMapping(@RequestBody OrthoObj orthoObj) throws Exception {
+        System.out.println("Request " + orthoObj.getUniprotId() + " queryOrganismId " + orthoObj.getQueryOrganismId());
+        int queryId = Integer.parseInt(orthoObj.getQueryOrganismId());
+        return callOrthologApi(orthoObj.getUniprotId(), queryId);
+    }
+
 
     public String callGraftingApi(String seq, int[] taxon_filters_arr) {
         String taxonFiltersParam = IntStream.of(taxon_filters_arr)
@@ -64,6 +98,30 @@ public class PruningController {
             return e.getMessage();
         }
         return jsonString;
+    }
+
+    public String callOrthologApi(String uniprotId, int queryOrganismId) throws IOException {
+        List<Integer> list = Arrays.stream(organism_taxon_ids).boxed().collect(Collectors.toList());
+        list.remove(Integer.valueOf(queryOrganismId));
+        int[] arr = list.stream().mapToInt(i->i).toArray();
+        String taxonFiltersParam = IntStream.of(arr)
+                .mapToObj(Integer::toString)
+                .collect(Collectors.joining("%2C"));
+        String orthologUrl = ORTHO_URL + uniprotId + "&organism=" + queryOrganismId + "&targetOrganism="+taxonFiltersParam
+                +"&orthologType=all";
+        System.out.println(orthologUrl);
+        JSONObject orthoTree;
+        try {
+            orthoTree = Util.getJsonObjectFromUrl(orthologUrl);
+        }
+        catch(Exception e) {
+            System.out.println("Error "+ e.getMessage());
+            return e.getMessage();
+        }
+        OrthoMapping orthoMapping = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(orthoTree.toString(),
+                OrthoMapping.class);
+        JSONArray json = new JSONArray(orthoMapping.getAllMapped(tair_locus2id_mapping));
+        return json.toString();
     }
 
     @PostMapping(path = "/panther/grafting/prune", consumes="application/json")
@@ -124,8 +182,13 @@ public class PruningController {
         System.out.println(jsonStr);
     }
 
+    public void testOrtholog() throws Exception {
+        String jsonStr = callOrthologApi("Q38944", 3702);
+    }
+
     public static void main(String args[]) throws Exception {
         PruningController controller = new PruningController();
+        controller.testOrtholog();
 //        controller.testPruningApi();
 //        controller.testGraftingApi();
 //        controller.testPrunedGraftingApi();
