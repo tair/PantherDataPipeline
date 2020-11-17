@@ -98,7 +98,7 @@ public class PhylogenesServerWrapper {
 
 	//Update a specific field values for all trees saved in solr
 	public void updateAllSolrTrees() throws Exception {
-		HashMap<String, String> tair_locus2id_mapping = pantherLocal.read_mapping_csv();
+		HashMap<String, String> tair_locus2id_mapping = pantherLocal.read_locus2tair_mapping_csv();
 		SolrQuery sq = new SolrQuery("*:*");
 		sq.setRows(9000);
 		sq.setFields("id", "gene_ids");
