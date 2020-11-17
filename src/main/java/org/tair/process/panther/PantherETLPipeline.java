@@ -188,7 +188,7 @@ public class PantherETLPipeline {
 		PantherData pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
 				PantherData.class);
 		//Mapping to convert tair locus ids to tair gene names
-		HashMap<String, String> tair_locus2id_mapping = pantherLocal.read_mapping_csv();
+		HashMap<String, String> tair_locus2id_mapping = pantherLocal.read_locus2tair_mapping_csv();
 		Annotation rootNodeAnnotation = pantherData.getSearch().getAnnotation_node();
 		rootNodeAnnotation = updatePantherTree(rootNodeAnnotation, tair_locus2id_mapping);
 		pantherData.getSearch().setAnnotation_node(rootNodeAnnotation);
@@ -221,7 +221,7 @@ public class PantherETLPipeline {
 	}
 
 	public void updatePantherFile() throws Exception {
-		HashMap<String, String> mapping = pantherLocal.read_mapping_csv();
+		HashMap<String, String> mapping = pantherLocal.read_locus2tair_mapping_csv();
 		int si = 1;
 		while(si < 16001) {
 			List<FamilyNode> pantherFamilyList = pantherLocal.getLocalPantherFamilyList(si);

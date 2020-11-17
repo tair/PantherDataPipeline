@@ -32,6 +32,7 @@ public class PantherLocalWrapper {
     private String PATH_NP_LIST = RESOURCES_BASE + "/familyNoPlantsList.csv";
     private String PATH_EMPTY_LIST = RESOURCES_BASE + "/familyEmptyWhileIndexingList.csv";
     private String PATH_LOCUSID_TAIR_MAPPING = "/AGI_locusId_mapping_20200410.csv";
+    private String PATH_ORG_MAPPING = "/organism_to_display.csv";
     // log family that has large msa data
     private String PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
     // log family that has invalid msa data
@@ -46,6 +47,7 @@ public class PantherLocalWrapper {
     CSVWriter HTListCsvWriter;
 
     private HashMap<String, String> locus2tairId_mapping;
+    private HashMap<String, String> organism_mapping;
 
     public PantherLocalWrapper() {
         loadProps();
@@ -55,6 +57,7 @@ public class PantherLocalWrapper {
         csvFile_empty = new File(PATH_EMPTY_LIST);
         csvFile_ht = new File(PATH_HT_LIST);
         locus2tairId_mapping = new HashMap<String, String>();
+        organism_mapping = new HashMap<String, String>();
         try {
             File csv_tair_mapping = new File(getClass().getResource(PATH_LOCUSID_TAIR_MAPPING).toURI());
             CSVReader reader = new CSVReader(new FileReader(csv_tair_mapping), ' ');
@@ -67,10 +70,23 @@ public class PantherLocalWrapper {
 //                System.out.println(agiId);
                 locus2tairId_mapping.put(locusId, agiId);
             }
+            File csv_org_mapping = new File(getClass().getResource(PATH_ORG_MAPPING).toURI());
+            reader = new CSVReader(new FileReader(csv_org_mapping), ',');
+            record = null;
+            while ((record = reader.readNext()) != null) {
+                String org = record[0];
+                String org_code = record[3];
+                if(!record[2].isEmpty()) {
+                    org += " (" + record[2] + ")";
+                }
+//                System.out.println(org + "-" + org_code);
+                organism_mapping.put(org_code, org);
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         System.out.println("Locus2idmapping loaded "+ locus2tairId_mapping.size());
+        System.out.println("Orgidmapping loaded "+ organism_mapping.size());
     }
 
     private void loadProps() {
@@ -258,19 +274,12 @@ public class PantherLocalWrapper {
         return currWriter;
     }
 
-    public HashMap<String, String> read_mapping_csv() throws Exception {
-//        File file = new File(this.getClass().getResource(PATH_LOCUSID_TAIR_MAPPING).toURI());
-//        CSVReader reader = new CSVReader(new FileReader(file), ' ');
-//        // read line by line
-//        String[] record = null;
-//        HashMap<String, String> mapping_dict = new HashMap<String, String>();
-//        while ((record = reader.readNext()) != null) {
-//            String agiId = record[0].split(",")[0];
-//            String locusId = record[0].split(",")[1];
-////            System.out.println(agiId);
-//            mapping_dict.put(locusId, agiId);
-//        }
+    public HashMap<String, String> read_locus2tair_mapping_csv() throws Exception {
         return this.locus2tairId_mapping;
+    }
+
+    public HashMap<String, String> read_org_mapping_csv() throws Exception {
+        return this.organism_mapping;
     }
 
     public void logDeletedId(String id) throws Exception{

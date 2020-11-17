@@ -15,7 +15,7 @@ public class OrthoMapping {
     private OrthoSearchResult search;
     //***Special case for Arabidopsis genes: Gene ID in Panther is either AGI ID or locus ID.
     // On the download file we will show AGI ID. Mapping input gives thh mapping for this conversion
-    public ArrayList getAllMapped(HashMap<String, String> mapping) {
+    public ArrayList getAllMapped(HashMap<String, String> locus_mapping, HashMap<String, String> org_mapping) {
         ArrayList listOfmapping = new ArrayList();
 
         for (int i = 0; i < this.getSearch().getMapping().getMapped().size(); i++) {
@@ -23,19 +23,25 @@ public class OrthoMapping {
             HashMap mMap = new HashMap();
             //https://conf.arabidopsis.org/display/PHYL/New+PantherDB+API (Sec4: Orthologs)
             String gene_id = m.getTarget_gene();
-            String organism = gene_id.split("\\|")[0];
+            String organism_code = gene_id.split("\\|")[0];
+            String organism_name = organism_code;
+            if(org_mapping.get(organism_code) != null) {
+                organism_name = org_mapping.get(organism_code);
+            }
+//            System.out.println(organism_name);
             String extracted_gene_id = gene_id.split("\\|")[1];
             String code = extracted_gene_id.split("=", 2)[0];
             if(code.equals("TAIR")) {
                 String val = extracted_gene_id.split("=", 2)[1];
-                String updatedGeneId = mapping.get(val);
+                val = val.split("=", 2)[1];
+                String updatedGeneId = locus_mapping.get(val);
                 extracted_gene_id = updatedGeneId;
             } else {
                 extracted_gene_id = extracted_gene_id.split("=", 2)[1];
             }
             String uniprot_id = gene_id.split("UniProtKB=")[1];
             mMap.put("gene_id", extracted_gene_id);
-            mMap.put("organism", organism);
+            mMap.put("organism", organism_name);
             mMap.put("uniprot_id", uniprot_id);
             mMap.put("ortholog", m.getOrtholog());
             listOfmapping.add(mMap);

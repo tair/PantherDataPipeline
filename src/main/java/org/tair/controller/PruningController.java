@@ -52,9 +52,11 @@ public class PruningController {
 
     PantherETLPipeline etl = new PantherETLPipeline();
     HashMap<String, String> tair_locus2id_mapping;
+    HashMap<String, String> org_mapping;
 
     PruningController() throws Exception {
-        tair_locus2id_mapping = pantherLocal.read_mapping_csv();
+        tair_locus2id_mapping = pantherLocal.read_locus2tair_mapping_csv();
+        org_mapping = pantherLocal.read_org_mapping_csv();
     }
 
     @PostMapping(path = "/panther/pruning/{id}", consumes = "application/json")
@@ -120,7 +122,7 @@ public class PruningController {
         }
         OrthoMapping orthoMapping = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(orthoTree.toString(),
                 OrthoMapping.class);
-        JSONArray json = new JSONArray(orthoMapping.getAllMapped(tair_locus2id_mapping));
+        JSONArray json = new JSONArray(orthoMapping.getAllMapped(tair_locus2id_mapping, org_mapping));
         return json.toString();
     }
 
@@ -183,7 +185,7 @@ public class PruningController {
     }
 
     public void testOrtholog() throws Exception {
-        String jsonStr = callOrthologApi("Q38944", 3702);
+        String jsonStr = callOrthologApi("A0A1S3YGD9", 4097);
     }
 
     public static void main(String args[]) throws Exception {
