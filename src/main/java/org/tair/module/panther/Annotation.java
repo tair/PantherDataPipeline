@@ -34,4 +34,19 @@ public class Annotation {
 	//Ignored variables
 //	private String PANTHER_GO_SLIM_CC;
 
+	public String get_uniprotId() {
+		if(node_name == null) return null;
+		return node_name.split("UniProtKB=")[1];
+	}
+	public String get_geneCode() {
+		if(gene_id == null) return null;
+		String extracted_gene_id = gene_id.split("\\:")[1];
+		String code = extracted_gene_id.split("=", 2)[0];
+		return code;
+	}
+	public String get_extractedGeneId() {
+		if(gene_id == null) return null;
+		String extracted_gene_id = gene_id.split(":")[1];
+		return extracted_gene_id;
+	}
 }
