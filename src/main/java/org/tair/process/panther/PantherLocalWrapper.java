@@ -7,9 +7,11 @@ import com.opencsv.CSVWriter;
 import com.opencsv.CSVReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.tair.module.Children;
 import org.tair.module.FamilyNode;
 import org.tair.module.PantherData;
 import org.tair.module.PantherFamilyList;
+import org.tair.module.panther.Annotation;
 import org.tair.module.pantherForPhylo.Panther;
 import org.tair.util.Util;
 
@@ -48,6 +50,7 @@ public class PantherLocalWrapper {
 
     private HashMap<String, String> locus2tairId_mapping;
     private HashMap<String, String> organism_mapping;
+    private List<String> organism_names;
 
     public PantherLocalWrapper() {
         loadProps();
@@ -58,6 +61,8 @@ public class PantherLocalWrapper {
         csvFile_ht = new File(PATH_HT_LIST);
         locus2tairId_mapping = new HashMap<String, String>();
         organism_mapping = new HashMap<String, String>();
+        organism_names = new ArrayList<>();
+
         try {
             File csv_tair_mapping = new File(getClass().getResource(PATH_LOCUSID_TAIR_MAPPING).toURI());
             CSVReader reader = new CSVReader(new FileReader(csv_tair_mapping), ' ');
@@ -73,8 +78,13 @@ public class PantherLocalWrapper {
             File csv_org_mapping = new File(getClass().getResource(PATH_ORG_MAPPING).toURI());
             reader = new CSVReader(new FileReader(csv_org_mapping), ',');
             record = null;
+            int i=0;
             while ((record = reader.readNext()) != null) {
                 String org = record[0];
+                if(i != 0) {
+                    organism_names.add(org);
+                }
+                i++;
                 String org_code = record[3];
                 if(!record[2].isEmpty()) {
                     org += " (" + record[2] + ")";
@@ -129,6 +139,9 @@ public class PantherLocalWrapper {
     }
     public String getLocalMSAPath() {
         return PATH_LOCAL_MSA_DATA;
+    }
+    public List<String> getOrganism_names() {
+        return organism_names;
     }
 
     public void savePantherFamilyListBatch(String jsonString, int startIdx) throws Exception {
@@ -211,6 +224,75 @@ public class PantherLocalWrapper {
             Util.saveJsonStringAsFile(solrTree, json_filepath);
         }
     }
+
+    public Annotation getPantherTreeRootById(String familyId) {
+        String filePath = PATH_LOCAL_PRUNED_TREES + familyId + ".json";
+        InputStream input = null;
+        try {
+            input = new FileInputStream(filePath);
+            PantherData data = mapper.readValue(input, PantherData.class);
+            //Converts json string to a PantherData SearchResult object.
+            PantherData pantherStructureData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(data.getJsonString(),
+                    PantherData.class);
+            return pantherStructureData.getSearch().getAnnotation_node();
+        }
+        catch(Exception e) {
+            System.out.println("File reading failed! " + e);
+            return null;
+        }
+    }
+
+    private HashMap<String, Integer> iterate_node(Annotation node, HashMap<String, Integer> organism_count) {
+        for(int i=0; i<node.getChildren().getAnnotation_node().size(); i++) {
+            Annotation child_node = node.getChildren().getAnnotation_node().get(i);
+            if(child_node.getTree_node_type().equals("LEAF")) {
+                int count = organism_count.containsKey(child_node.getOrganism()) ? organism_count.get(child_node.getOrganism()) : 0;
+                organism_count.put(child_node.getOrganism(), count + 1);
+            }
+            if(child_node.getChildren() != null) {
+                organism_count = iterate_node(child_node, organism_count);
+            }
+        }
+        return organism_count;
+    }
+
+    private HashMap<String, String> iterate_node_mapPersistentIds(Annotation node, HashMap<String, String> persistentId2fasta) {
+        for(int i=0; i<node.getChildren().getAnnotation_node().size(); i++) {
+            Annotation child_node = node.getChildren().getAnnotation_node().get(i);
+            if(child_node.getTree_node_type().equals("LEAF")) {
+                String persistent_id = child_node.getPersistent_id();
+//                System.out.println(child_node.get_uniprotId());
+                String fasta_header = child_node.get_uniprotId() + "|" + child_node.getOrganism() + "|" + child_node.get_extractedGeneId();
+                persistentId2fasta.put(persistent_id, fasta_header);
+            }
+            if(child_node.getChildren() != null) {
+                persistentId2fasta = iterate_node_mapPersistentIds(child_node, persistentId2fasta);
+            }
+        }
+        return persistentId2fasta;
+    }
+
+    public HashMap<String, String> mapPersistentIds(Annotation root) {
+        HashMap<String, String> persistentId2fasta = new HashMap<String, String>();
+        try {
+            persistentId2fasta = iterate_node_mapPersistentIds(root, persistentId2fasta);
+        } catch (Exception e) {
+            System.out.println("getAllOrganismsFromTree except");
+        }
+        return persistentId2fasta;
+    }
+
+    public HashMap<String, Integer> getAllOrganismsFromTree(Annotation root) {
+        HashMap<String, Integer> organism_count = new HashMap<>();
+        try {
+            organism_count = iterate_node(root, organism_count);
+        } catch (Exception e) {
+            System.out.println("getAllOrganismsFromTree except");
+        }
+//        organism_count.forEach((key, value) -> System.out.println(key + ":" + value));
+        return organism_count;
+    }
+
 
     public PantherData readPantherTreeById(String familyId) {
         String filePath = PATH_LOCAL_PRUNED_TREES + familyId + ".json";
@@ -317,6 +399,8 @@ public class PantherLocalWrapper {
 
     public static void main(String args[]) throws Exception {
         PantherLocalWrapper lw = new PantherLocalWrapper();
+        Annotation root = lw.getPantherTreeRootById("PTHR10012");
+        lw.getAllOrganismsFromTree(root);
 //        lw.initLogWriter(0);
 //        lw.read_mapping_csv();
     }

@@ -20,6 +20,7 @@ import org.tair.process.PantherBookXmlToJson;
 import org.tair.process.panther.PantherETLPipeline;
 import org.tair.process.panther.PantherLocalWrapper;
 import org.tair.process.panther.PantherServerWrapper;
+import org.tair.process.panther.PhylogenesServerWrapper;
 import org.tair.util.Util;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import java.util.stream.IntStream;
 @CrossOrigin(origins = "*")
 @RestController
 public class PruningController {
+    PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
     PantherServerWrapper pantherServer = new PantherServerWrapper();
     PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
     private String BASE_URL = "http://pantherdb.org/tempFamilySearch";
@@ -82,6 +84,20 @@ public class PruningController {
         return callOrthologApi(orthoObj.getUniprotId(), queryId);
     }
 
+    @PostMapping(path="/panther/fastadoc/{id}", consumes="application/json")
+    public @ResponseBody String getFastaDoc(@PathVariable("id") String treeId) throws Exception {
+        System.out.println("Req: getFastaDoc " + treeId);
+        return callFastaApi(treeId, null);
+    }
+
+    @PostMapping(path = "/panther/pruning/fastadoc/{id}", consumes = "application/json")
+    public @ResponseBody String getPrunedFastaDoc(@PathVariable("id") String treeId,
+                                              @RequestBody TaxonObj taxonObj) throws Exception {
+        List<String> taxonIdsToShow = taxonObj.getTaxonIdsToShow();
+        int[] taxon_array = taxonIdsToShow.stream().mapToInt(Integer::parseInt).toArray();
+        return callFastaApi(treeId, taxon_array);
+    }
+
 
     public String callGraftingApi(String seq, int[] taxon_filters_arr) {
         String taxonFiltersParam = IntStream.of(taxon_filters_arr)
@@ -124,6 +140,16 @@ public class PruningController {
                 OrthoMapping.class);
         JSONArray json = new JSONArray(orthoMapping.getAllMapped(tair_locus2id_mapping, org_mapping));
         return json.toString();
+    }
+
+    public String callFastaApi(String treeId, int[] taxon_array) throws Exception {
+        String fasta_doc = "";
+        if(taxon_array == null||taxon_array.length == 0) {
+            fasta_doc = pgServer.getFastaDocFromTree(treeId);
+        } else {
+            fasta_doc = pgServer.getFastaDocForPrunedTree(treeId, taxon_array);
+        }
+        return fasta_doc;
     }
 
     @PostMapping(path = "/panther/grafting/prune", consumes="application/json")
@@ -188,9 +214,14 @@ public class PruningController {
         String jsonStr = callOrthologApi("A0A1S3YGD9", 4097);
     }
 
+    public void testFasta() throws Exception {
+        String jsonStr = callFastaApi("PTHR22166", null);
+    }
+
     public static void main(String args[]) throws Exception {
         PruningController controller = new PruningController();
-        controller.testOrtholog();
+        controller.testFasta();
+//        controller.testOrtholog();
 //        controller.testPruningApi();
 //        controller.testGraftingApi();
 //        controller.testPrunedGraftingApi();
