@@ -38,10 +38,11 @@ public class PruningController {
     PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
     PantherServerWrapper pantherServer = new PantherServerWrapper();
     PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
-    private String BASE_URL = "http://pantherdb.org/tempFamilySearch";
+//    private String BASE_URL = "http://pantherdb.org/tempFamilySearch";
+    private String BASE_URL = "http://panthertest9.med.usc.edu:8089";
     private String BOOK_INFO_URL = BASE_URL+"?type=book_info";
-    private String GRAFT_URL = "http://pantherdb.org/services/oai/pantherdb/graftsequence";
-    private String ORTHO_URL = "http://pantherdb.org/services/oai/pantherdb/ortholog/matchortho?geneInputList=";
+    private String GRAFT_URL = BASE_URL+"/services/oai/pantherdb/graftsequence";
+    private String ORTHO_URL = BASE_URL+"/services/oai/pantherdb/ortholog/matchortho?geneInputList=";
 
     //Panther 15.0 -
     private int[] taxon_filters_arr = {13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,

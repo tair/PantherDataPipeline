@@ -46,6 +46,7 @@ public class OrthoMapping {
             mMap.put("ortholog", m.getOrtholog());
             listOfmapping.add(mMap);
         }
+//        System.out.println("listOfmapping "+ listOfmapping.size());
         return listOfmapping;
     }
 }
