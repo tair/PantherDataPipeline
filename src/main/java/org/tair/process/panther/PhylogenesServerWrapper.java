@@ -250,6 +250,20 @@ public class PhylogenesServerWrapper {
 
 		}
 	}
+
+	public void pantherDump_genodo() throws Exception {
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id", "family_name", "sf_names", "go_annotations", "taxonomic_ranges");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		int totalDocsFound = treeIdResponse.getResults().size();
+		for (int i = 0; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			System.out.println(treeId);
+		}
+	}
+
 	public void analyzePantherDump() throws Exception {
 //		SolrQuery sq = new SolrQuery("id:PTHR11608");
 		SolrQuery sq = new SolrQuery("*:*");
