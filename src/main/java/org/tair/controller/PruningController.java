@@ -132,15 +132,17 @@ public class PruningController {
         JSONObject orthoTree;
         try {
             orthoTree = Util.getJsonObjectFromUrl(orthologUrl);
+            OrthoMapping orthoMapping = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(orthoTree.toString(),
+                    OrthoMapping.class);
+            JSONArray json = new JSONArray(orthoMapping.getAllMapped(tair_locus2id_mapping, org_mapping));
+            return json.toString();
         }
         catch(Exception e) {
             System.out.println("Error "+ e.getMessage());
-            return e.getMessage();
+            return "{}"
         }
-        OrthoMapping orthoMapping = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(orthoTree.toString(),
-                OrthoMapping.class);
-        JSONArray json = new JSONArray(orthoMapping.getAllMapped(tair_locus2id_mapping, org_mapping));
-        return json.toString();
+
+
     }
 
     public String callFastaApi(String treeId, int[] taxon_array) throws Exception {
