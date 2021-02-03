@@ -19,6 +19,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.tair.process.uniprotdb_iba.UpdateGOAnnotations;
 
 public class TestUpdateGOAnnotations {
 	String solrUrl = "http://localhost:8983/solr";

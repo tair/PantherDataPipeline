@@ -139,7 +139,7 @@ public class PruningController {
         }
         catch(Exception e) {
             System.out.println("Error "+ e.getMessage());
-            return "{}"
+            return "{}";
         }
 
 

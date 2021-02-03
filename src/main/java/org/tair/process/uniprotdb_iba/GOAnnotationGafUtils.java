@@ -1,4 +1,6 @@
-package org.tair.process.uniprotdb;
+package org.tair.process.uniprotdb_iba;
+
+import com.amazonaws.services.dynamodbv2.xspec.S;
 
 import java.io.*;
 import java.nio.file.Paths;
@@ -18,6 +20,7 @@ public class GOAnnotationGafUtils {
             Properties prop = new Properties();
             prop.load(input);
             // get relative url from script dir to resources dir for shell script to use
+            System.out.println(goIbaResourcesDir);
             String relativePath = Paths.get(GO_IBA_SCRIPTS_PATH).relativize(Paths.get(goIbaResourcesDir)).toString();
             // build process
             ProcessBuilder pb = new ProcessBuilder("./resources.sh", relativePath, prop.getProperty("GoIbaAnnotationFtpUrl"), prop.getProperty("GoBasicOboUrl"));

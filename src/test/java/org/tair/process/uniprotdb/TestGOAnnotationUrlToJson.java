@@ -1,6 +1,7 @@
 package org.tair.process.uniprotdb;
 
 import org.junit.Test;
+import org.tair.process.uniprotdb_iba.GOAnnotationUrlToJson;
 import org.tair.util.Util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

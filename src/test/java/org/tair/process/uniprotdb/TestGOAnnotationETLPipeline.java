@@ -10,9 +10,10 @@ import java.util.List;
 
 import org.junit.Test;
 import org.tair.module.GOAnnotation;
+import org.tair.process.uniprotdb_iba.GOAnnotationIBAETLPipeline;
 
 public class TestGOAnnotationETLPipeline {
-	GOAnnotationETLPipeline GOAnnotationETLPipeline = new GOAnnotationETLPipeline();
+	GOAnnotationIBAETLPipeline GOAnnotationETLPipeline = new GOAnnotationIBAETLPipeline();
 	
 	@Test
 	public void TestReadFromLocal() throws IOException {

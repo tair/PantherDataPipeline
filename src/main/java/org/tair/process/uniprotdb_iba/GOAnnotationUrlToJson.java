@@ -1,4 +1,4 @@
-package org.tair.process.uniprotdb;
+package org.tair.process.uniprotdb_iba;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
