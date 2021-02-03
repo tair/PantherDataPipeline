@@ -97,6 +97,8 @@ public class PantherLocalWrapper {
         }
         System.out.println("Locus2idmapping loaded "+ locus2tairId_mapping.size());
         System.out.println("Orgidmapping loaded "+ organism_mapping.size());
+
+        System.out.println("RESOURCES_BASE " + RESOURCES_BASE);
     }
 
     private void loadProps() {
@@ -396,6 +398,8 @@ public class PantherLocalWrapper {
             System.out.println("Making dir "+ dirPath);
         }
     }
+
+
 
     public static void main(String args[]) throws Exception {
         PantherLocalWrapper lw = new PantherLocalWrapper();

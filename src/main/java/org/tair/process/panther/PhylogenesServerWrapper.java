@@ -38,6 +38,7 @@ import org.tair.util.Util;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,12 +47,12 @@ public class PhylogenesServerWrapper {
     //S3 Keys
     String S3_ACCESS_KEY = "";
     String S3_SECRET_KEY = "";
-    String PG_TREE_BUCKET_NAME = "phg-panther-data";
-    String PG_MSA_BUCKET_NAME = "phg-msa-data";
+    String PG_TREE_BUCKET_NAME = "phg-panther-data-16";
+    String PG_MSA_BUCKET_NAME = "phg-panther-msa-data-16";
 
 //    private String URL_SOLR = "http://localhost:8983/solr/panther";
-    private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
-    //		String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
+//    private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
+      String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 
     SolrClient mysolr = null;
     AmazonS3 s3_server = null;
@@ -80,9 +81,9 @@ public class PhylogenesServerWrapper {
 			prop.load(input);
 //			System.out.println(prop);
 
-			if(prop.containsKey("URL_SOLR")) {
-				PG_MSA_BUCKET_NAME = prop.getProperty("URL_SOLR");
-			}
+//			if(prop.containsKey("URL_SOLR")) {
+//				PG_MSA_BUCKET_NAME = prop.getProperty("URL_SOLR");
+//			}
 			if(prop.containsKey("S3_ACCESS_KEY")) {
 				S3_ACCESS_KEY = prop.getProperty("S3_ACCESS_KEY");
 			} else if(!System.getProperty("S3_ACCESS_KEY").isEmpty()) {
@@ -100,14 +101,14 @@ public class PhylogenesServerWrapper {
 			if(prop.containsKey("PG_TREE_BUCKET_NAME")) {
 				PG_TREE_BUCKET_NAME = prop.getProperty("PG_TREE_BUCKET_NAME");
 			}
-			if(prop.containsKey("PG_MSA_BUCKET_NAME")) {
-				PG_MSA_BUCKET_NAME = prop.getProperty("PG_MSA_BUCKET_NAME");
-			}
+//			if(prop.containsKey("PG_MSA_BUCKET_NAME")) {
+//				PG_MSA_BUCKET_NAME = prop.getProperty("PG_MSA_BUCKET_NAME");
+//			}
 		} catch (Exception e) {
 			System.out.println("Prop file not found!");
             System.out.println("S3_ACCESS_KEY " + System.getenv("S3_ACCESS_KEY"));
 			System.out.println("HOME " + System.getenv("HOME"));
-			PG_MSA_BUCKET_NAME = "phg-panther-msa-data";
+			PG_MSA_BUCKET_NAME = "phg-panther-msa-data-16";
 			PG_TREE_BUCKET_NAME = "phg-panther-data";
 
 //			if(!System.getenv("S3_SECRET_KEY").isEmpty()) {
@@ -247,8 +248,59 @@ public class PhylogenesServerWrapper {
 			if (treeIdResponse.getResults().get(i).getFieldValues("go_annotations") == null) {
 				continue;
 			}
-
 		}
+	}
+
+	public void analyzePhyloXml15() throws Exception {
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id");
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		int totalDocsFound = treeIdResponse.getResults().size();
+		System.out.println("totalDocsFound " + totalDocsFound);
+		String sourceDirectory = "/Users/swapp1990/Documents/projects/Pheonix_Projects/phylogenes-storage/phyloXml_15";
+		String deleteDirectory = "/Users/swapp1990/Documents/projects/Pheonix_Projects/phylogenes-storage/phyloXml_15/deleted";
+		File dir = new File(deleteDirectory);
+		if(!dir.isDirectory()) {
+			dir.mkdir();
+			System.out.println("Making dir "+ deleteDirectory);
+		}
+		File folder = new File(sourceDirectory);
+		File[] listOfFiles = folder.listFiles();
+		List<String> solr_ids = new ArrayList<>();
+		for (int i = 0; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			solr_ids.add(treeId);
+		}
+		int in=0;
+		for (File file : listOfFiles) {
+			if (file.isFile()) {
+//				System.out.println(file.getName());
+				String n = file.getName().replace(".xml", "");
+				if (solr_ids.contains(n)) {
+//					System.out.println(file.getName());
+					in++;
+				} else {
+					String del_file = deleteDirectory + "/" + file.getName();
+					if(file.renameTo(new File(del_file)))
+					{
+						// if file copied successfully then delete the original file
+						file.delete();
+						System.out.println("File moved successfully");
+					}
+					else
+					{
+						System.out.println("Failed to move the file "+ n);
+					}
+				}
+			}
+		}
+		System.out.println("total "+ in);
+//		for (int i = 0; i < totalDocsFound; i++) {
+//			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+//
+////			Files.copy(sourceDirectory, targetDirectory);
+//		}
 	}
 
 	public void pantherDump_genodo() throws Exception {
@@ -781,10 +833,11 @@ public class PhylogenesServerWrapper {
     	PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
     	try {
 //			pgServer.analyzePantherDump();
-//			pgServer.updateAllSolrTrees();
+			pgServer.updateAllSolrTrees();
 //			pgServer.getFastaDocFromTree("PTHR22166");
 //			int[] taxon_array = {13333,3702};
 //			pgServer.getFastaDocForPrunedTree("PTHR22166", taxon_array);
+			pgServer.analyzePhyloXml15();
 		} catch (Exception e) {
     		System.out.println(e);
 		}

@@ -1,11 +1,9 @@
-package org.tair.process.uniprotdb;
+package org.tair.process.uniprotdb_iba;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.InputStream;
+import java.util.*;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -14,7 +12,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
@@ -25,10 +22,31 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class UpdateGOAnnotations {
-	String solrUrl = "http://localhost:8983/solr";
-	SolrClient solrClient = new HttpSolrClient.Builder(solrUrl).build();
+	private String RESOURCES_DIR = "src/main/resources";
+	private String BASE_SOLR_URL = "http://localhost:8983/solr";
+	public SolrClient solrClient = null;
 	ObjectMapper mapper = new ObjectMapper();
 	int uniprot_rows;
+
+	public UpdateGOAnnotations() {
+		loadProps();
+		solrClient = new HttpSolrClient.Builder(BASE_SOLR_URL).build();
+	}
+
+	private void loadProps() {
+		try {
+			InputStream input = new FileInputStream(RESOURCES_DIR + "/application.properties");
+			// load props
+			Properties prop = new Properties();
+			prop.load(input);
+			if (prop.containsKey("BASE_SOLR_URL")) {
+				BASE_SOLR_URL = prop.getProperty("BASE_SOLR_URL");
+			}
+		}
+		catch (Exception e) {
+			System.out.println("Prop file not found!");
+		}
+	}
 	
 	public void updateGOAnnotations() throws SolrServerException, IOException, InterruptedException {
 		SolrQuery query = new SolrQuery("*:*");
@@ -57,17 +75,22 @@ public class UpdateGOAnnotations {
 			SolrDocument result = response.getResults().get(i);
 			Collection<Object> uniprotIds = result.getFieldValues("uniprot_ids");
 			String id = (String) result.getFieldValue("id");
-			System.out.println("Processing: "+id +" idx: "+i);
-			List<String> goAnnotationDataList = getGOAnnotationsForTree(uniprotIds);
-			System.out.println(goAnnotationDataList.size());
-			SolrInputDocument doc = new SolrInputDocument();
-			doc.addField("id", id);
-			Map<String, List<String>> partialUpdate = new HashMap<>();
-			partialUpdate.put("set", goAnnotationDataList);
-			doc.addField("go_annotations", partialUpdate);
-			solrClient.add("panther", doc);
-			solrClient.commit("panther");
-			System.out.println("commited: "+ id);
+			String[] sel_ids = new String[]{"PTHR10177", "PTHR11875","PTHR33565","PTHR45665","PTHR45687","PTHR46739","PTHR47002"};
+			for(int j=0; j<sel_ids.length;j++) {
+				if(id.equals(sel_ids[j])) {
+					System.out.println("Processing: " + id + " idx: " + i);
+					List<String> goAnnotationDataList = getGOAnnotationsForTree(uniprotIds);
+					System.out.println(goAnnotationDataList.size());
+					SolrInputDocument doc = new SolrInputDocument();
+					doc.addField("id", id);
+					Map<String, List<String>> partialUpdate = new HashMap<>();
+					partialUpdate.put("set", goAnnotationDataList);
+					doc.addField("go_annotations", partialUpdate);
+					solrClient.add("panther", doc);
+					solrClient.commit("panther");
+					System.out.println("commited: " + id);
+				}
+			}
 		}
 	}
 
