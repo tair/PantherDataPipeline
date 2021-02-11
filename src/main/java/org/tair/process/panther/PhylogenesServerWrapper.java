@@ -316,14 +316,15 @@ public class PhylogenesServerWrapper {
 		}
 	}
 
-	public void analyzePantherDump() throws Exception {
-//		SolrQuery sq = new SolrQuery("id:PTHR11608");
+	//Lists the panther trees, and number of total organisms per tree and list of go annotations
+	public void analyzePantherDump(String filename) throws Exception {
+//		SolrQuery sq = new SolrQuery("id:PTHR23140");
 		SolrQuery sq = new SolrQuery("*:*");
 		sq.setRows(9000);
 		sq.setFields("id", "family_name", "sf_names", "go_annotations", "taxonomic_ranges");
 		sq.setSort("id", SolrQuery.ORDER.asc);
 		QueryResponse treeIdResponse = mysolr.query(sq);
-		File file = new File("panther_dump_nov18.csv");
+		File file = new File(filename);
 		CsvWriter csvWriter = new CsvWriter();
 		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
 			List<String> cols = Arrays.asList("family ID", "family name", "subfamily name", "taxon range");
@@ -370,6 +371,7 @@ public class PhylogenesServerWrapper {
                     csvAppender.endLine();
 					continue;
 				}
+//				System.out.println(root);
 				HashMap<String, Integer> organism_count = pantherLocal.getAllOrganismsFromTree(root);
 				for(int j=0; j<organisms.size(); j++) {
 					if(organism_count.get(organisms.get(j)) != null) {
@@ -434,14 +436,15 @@ public class PhylogenesServerWrapper {
 		}
 	}
 
-	public void analyzePantherAnnos2() throws Exception {
+	//Lists pre tree: count of uniprots, genes and annotations
+	public void analyzePantherAnnotations2(String filename) throws Exception {
 //		SolrQuery sq = new SolrQuery("id:PTHR10012");
 		SolrQuery sq = new SolrQuery("*:*");
 		sq.setRows(9000);
 		sq.setFields("id", "go_annotations", "uniprot_ids");
 		sq.setSort("id", SolrQuery.ORDER.asc);
 		QueryResponse treeIdResponse = mysolr.query(sq);
-		File file = new File("annos_stats_aug19.csv");
+		File file = new File(filename);
 		CsvWriter csvWriter = new CsvWriter();
 		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
 			csvAppender.appendLine("treeId", "UniprotIds_count", "genes_count_1F",  "genes_count_1P", "genes_count_1IBA", "goTerms_count_F", "goTerms_count_P");

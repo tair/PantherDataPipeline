@@ -19,9 +19,9 @@ import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.tair.process.uniprotdb_iba.UpdateGOAnnotations;
+import org.tair.process.panther.PantherUpdateGOAnnotations;
 
-public class TestUpdateGOAnnotations {
+public class TestPantherUpdateGOAnnotations {
 	String solrUrl = "http://localhost:8983/solr";
 	SolrClient solrClient = new HttpSolrClient.Builder(solrUrl).build();
 	ObjectMapper mapper = new ObjectMapper();
@@ -30,8 +30,8 @@ public class TestUpdateGOAnnotations {
 	public void testSolrQuery() throws SolrServerException, IOException {
 		final SolrQuery query = new SolrQuery("*:*");
 		query.setFields("id","uniprot_ids");
-		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
-		UpdateGOAnnotations.solrClient.query("panther", query);	
+		PantherUpdateGOAnnotations PantherUpdateGOAnnotations = new PantherUpdateGOAnnotations();
+		PantherUpdateGOAnnotations.solrClient.query("panther", query);
 	}
 	
 	@Test
@@ -39,7 +39,7 @@ public class TestUpdateGOAnnotations {
 		Collection<Object> uniprotIds = new ArrayList<Object>();
 		uniprotIds.add("A0A0B4JCZ8");
 		uniprotIds.add("Q23624");
-		System.out.println(new UpdateGOAnnotations().getGOAnnotationsForTree(uniprotIds));
+		System.out.println(new PantherUpdateGOAnnotations().getGOAnnotationsForTree(uniprotIds));
 	}
 	
 	@Test
@@ -60,8 +60,8 @@ public class TestUpdateGOAnnotations {
 //	public void test() throws SolrServerException, IOException {
 //		final SolrQuery query = new SolrQuery("id:PTHR10015");
 //		query.setFields("uniprot_ids");
-//		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
-//		final QueryResponse response = UpdateGOAnnotations.solrClient.query("panther", query);
+//		PantherUpdateGOAnnotations PantherUpdateGOAnnotations= new PantherUpdateGOAnnotations();
+//		final QueryResponse response = PantherUpdateGOAnnotations.solrClient.query("panther", query);
 //		List<String> uniprotIds = new ArrayList<String>();
 //		for (Object uniprotId : response.getResults().get(0).getFieldValues("uniprot_ids")) {
 //			uniprotIds.add(uniprotId.toString().toLowerCase());

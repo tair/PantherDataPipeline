@@ -2,7 +2,7 @@
 
 - GOAnnotationETLPipeline.java file is used to index the uniprot_db collection of the solr database.
 - GOAnnotationUrlToJson.java provides helper methods to read data from url.
-- UpdateGOAnnotations.java is used to update go_annotations field in panther collection with the data in uniprot_db.
+- PantherUpdateGOAnnotations.java is used to update go_annotations field in panther collection with the data in uniprot_db.
 
 ## Methods to Load Data
 1. Load GO Annotation Data from API Url
@@ -27,6 +27,6 @@ The above 2 methods are called from GOAnnotationETLPipelilne.java's main method.
 
 ## Steps to Run:
 - 1. run GOAnnotationETLPipelilne.java
-- 2. run UpdateGOAnnotations.java
+- 2. run PantherUpdateGOAnnotations.java
 
 We can also invoke them in PantherETLPipeline.java's main method which will be more convenient for the full reindex.

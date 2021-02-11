@@ -38,8 +38,8 @@ public class PruningController {
     PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
     PantherServerWrapper pantherServer = new PantherServerWrapper();
     PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
-//    private String BASE_URL = "http://pantherdb.org/tempFamilySearch";
-    private String BASE_URL = "http://panthertest9.med.usc.edu:8089";
+    private String BASE_URL = "http://pantherdb.org";
+//    private String BASE_URL = "http://panthertest9.med.usc.edu:8089";
     private String BOOK_INFO_URL = BASE_URL+"?type=book_info";
     private String GRAFT_URL = BASE_URL+"/services/oai/pantherdb/graftsequence";
     private String ORTHO_URL = BASE_URL+"/services/oai/pantherdb/ortholog/matchortho?geneInputList=";
@@ -81,6 +81,9 @@ public class PruningController {
     @PostMapping(path="/panther/orthomapping", consumes="application/json")
     public @ResponseBody String getOrthoMapping(@RequestBody OrthoObj orthoObj) throws Exception {
         System.out.println("Request " + orthoObj.getUniprotId() + " queryOrganismId " + orthoObj.getQueryOrganismId());
+        if(orthoObj.getQueryOrganismId() == null) {
+            return "";
+        }
         int queryId = Integer.parseInt(orthoObj.getQueryOrganismId());
         return callOrthologApi(orthoObj.getUniprotId(), queryId);
     }

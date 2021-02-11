@@ -33,6 +33,8 @@ public class PantherData {
 	@Field
 	private List<String> species_list = new ArrayList<String>();
 	@Field
+	private List<String> taxonomic_ranges_root = new ArrayList<String>();
+	@Field
 	private List<String> taxonomic_ranges = new ArrayList<>();
 	@Field
 	private List<String> branch_lengths = new ArrayList<String>();

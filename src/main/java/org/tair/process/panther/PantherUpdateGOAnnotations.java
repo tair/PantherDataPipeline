@@ -1,4 +1,4 @@
-package org.tair.process.uniprotdb_iba;
+package org.tair.process.panther;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -21,14 +21,13 @@ import org.tair.module.GOAnnotationData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-public class UpdateGOAnnotations {
+public class PantherUpdateGOAnnotations {
 	private String RESOURCES_DIR = "src/main/resources";
 	private String BASE_SOLR_URL = "http://localhost:8983/solr";
 	public SolrClient solrClient = null;
-	ObjectMapper mapper = new ObjectMapper();
 	int uniprot_rows;
 
-	public UpdateGOAnnotations() {
+	public PantherUpdateGOAnnotations() {
 		loadProps();
 		solrClient = new HttpSolrClient.Builder(BASE_SOLR_URL).build();
 	}
@@ -47,8 +46,29 @@ public class UpdateGOAnnotations {
 			System.out.println("Prop file not found!");
 		}
 	}
-	
-	public void updateGOAnnotations() throws SolrServerException, IOException, InterruptedException {
+
+	public void getGoAnnotations() throws Exception {
+		SolrQuery query = new SolrQuery("*:*");
+		query.setFields("id","go_annotations");
+		query.setSort("id", ORDER.asc);
+		QueryResponse tempResponse = solrClient.query("panther", query);
+		int total = (int)tempResponse.getResults().getNumFound();
+		query.setRows(total);
+		QueryResponse response = solrClient.query("panther", query);
+		int count = 0;
+		for (int i = 0; i<response.getResults().size(); i ++) {
+			SolrDocument result = response.getResults().get(i);
+			String id = (String) result.getFieldValue("id");
+			Collection<Object> go_annos = result.getFieldValues("go_annotations");
+			if(go_annos != null) {
+				System.out.println("Found anno for id "+ id);
+				count++;
+			}
+		}
+		System.out.println("Total trees found " + count);
+	}
+
+	public void updateGOAnnotations_selected(String[] sel_ids) throws SolrServerException, IOException, InterruptedException {
 		SolrQuery query = new SolrQuery("*:*");
 		query.setFields("id","uniprot_ids");
 		query.setSort("id", ORDER.asc);
@@ -75,7 +95,6 @@ public class UpdateGOAnnotations {
 			SolrDocument result = response.getResults().get(i);
 			Collection<Object> uniprotIds = result.getFieldValues("uniprot_ids");
 			String id = (String) result.getFieldValue("id");
-			String[] sel_ids = new String[]{"PTHR10177", "PTHR11875","PTHR33565","PTHR45665","PTHR45687","PTHR46739","PTHR47002"};
 			for(int j=0; j<sel_ids.length;j++) {
 				if(id.equals(sel_ids[j])) {
 					System.out.println("Processing: " + id + " idx: " + i);
@@ -90,6 +109,52 @@ public class UpdateGOAnnotations {
 					solrClient.commit("panther");
 					System.out.println("commited: " + id);
 				}
+			}
+		}
+	}
+	
+	public void updateGOAnnotations() throws SolrServerException, IOException, InterruptedException {
+		SolrQuery query = new SolrQuery("*:*");
+		query.setFields("id","uniprot_ids","go_annotations");
+		query.setSort("id", ORDER.asc);
+
+		QueryResponse tempResponse = solrClient.query("panther", query);
+		int total = (int)tempResponse.getResults().getNumFound();
+		query.setRows(total);
+		QueryResponse response = solrClient.query("panther", query);
+
+		//using facet to get uniprot_db's max length result, and set the number to uniprot_db's rows.
+		SolrQuery uniprotFacetQuery = new SolrQuery("*:*");
+		uniprotFacetQuery.setRows(0);
+		uniprotFacetQuery.setFacet(true);
+		uniprotFacetQuery.addFacetField("uniprot_id");
+		uniprotFacetQuery.setFacetLimit(-1); // -1 means unlimited
+		uniprotFacetQuery.setFacetSort(FacetParams.FACET_SORT_COUNT);
+
+		QueryResponse uniprotFacetResponse = solrClient.query("paint_db", uniprotFacetQuery);
+		FacetField uniprotIdFacets = uniprotFacetResponse.getFacetField("uniprot_id");
+		uniprot_rows = (int)uniprotIdFacets.getValues().get(0).getCount();
+		System.out.println("Uniprot DB result rows set to: " + uniprot_rows);
+
+		for (int i = 0; i<response.getResults().size(); i ++) {
+			SolrDocument result = response.getResults().get(i);
+			Collection<Object> uniprotIds = result.getFieldValues("uniprot_ids");
+			String id = (String) result.getFieldValue("id");
+			System.out.println("Processing: " + id + " idx: " + i);
+			Collection<Object> go_annos = result.getFieldValues("go_annotations");
+			if(go_annos == null) {
+				List<String> goAnnotationDataList = getGOAnnotationsForTree(uniprotIds);
+				System.out.println(goAnnotationDataList.size());
+				SolrInputDocument doc = new SolrInputDocument();
+				doc.addField("id", id);
+				Map<String, List<String>> partialUpdate = new HashMap<>();
+				partialUpdate.put("set", goAnnotationDataList);
+				doc.addField("go_annotations", partialUpdate);
+				solrClient.add("panther", doc);
+				solrClient.commit("panther");
+				System.out.println("commited: " + id);
+			} else {
+				System.out.println("Go annotations already added");
 			}
 		}
 	}
@@ -140,9 +205,10 @@ public class UpdateGOAnnotations {
 	public static void main(String[] args) throws Exception {
 		long startTime = System.nanoTime();
 
-		UpdateGOAnnotations UpdateGOAnnotations= new UpdateGOAnnotations();
-		UpdateGOAnnotations.updateGOAnnotations();
-//		UpdateGOAnnotations.testUniprot();
+		PantherUpdateGOAnnotations pantherUpdateGOAnnotations = new PantherUpdateGOAnnotations();
+//		pantherUpdateGOAnnotations.getGoAnnotations();
+//		PantherUpdateGOAnnotations.updateGOAnnotations();
+//		PantherUpdateGOAnnotations.testUniprot();
 
 		long endTime = System.nanoTime();
 		long timeElapsed = endTime - startTime;
