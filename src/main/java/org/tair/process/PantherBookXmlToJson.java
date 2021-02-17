@@ -79,7 +79,13 @@ public class PantherBookXmlToJson {
 				&& !this.pantherData.getSpecies_list().contains(annotation.getSpecies())
 				&& this.pantherData.getSpecies_list().size() == 0)
 			this.pantherData.getSpecies_list().add(annotation.getSpecies());
-		//"taxonomic_range"
+		//"taxonomic_range_root"
+		if (annotation.getTaxonomic_range() != null
+				&& !this.pantherData.getTaxonomic_ranges_root().contains(annotation.getTaxonomic_range())
+				&& this.pantherData.getTaxonomic_ranges_root().size() == 0) {
+			this.pantherData.getTaxonomic_ranges_root().add(annotation.getTaxonomic_range());
+		}
+		// "taxonomic_range"
 		if (annotation.getTaxonomic_range() != null && !this.pantherData.getTaxonomic_ranges().contains(annotation.getTaxonomic_range()))
 			this.pantherData.getTaxonomic_ranges().add(annotation.getTaxonomic_range());
 		//"tree_node_type" - not indexed

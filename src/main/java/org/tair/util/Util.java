@@ -6,7 +6,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.json.simple.parser.JSONParser;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.tair.module.paint.flatfile.GoBasic;
+import org.tair.process.panther.PantherLocalWrapper;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -18,11 +20,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class Util {
-
+	static PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
 	public static String readFromFile(String path) throws Exception {
 
 		StringBuilder contentBuilder = new StringBuilder();
@@ -76,6 +79,21 @@ public class Util {
 			sb.append((char) cp);
 		}
 		return sb.toString();
+	}
+
+	public static JSONObject getJsonObjectFromUrl(String url) throws IOException, JSONException {
+		InputStream is = new URL(url).openStream();
+		try {
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+			String jsonText = readAll(rd);
+			JSONObject json = new JSONObject(jsonText);
+//			System.out.println(json.toString());
+			return json;
+		} catch(Exception e) {
+			return null;
+		} finally {
+			is.close();
+		}
 	}
 
 	public static String readJsonFromUrl(String url) throws IOException, JSONException {

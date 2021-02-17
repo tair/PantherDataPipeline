@@ -11,8 +11,3 @@ public class MSAList {
     private List<MSASequenceInfo> sequence_info;
 }
 
-@Data
-class MSASequenceInfo {
-    private String sequence;
-    private String persistent_id;
-}

@@ -1,20 +1,23 @@
 package org.tair.process;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.tair.module.pantherForPhylo.*;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import org.tair.module.PantherData;
+//import org.tair.module.pantherForPhylo.*;
+import org.tair.module.panther.*;
+import org.tair.module.pantherForPhylo.Accession;
+import org.tair.module.pantherForPhylo.familyList;
+import org.tair.module.pantherForPhylo.FamilyNames;
 import org.tair.module.phyloxml.*;
 import org.tair.process.panther.PhylogenesServerWrapper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import java.util.Queue;
-import java.util.LinkedList;
 import java.io.InputStream;
 import java.io.FileInputStream;
-import java.util.HashMap;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.StreamResult;
@@ -27,16 +30,43 @@ import javax.xml.transform.stream.StreamResult;
 */
 public class pantherToPhyloXmlPipeline
 {
-    private static String RESOURCES_BASE = "/Users/swapp1990/Documents/projects/Pheonix_Projects/phylogenes_data/PantherPipelineResources/panther15/panther";
+    private String RESOURCES_DIR = "src/main/resources";
+    public static String RESOURCES_BASE = "panther_resources";
+
     PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
+
+    public pantherToPhyloXmlPipeline() {
+        loadProps();
+    }
+
+    private void loadProps() {
+        try {
+            InputStream input = new FileInputStream(RESOURCES_DIR + "/application.properties");
+            // load props
+            Properties prop = new Properties();
+            prop.load(input);
+//            System.out.println(prop);
+            if(prop.containsKey("RESOURCES_BASE")) {
+                RESOURCES_BASE = prop.getProperty("RESOURCES_BASE");
+            }
+        } catch (Exception e) {
+//            System.out.println("Prop file not found!");
+        }
+    }
+
     public static void main(String args[])
     {
-//        PantherJsonToPhyloXml("PTHR11705");
-
-//
-//        convertAllInDirectory();   // converts all panther json files in pruned_panther_files directory
         pantherToPhyloXmlPipeline pxml = new pantherToPhyloXmlPipeline();
-        pxml.uploadAlltoS3();
+//        String[] sel_ids = {"PTHR10177"};
+//        List<String> sel_list = Arrays.asList(sel_ids);
+//        for(int i=0; i<sel_list.size(); i++) {
+//            PantherJsonToPhyloXml(sel_list.get(i));
+//        }
+
+//        convertAllInDirectory();   // converts all panther json files in pruned_panther_files directory
+
+//        pxml.uploadAlltoS3();
+//        pxml.uploadSelectedToS3();
     }
 
     // specifically converts all pruned pantherForPhylo files from resource directory
@@ -60,7 +90,7 @@ public class pantherToPhyloXmlPipeline
 
     void uploadAlltoS3() {
         File dir = new File(RESOURCES_BASE + "/phyloXml");
-        String bucketName = "phyloxml-15";
+        String bucketName = "phyloxml-16";
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
             int fileCount = 0;
@@ -74,6 +104,26 @@ public class pantherToPhyloXmlPipeline
         }
     }
 
+    void uploadSelectedToS3() {
+        File dir = new File(RESOURCES_BASE + "/phyloXml");
+        String bucketName = "phyloxml-15";
+        File[] directoryListing = dir.listFiles();
+        String[] sel_ids = {"PTHR10177"};
+        List<String> sel_list = Arrays.asList(sel_ids);
+        if (directoryListing != null) {
+            int fileCount = 0;
+            for (File child : directoryListing) {
+                if (child.getName().charAt(0) != '.') {// to ignore files such as .gitignore and .ds_store
+                    fileCount++;
+                    if(sel_list.contains(child.getName().replace(".xml", ""))) {
+                        System.out.println("Saved S3: "+ fileCount + " " + child.getName());
+                    }
+//                    pgServer.uploadObjectToBucket(bucketName, child.getName(), child);
+                }
+            }
+        }
+    }
+
     // Converts a single pantherForPhylo Json to Phylo Xml file
     // only input file name without file extension
     // files r normally located in main/resources/pruned_panther_files, however
@@ -82,56 +132,38 @@ public class pantherToPhyloXmlPipeline
     {
         // declarations for mapping pantherForPhylo json objects to java objects
         ObjectMapper objectMapper = new ObjectMapper();
-        Panther panther = new Panther();
+        PantherData panther = new PantherData();
         try
         {
             // mapping pantherForPhylo json file to pantherj java object
-            panther = objectMapper.readValue(new File(RESOURCES_BASE + "/pruned_panther_files/"+fileName+".json"), Panther.class);
+            panther = objectMapper.readValue(new File(RESOURCES_BASE + "/pruned_panther_files/"+fileName+".json"), PantherData.class);
+            panther = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(panther.getJsonString(),
+                    PantherData.class);
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
+        System.out.println(fileName);
+//        System.out.println(panther.getSearch().getAnnotation_node().getSf_name());
         // some objects in the pruned files are empty with just an ID, this avoids creating an xml for it
+
         if (panther.getSearch() != null)
         {
-            // creating the root node and setting up transformation(pantherForPhylo -> phyloxml)
-            Phyloxml phylo = createPhyloRoot(loadHashWithFamNames(), panther);
+//            // creating the root node and setting up transformation(pantherForPhylo -> phyloxml)
+            Phyloxml phylo = createPhyloRoot(panther);
             // transformation pantherForPhylo object to phyloxml object, build phyloxml tree while level order traversal
             constructPhyloTreeWithAnnoTree(panther.getSearch().getAnnotation_node(), phylo.getPhylogeny().getClade());
             // transform phlyo java object to xml local file
             String xmlLocalFile_fullPath = RESOURCES_BASE + "/phyloXml/" + fileName+".xml";
             phyloObjToXML(phylo, xmlLocalFile_fullPath);
         }
-    }
 
-    // change path if family names placed elsewhere
-    static HashMap<String, String> loadHashWithFamNames()
-    {
-        // declarations for loading in hashmap values for family name and id key value pairs
-        ObjectMapper mapper = new ObjectMapper();
-        familyList fam = new familyList();
-        fam.setFamilyNames(new ArrayList<FamilyNames>());
-        HashMap<String, String> hm = new HashMap<String, String>();
-        try
-        {
-            // loading in hashmap values for family name and id key value pairs
-            InputStream input = new FileInputStream(RESOURCES_BASE + "/familyNamesList.json");
-            String data = mapper.readValue(input, String.class);
-            fam = mapper.readValue(data, familyList.class); //.enable(SerializationFeature.INDENT_OUTPUT)
-            for (int i = 0; i < fam.getFamilyNames().size(); i++)
-                hm.put(fam.getFamilyNames().get(i).getPantherId(), fam.getFamilyNames().get(i).getFamilyName());
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        return hm;
     }
 
 //    Creates the first node, and classes containing the node before
 //    passing that root to a function that creates the tree.
-    static Phyloxml createPhyloRoot(HashMap<String, String> hm, Panther panther)
+    static Phyloxml createPhyloRoot(PantherData panther)
 {
     Phyloxml phylo = new Phyloxml();
     phylo.setPhylogeny(new Phylogeny());
@@ -139,7 +171,7 @@ public class pantherToPhyloXmlPipeline
     phylo.getPhylogeny().getClade().setEvents(new Events());
     phylo.getPhylogeny().setDescription(panther.getId());
     phylo.getPhylogeny().setRooted("true");                     // CHECK WHEN TO KNOW TRUE AND FALSE
-    phylo.getPhylogeny().setName(hm.get(panther.getId()));
+    phylo.getPhylogeny().setName(panther.getFamily_name());
     return phylo;
 }
 
@@ -184,41 +216,41 @@ public class pantherToPhyloXmlPipeline
 //    instead of printing when visiting the node, we set clade node attributes equal to annotation
 //    node attributes.
     static void constructPhyloTreeWithAnnoTree(Annotation root, Clade croot)
+{
+    if (root == null || croot == null)
+        return;
+    Queue<Annotation> anno_q = new LinkedList<Annotation>();
+    Queue<Clade> clade_q = new LinkedList<Clade>();
+    clade_q.add(croot);
+    anno_q.add(root);
+    while (!anno_q.isEmpty())
     {
-        if (root == null || croot == null)
-            return;
-        Queue<Annotation> anno_q = new LinkedList<Annotation>();
-        Queue<Clade> clade_q = new LinkedList<Clade>();
-        clade_q.add(croot);
-        anno_q.add(root);
-        while (!anno_q.isEmpty())
+        int n = anno_q.size();
+        while (n > 0)
         {
-            int n = anno_q.size();
-            while (n > 0)
+            Annotation annoTempNode = anno_q.poll();
+            Clade cladeTempNode = clade_q.poll();
+            createAndSetCladeWithAno(annoTempNode, cladeTempNode);  // This replaces printing the node
+            // without this, once you get to leaf node, you'll try to access thru a null object
+            if (annoTempNode.getChildren() != null)
             {
-                Annotation annoTempNode = anno_q.poll();
-                Clade cladeTempNode = clade_q.poll();
-                createAndSetCladeWithAno(annoTempNode, cladeTempNode);  // This replaces printing the node
-                // without this, once you get to leaf node, you'll try to access thru a null object
-                if (annoTempNode.getChildren() != null)
+                // in order to add n number of children, we need to allocate the child clade
+                cladeTempNode.setClade(new LinkedList<Clade>());
+                for (int i = 0; i < annoTempNode.getChildren().getAnnotation_node().size(); i++)
                 {
-                    // in order to add n number of children, we need to allocate the child clade
-                    cladeTempNode.setClade(new LinkedList<Clade>());
-                    for (int i = 0; i < annoTempNode.getChildren().getAnnotation_node().size(); i++)
+                    cladeTempNode.getClade().add(new Clade());    // adds n childs based on the annotation nodes amount of childs
+                    if (annoTempNode.getChildren().getAnnotation_node().get(i) != null)
                     {
-                        cladeTempNode.getClade().add(new Clade());    // adds n childs based on the annotation nodes amount of childs
-                        if (annoTempNode.getChildren().getAnnotation_node().get(i) != null)
-                        {
-                            anno_q.add(annoTempNode.getChildren().getAnnotation_node().get(i));
-                            // add empty clade children into queue to traverse and create next children
-                            clade_q.add(cladeTempNode.getClade().get(i));
-                        }
+                        anno_q.add(annoTempNode.getChildren().getAnnotation_node().get(i));
+                        // add empty clade children into queue to traverse and create next children
+                        clade_q.add(cladeTempNode.getClade().get(i));
                     }
                 }
-                n--;
             }
+            n--;
         }
     }
+}
 
 //    Given a module.phyloxml.Phyloxml object, creates a local xml file formatted to be easier to read. Change the number in
 //    the parameter to change the amount of indent space
