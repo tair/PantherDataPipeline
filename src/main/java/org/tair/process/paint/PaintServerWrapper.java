@@ -93,13 +93,18 @@ public class PaintServerWrapper {
 
         String[] evidence_codes = new String[]{"EXP", "IDA", "IEP", "IGI", "IMP", "IPI"};
         // remove all data from this collection (make sure to take a backup of old solr data)
-        solrClient.deleteByQuery("paint_db", "*:*");
+//        solrClient.deleteByQuery(solr_collection, "*:*");
+        int last_processed = 4230000;
         System.out.println("Emptied paint_db in solr!");
         try (BufferedReader br = new BufferedReader(new FileReader(csv_path))) {
             String line;
             int count = 0;
             int notAdded_count = 0;
             while ((line = br.readLine()) != null) {
+                if(count < last_processed) {
+                    count = count + 1;
+                    continue;
+                }
                 String[] cols = line.split("\\s+");
 //                String uniprotId = cols[0].split("UniProtKB=")[1];
                 boolean matchedEvidence = Arrays.asList(evidence_codes).contains(cols[2]);
@@ -117,7 +122,7 @@ public class PaintServerWrapper {
                     ObjectWriter ow = new ObjectMapper().writer();
                     String goAnnotationDataStr = ow.writeValueAsString(anno);
                     doc.addField("go_annotations", goAnnotationDataStr);
-                    solrClient.add("paint_db", doc);
+                    solrClient.add(solr_collection, doc);
                 } else {
 //                    System.out.println("Not added "+ count + " " + cols[2]);
                     notAdded_count++;
@@ -125,7 +130,7 @@ public class PaintServerWrapper {
                 if(count % 1000 == 0) {
                     System.out.println("Processed " + count);
                     System.out.println("Not added " + notAdded_count);
-                    solrClient.commit("paint_db");
+                    solrClient.commit(solr_collection);
                 }
                 count = count+1;
             }

@@ -14,4 +14,12 @@ public class Panther {
     public Search getSearch() {
         return search;
     }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+    public void setSearch(Search search) {
+        this.search = search;
+    }
+
 }
