@@ -303,6 +303,59 @@ public class PhylogenesServerWrapper {
 //		}
 	}
 
+	public void analyzePGCsv() throws Exception {
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id");
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		int totalDocsFound = treeIdResponse.getResults().size();
+		System.out.println("totalDocsFound " + totalDocsFound);
+		String sourceDirectory = "/Users/swapp1990/Documents/projects/Pheonix_Projects/phylogenes_data/PantherPipelineResources/panther16/phylogenes_csv";
+		String deleteDirectory = "/Users/swapp1990/Documents/projects/Pheonix_Projects/phylogenes_data/PantherPipelineResources/panther16/phylogenes_csv/deleted";
+		File dir = new File(deleteDirectory);
+		if(!dir.isDirectory()) {
+			dir.mkdir();
+			System.out.println("Making dir "+ deleteDirectory);
+		}
+		List<String> solr_ids = new ArrayList<>();
+		for (int i = 0; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			solr_ids.add(treeId);
+		}
+		File folder = new File(sourceDirectory);
+		File[] listOfFiles = folder.listFiles();
+		for (File file : listOfFiles) {
+			if (file.isFile()) {
+				String n = file.getName().replace(".csv", "");
+				if (!solr_ids.contains(n)) {
+					String del_file = deleteDirectory + "/" + file.getName();
+					if(file.renameTo(new File(del_file)))
+					{
+						// if file copied successfully then delete the original file
+						file.delete();
+						System.out.println("File moved successfully");
+					}
+					else
+					{
+						System.out.println("Failed to move the file "+ n);
+					}
+				}
+			}
+		}
+		List<String> file_ids = new ArrayList<>();
+		for (File file : listOfFiles) {
+			if (file.isFile()) {
+				String n = file.getName().replace(".csv", "");
+				file_ids.add(n);
+			}
+		}
+		for (String s : solr_ids) {
+			if(!file_ids.contains(s)) {
+				System.out.println(s);
+			}
+		}
+	}
+
 	public void pantherDump_genodo() throws Exception {
 		SolrQuery sq = new SolrQuery("*:*");
 		sq.setRows(9000);
@@ -548,6 +601,20 @@ public class PhylogenesServerWrapper {
 					csvAppender.endLine();
 				}
 			}
+		}
+	}
+
+	public void generatePantherAnnotationsCsvs(String filename) throws Exception {
+		SolrQuery sq = new SolrQuery("id:PTHR10012");
+//		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id", "go_annotations", "uniprot_ids");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		File file = new File(filename);
+		CsvWriter csvWriter = new CsvWriter();
+		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
+
 		}
 	}
 
@@ -836,11 +903,12 @@ public class PhylogenesServerWrapper {
     	PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
     	try {
 //			pgServer.analyzePantherDump();
-			pgServer.updateAllSolrTrees();
+//			pgServer.updateAllSolrTrees();
 //			pgServer.getFastaDocFromTree("PTHR22166");
 //			int[] taxon_array = {13333,3702};
 //			pgServer.getFastaDocForPrunedTree("PTHR22166", taxon_array);
-			pgServer.analyzePhyloXml15();
+//			pgServer.analyzePhyloXml15();
+			pgServer.analyzePGCsv();
 		} catch (Exception e) {
     		System.out.println(e);
 		}
