@@ -8,6 +8,7 @@ import org.tair.module.*;
 import org.tair.module.panther.Annotation;
 import org.tair.process.PantherBookXmlToJson;
 import org.tair.process.paint.GOAnnotationPaintETLPipeline;
+import org.tair.process.pantherToPhyloXmlPipeline;
 
 import java.util.*;
 
@@ -288,13 +289,23 @@ public class PantherETLPipeline {
 		}
 	}
 
+	public void generatePhyloXML() {
+		pantherToPhyloXmlPipeline pxml = new pantherToPhyloXmlPipeline();
+		pxml.convertAllInDirectory();
+		pxml.uploadAlltoS3();
+	}
+
+	public void generateCsvs() throws Exception {
+		String filename = "panther_16_anno_csvs.csv";
+		pgServer.generatePantherAnnotationsCsvs(filename);
+	}
+
 	//Generate csv files which analyzes panther etl dumps
 	public void generate_analyze_dump() throws Exception {
 		String filename = "panther_16_dump_feb8.csv";
 //		pgServer.analyzePantherDump(filename);
 		filename = "panther_16_annos_feb8.csv";
 		pgServer.analyzePantherAnnotations2(filename);
-
 	}
 
 	public void indexSingleIdOnSolr(String id) throws Exception {
@@ -378,6 +389,8 @@ public class PantherETLPipeline {
 
 //		etl.updateSolr_selected();
 
+		etl.generatePhyloXML();
+		etl.generateCsvs();
 		etl.generate_analyze_dump();
 
 		long endTime = System.nanoTime();

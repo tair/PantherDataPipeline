@@ -71,7 +71,7 @@ public class pantherToPhyloXmlPipeline
 
     // specifically converts all pruned pantherForPhylo files from resource directory
     // and places them into phyloxml directory
-    static void convertAllInDirectory()
+    public static void convertAllInDirectory()
     {
         File dir = new File(RESOURCES_BASE + "/pruned_panther_files");
         File[] directoryListing = dir.listFiles();
@@ -88,7 +88,7 @@ public class pantherToPhyloXmlPipeline
         }
     }
 
-    void uploadAlltoS3() {
+    public void uploadAlltoS3() {
         File dir = new File(RESOURCES_BASE + "/phyloXml");
         String bucketName = "phyloxml-16";
         File[] directoryListing = dir.listFiles();

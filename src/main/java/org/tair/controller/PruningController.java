@@ -29,6 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -57,6 +59,8 @@ public class PruningController {
     HashMap<String, String> tair_locus2id_mapping;
     HashMap<String, String> org_mapping;
 
+    Logger logger = Logger.getLogger(PruningController.class.getName());
+
     PruningController() throws Exception {
         tair_locus2id_mapping = pantherLocal.read_locus2tair_mapping_csv();
         org_mapping = pantherLocal.read_org_mapping_csv();
@@ -65,6 +69,7 @@ public class PruningController {
     @PostMapping(path = "/panther/pruning/{id}", consumes = "application/json")
     public @ResponseBody String getPrunedTree(@PathVariable("id") String treeId,
                                               @RequestBody TaxonObj taxonObj) throws Exception {
+        logger.log(Level.INFO, () -> String.format("getPrunedTree: treeId {}", treeId));
         List<String> taxonIdsToShow = taxonObj.getTaxonIdsToShow();
         int[] taxon_array = taxonIdsToShow.stream().mapToInt(Integer::parseInt).toArray();
         String prunedTree = pantherServer.readPrunedPantherTreeById(treeId, taxon_array);
@@ -74,13 +79,43 @@ public class PruningController {
 
     @PostMapping(path = "/panther/grafting", consumes="application/json")
     public @ResponseBody String getGrafterTree(@RequestBody SequenceObj sequenceObj) throws Exception {
+        logger.log(Level.INFO, () -> String.format("getGrafterTree: sequenceObj {}", sequenceObj.getSequence()));
         String seq = sequenceObj.getSequence();
         return callGraftingApi(seq, taxon_filters_arr);
     }
 
+    @PostMapping(path = "/panther/grafting/prune", consumes="application/json")
+    public @ResponseBody String getPrunedAndGraftedTree(@RequestBody ObjectNode json) throws Exception {
+        logger.log(Level.INFO, () -> String.format("getGrafterTree: sequence {}", json.get("sequence").asText()));
+        String inputSeq = json.get("sequence").asText();
+        ObjectMapper mapper = new ObjectMapper();
+        // acquire reader for the right type
+        ObjectReader reader = mapper.readerFor(new TypeReference<List<String>>() {
+        });
+        List<String> taxonIds = reader.readValue(json.get("taxonIdsToShow"));
+        int[] taxon_array = taxonIds.stream().mapToInt(Integer::parseInt).toArray();
+        String taxonFiltersParam = IntStream.of(taxon_array)
+                .mapToObj(Integer::toString)
+                .collect(Collectors.joining(","));
+
+        String graftingUrl = GRAFT_URL + "?sequence=" + inputSeq +
+                "&taxonFltr=" + taxonFiltersParam;
+        System.out.println("Got Grafting Request " + graftingUrl);
+
+        String jsonString = "";
+        try {
+            jsonString = Util.readJsonFromUrl(graftingUrl);
+        }
+        catch(Exception e) {
+            System.out.println("Error "+ e.getMessage());
+            return e.getMessage();
+        }
+        return jsonString;
+    }
+
     @PostMapping(path="/panther/orthomapping", consumes="application/json")
     public @ResponseBody String getOrthoMapping(@RequestBody OrthoObj orthoObj) throws Exception {
-        System.out.println("Request " + orthoObj.getUniprotId() + " queryOrganismId " + orthoObj.getQueryOrganismId());
+        logger.log(Level.INFO, () -> String.format("getOrthoMapping: uniprotId {}", orthoObj.getUniprotId()));
         if(orthoObj.getQueryOrganismId() == null) {
             return "";
         }
@@ -90,13 +125,14 @@ public class PruningController {
 
     @PostMapping(path="/panther/fastadoc/{id}", consumes="application/json")
     public @ResponseBody String getFastaDoc(@PathVariable("id") String treeId) throws Exception {
-        System.out.println("Req: getFastaDoc " + treeId);
+        logger.log(Level.INFO, () -> String.format("getFastaDoc: treeId {}", treeId));
         return callFastaApi(treeId, null);
     }
 
     @PostMapping(path = "/panther/pruning/fastadoc/{id}", consumes = "application/json")
     public @ResponseBody String getPrunedFastaDoc(@PathVariable("id") String treeId,
                                               @RequestBody TaxonObj taxonObj) throws Exception {
+        logger.log(Level.INFO, () -> String.format("getPrunedFastaDoc: treeId {}", treeId));
         List<String> taxonIdsToShow = taxonObj.getTaxonIdsToShow();
         int[] taxon_array = taxonIdsToShow.stream().mapToInt(Integer::parseInt).toArray();
         return callFastaApi(treeId, taxon_array);
@@ -156,35 +192,6 @@ public class PruningController {
             fasta_doc = pgServer.getFastaDocForPrunedTree(treeId, taxon_array);
         }
         return fasta_doc;
-    }
-
-    @PostMapping(path = "/panther/grafting/prune", consumes="application/json")
-    public @ResponseBody String getPrunedAndGraftedTree(@RequestBody ObjectNode json) throws Exception {
-//        System.out.println(json);
-        String inputSeq = json.get("sequence").asText();
-        ObjectMapper mapper = new ObjectMapper();
-        // acquire reader for the right type
-        ObjectReader reader = mapper.readerFor(new TypeReference<List<String>>() {
-        });
-        List<String> taxonIds = reader.readValue(json.get("taxonIdsToShow"));
-        int[] taxon_array = taxonIds.stream().mapToInt(Integer::parseInt).toArray();
-        String taxonFiltersParam = IntStream.of(taxon_array)
-                .mapToObj(Integer::toString)
-                .collect(Collectors.joining(","));
-
-        String graftingUrl = GRAFT_URL + "?sequence=" + inputSeq +
-                "&taxonFltr=" + taxonFiltersParam;
-        System.out.println("Got Grafting Request " + graftingUrl);
-
-        String jsonString = "";
-        try {
-            jsonString = Util.readJsonFromUrl(graftingUrl);
-        }
-        catch(Exception e) {
-            System.out.println("Error "+ e.getMessage());
-            return e.getMessage();
-        }
-        return jsonString;
     }
 
     public void testPruningApi() throws Exception {
