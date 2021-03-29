@@ -51,8 +51,8 @@ public class PhylogenesServerWrapper {
     String PG_MSA_BUCKET_NAME = "phg-panther-msa-data-16";
 
 //    private String URL_SOLR = "http://localhost:8983/solr/panther";
-//    private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
-      String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
+    private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
+//      String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 
     SolrClient mysolr = null;
     AmazonS3 s3_server = null;
@@ -760,6 +760,56 @@ public class PhylogenesServerWrapper {
 //        pantherLocal.initLogWriter(2);
 	}
 
+	//TAIR-3504
+	public void save_tairid2uniprot_mapping() {
+    	try {
+			CSVWriter writer = pantherLocal.createLogWriter("tairid2uniprots.csv", "Tair_agi");
+			writer.writeNext(new String[]{"tair_agi", "uniprots"});
+			SolrQuery sq = new SolrQuery("*:*");
+			sq.setRows(9000);
+			sq.setFields("id");
+			sq.setSort("id", SolrQuery.ORDER.asc);
+			QueryResponse treeIdResponse = mysolr.query(sq);
+			int totalDocsFound = treeIdResponse.getResults().size();
+			HashMap<String, String> tair_locus2id_mapping = pantherLocal.read_locus2tair_mapping_csv();
+			HashMap<String, List<String>> tairid2uniprot_mapping = new HashMap<>();
+			for (int i = 0; i < totalDocsFound; i++) {
+				String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+				System.out.println(treeId);
+				List<Annotation> leafNodes = pantherLocal.getAllLeafNodes(treeId);
+				for (int j = 0; j < leafNodes.size(); j++) {
+					Annotation currLeafNode = leafNodes.get(j);
+					if (currLeafNode.getGene_id() != null) {
+//					System.out.println(currLeafNode.getGene_id());
+						String code = currLeafNode.getGene_id().split(":")[0];
+						if (code.equals("TAIR")) {
+							String val = currLeafNode.getGene_id().split(":")[1];
+
+							val = val.split("=")[1];
+							String updatedTairId = tair_locus2id_mapping.get(val);
+							String uniprotId = currLeafNode.get_uniprotId();
+//						System.out.println(uniprotId + "-" + updatedTairId);
+							if (tairid2uniprot_mapping.get(updatedTairId) == null) {
+								List<String> matching_uniprots = new ArrayList<>();
+								matching_uniprots.add(uniprotId);
+								tairid2uniprot_mapping.put(updatedTairId, matching_uniprots);
+							} else {
+								System.out.println(tairid2uniprot_mapping.get(updatedTairId));
+							}
+						}
+					}
+				}
+			}
+			for (Map.Entry<String, List<String>> entry : tairid2uniprot_mapping.entrySet()) {
+				String uniprots = String.join(",", entry.getValue());
+				writer.writeNext(new String[]{entry.getKey(), uniprots});
+			}
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void uploadJsonToPGTreeBucket(String filename, String jsonStr) {
         try {
             uploadJsonToS3(PG_TREE_BUCKET_NAME, filename, jsonStr);
@@ -908,7 +958,9 @@ public class PhylogenesServerWrapper {
 //			int[] taxon_array = {13333,3702};
 //			pgServer.getFastaDocForPrunedTree("PTHR22166", taxon_array);
 //			pgServer.analyzePhyloXml15();
-			pgServer.analyzePGCsv();
+//			pgServer.analyzePGCsv();
+			pgServer.save_tairid2uniprot_mapping();
+
 		} catch (Exception e) {
     		System.out.println(e);
 		}
