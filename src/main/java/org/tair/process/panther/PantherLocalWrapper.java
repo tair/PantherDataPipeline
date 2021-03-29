@@ -49,6 +49,7 @@ public class PantherLocalWrapper {
     CSVWriter HTListCsvWriter;
 
     private HashMap<String, String> locus2tairId_mapping;
+    private HashMap<String, String> tairId2uniprotId_mapping;
     private HashMap<String, String> organism_mapping;
     private List<String> organism_names;
 
@@ -59,45 +60,12 @@ public class PantherLocalWrapper {
         csvFile_noplants = new File(PATH_NP_LIST);
         csvFile_empty = new File(PATH_EMPTY_LIST);
         csvFile_ht = new File(PATH_HT_LIST);
-        locus2tairId_mapping = new HashMap<String, String>();
-        organism_mapping = new HashMap<String, String>();
-        organism_names = new ArrayList<>();
+        this.process_locus2tairId_mapping();
+        this.process_organism_mapping();
 
-        try {
-            File csv_tair_mapping = new File(getClass().getResource(PATH_LOCUSID_TAIR_MAPPING).toURI());
-            CSVReader reader = new CSVReader(new FileReader(csv_tair_mapping), ' ');
-            // read line by line
-            String[] record = null;
-
-            while ((record = reader.readNext()) != null) {
-                String agiId = record[0].split(",")[0];
-                String locusId = record[0].split(",")[1];
-//                System.out.println(agiId);
-                locus2tairId_mapping.put(locusId, agiId);
-            }
-            File csv_org_mapping = new File(getClass().getResource(PATH_ORG_MAPPING).toURI());
-            reader = new CSVReader(new FileReader(csv_org_mapping), ',');
-            record = null;
-            int i=0;
-            while ((record = reader.readNext()) != null) {
-                String org = record[0];
-                if(i != 0) {
-                    organism_names.add(org);
-                }
-                i++;
-                String org_code = record[3];
-                if(!record[2].isEmpty()) {
-                    org += " (" + record[2] + ")";
-                }
-//                System.out.println(org + "-" + org_code);
-                organism_mapping.put(org_code, org);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        System.out.println("Locus2idmapping loaded "+ locus2tairId_mapping.size());
-        System.out.println("Orgidmapping loaded "+ organism_mapping.size());
-
+//        System.out.println("Locus2idmapping loaded "+ locus2tairId_mapping.size());
+//        System.out.println("Orgidmapping loaded "+ organism_mapping.size());
+//
         System.out.println("RESOURCES_BASE " + RESOURCES_BASE);
     }
 
@@ -131,6 +99,55 @@ public class PantherLocalWrapper {
         PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
         // log family that has invalid msa data
         PATH_INVALID_MSA_LIST = RESOURCES_BASE + "/invalidMsaFamilyList.csv";
+    }
+
+    private void process_locus2tairId_mapping() {
+        locus2tairId_mapping = new HashMap<String, String>();
+        try {
+        File csv_tair_mapping = new File(getClass().getResource(PATH_LOCUSID_TAIR_MAPPING).toURI());
+        CSVReader reader = new CSVReader(new FileReader(csv_tair_mapping), ' ');
+        // read line by line
+        String[] record = null;
+        while ((record = reader.readNext()) != null) {
+            String agiId = record[0].split(",")[0];
+            String locusId = record[0].split(",")[1];
+//                System.out.println(agiId);
+            locus2tairId_mapping.put(locusId, agiId);
+        }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void process_organism_mapping() {
+        organism_mapping = new HashMap<String, String>();
+        organism_names = new ArrayList<>();
+        String[] record = null;
+        try {
+            File csv_org_mapping = new File(getClass().getResource(PATH_ORG_MAPPING).toURI());
+            CSVReader reader = new CSVReader(new FileReader(csv_org_mapping), ',');
+            int i=0;
+            while ((record = reader.readNext()) != null) {
+                String org = record[0];
+                if(i != 0) {
+                    organism_names.add(org);
+                }
+                i++;
+                String org_code = record[3];
+                if(!record[2].isEmpty()) {
+                    org += " (" + record[2] + ")";
+                }
+//                System.out.println(org + "-" + org_code);
+                organism_mapping.put(org_code, org);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void process_tairId2uniprot_mapping() {
+        tairId2uniprotId_mapping = new HashMap<String, String>();
+
     }
 
     public String getLocalFamiliListPath() {
@@ -295,6 +312,31 @@ public class PantherLocalWrapper {
         return organism_count;
     }
 
+    private List<Annotation> iterate_getAllLeafNodes(Annotation currNode, List<Annotation> added_nodes) {
+        if(currNode.getChildren() == null) return added_nodes;
+        for(int i=0; i<currNode.getChildren().getAnnotation_node().size(); i++) {
+            Annotation child_node = currNode.getChildren().getAnnotation_node().get(i);
+            if(child_node != null && child_node.getTree_node_type() != null) {
+                if(child_node.getTree_node_type().equals("LEAF")) {
+//                System.out.println(child_node.get_extractedGeneId());
+                    added_nodes.add(child_node);
+                }
+                if(child_node.getChildren() != null) {
+                    added_nodes = iterate_getAllLeafNodes(child_node, added_nodes);
+                }
+            }
+
+        }
+        return added_nodes;
+    }
+
+    public List<Annotation> getAllLeafNodes(String familyId) {
+        Annotation root = getPantherTreeRootById(familyId);
+        List<Annotation> leaf_nodes = new ArrayList<>();
+        leaf_nodes = iterate_getAllLeafNodes(root, leaf_nodes);
+//        System.out.println("All leaf nodes: "+ leaf_nodes.size());
+        return leaf_nodes;
+    }
 
     public PantherData readPantherTreeById(String familyId) {
         String filePath = PATH_LOCAL_PRUNED_TREES + familyId + ".json";
@@ -340,10 +382,10 @@ public class PantherLocalWrapper {
         String newLogFile = RESOURCES_BASE + "/" + filename;
         File csvFile_custom = new File(newLogFile);
         System.out.println("Log file created "+ newLogFile);
-        FileWriter outputfile = new FileWriter(newLogFile);
-        String[] header = {headerStr};
+        FileWriter outputfile = new FileWriter(csvFile_custom);
+//        String[] header = {headerStr};
         CSVWriter currWriter = new CSVWriter(outputfile);;
-        currWriter.writeNext(header);
+//        currWriter.writeNext(header);
         return currWriter;
     }
 
@@ -403,8 +445,9 @@ public class PantherLocalWrapper {
 
     public static void main(String args[]) throws Exception {
         PantherLocalWrapper lw = new PantherLocalWrapper();
-        Annotation root = lw.getPantherTreeRootById("PTHR10012");
-        lw.getAllOrganismsFromTree(root);
+//        Annotation root = lw.getPantherTreeRootById("PTHR10012");
+        lw.getAllLeafNodes("PTHR10012");
+//        lw.getAllOrganismsFromTree(root);
 //        lw.initLogWriter(0);
 //        lw.read_mapping_csv();
     }

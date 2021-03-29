@@ -65,6 +65,7 @@ public class PantherETLPipeline {
 		//10. Analyze panther trees
 //		pgServer.analyzePantherTrees();
 
+
 		//11. Go to pantherToPhyloXmlPipeline Update PhyloXML files locally and on S3
 	}
 
@@ -250,7 +251,7 @@ public class PantherETLPipeline {
 			for (int i = 0; i < pantherFamilyList.size(); i++) {
 				String id = pantherFamilyList.get(i).getFamily_id();
 
-//				if (id.equals("PTHR31989")) {
+//				if (id.equals("PTHR23063")) {
 					System.out.println(id);
 					PantherData origPantherData = pantherLocal.readPantherTreeById(id);
 					if (origPantherData != null) {
@@ -268,7 +269,7 @@ public class PantherETLPipeline {
 							}
 						}
 						modiPantherData.setGene_ids(gene_ids);
-						pgServer.atomicUpdateSolr(id, "gene_ids", modiPantherData.getGene_ids());
+//						pgServer.atomicUpdateSolr(id, "gene_ids", modiPantherData.getGene_ids());
 						//Update s3 tree
 						Annotation rootNodeAnnotation = modiPantherData.getSearch().getAnnotation_node();
 						rootNodeAnnotation = updatePantherTree(rootNodeAnnotation, mapping);
@@ -385,13 +386,13 @@ public class PantherETLPipeline {
 		PantherETLPipeline etl = new PantherETLPipeline();
 //		etl.storePantherFilesLocally();
 //		etl.uploadToServer();
-//		etl.updateLocusGeneNames();
+		etl.updateLocusGeneNames();
 
 //		etl.updateSolr_selected();
 
-		etl.generatePhyloXML();
-		etl.generateCsvs();
-		etl.generate_analyze_dump();
+//		etl.generatePhyloXML();
+//		etl.generateCsvs();
+//		etl.generate_analyze_dump();
 
 		long endTime = System.nanoTime();
 		long timeElapsed = endTime - startTime;
