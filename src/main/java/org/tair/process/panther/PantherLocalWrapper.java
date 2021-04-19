@@ -1,5 +1,6 @@
 package org.tair.process.panther;
 
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.snowball.model.Ec2RequestFailedException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -34,6 +35,7 @@ public class PantherLocalWrapper {
     private String PATH_NP_LIST = RESOURCES_BASE + "/familyNoPlantsList.csv";
     private String PATH_EMPTY_LIST = RESOURCES_BASE + "/familyEmptyWhileIndexingList.csv";
     private String PATH_LOCUSID_TAIR_MAPPING = "/AGI_locusId_mapping_20200410.csv";
+    private String NAME_TAIRID_UNIPROTS_MAPPING = "/tairid2uniprots.csv";
     private String PATH_ORG_MAPPING = "/organism_to_display.csv";
     // log family that has large msa data
     private String PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
@@ -439,6 +441,26 @@ public class PantherLocalWrapper {
             dir.mkdir();
             System.out.println("Making dir "+ dirPath);
         }
+    }
+
+    //"tairid2uniprots.csv" : eg. AT2G40450	-> O22890
+    public HashMap<String, String> load_tairid2uniprots_csv() {
+        String csv_path = RESOURCES_BASE + NAME_TAIRID_UNIPROTS_MAPPING;
+//        System.out.println(csv_path);
+        HashMap<String, String> tairid2uniprots_mapping = new HashMap<String, String>();
+        String[] record = null;
+        try {
+            CSVReader reader = new CSVReader(new FileReader(csv_path), ',');
+//            System.out.println(reader.readNext());
+            while ((record = reader.readNext()) != null) {
+                tairid2uniprots_mapping.put(record[0], record[1]);
+            }
+            return tairid2uniprots_mapping;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+
     }
 
 

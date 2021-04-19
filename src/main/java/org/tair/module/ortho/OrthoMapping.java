@@ -2,6 +2,13 @@ package org.tair.module.ortho;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -19,7 +26,7 @@ public class OrthoMapping {
         ArrayList listOfmapping = new ArrayList();
 
         for (int i = 0; i < this.getSearch().getMapping().getMapped().size(); i++) {
-            Mapped m = this.getSearch().getMapping().getMapped().get(i);
+            OrthoMapped m = this.getSearch().getMapping().getMappedList().get(i);
             HashMap mMap = new HashMap();
             //https://conf.arabidopsis.org/display/PHYL/New+PantherDB+API (Sec4: Orthologs)
             String gene_id = m.getTarget_gene();
@@ -49,6 +56,12 @@ public class OrthoMapping {
 //        System.out.println("listOfmapping "+ listOfmapping.size());
         return listOfmapping;
     }
+
+
+    public List<OrthoMapped> getAllMappedOrtho() {
+        return this.search.mapping.getMappedList();
+    }
+
 }
 
 @Data
@@ -59,7 +72,7 @@ class OrthoSearchResult {
     //        "version": 15, "content": "PANTHERDB"
     //    },
     private Product product;
-    private  Mapping mapping;
+    public  Mapping mapping;
 }
 
 @Data
@@ -69,18 +82,43 @@ class Product {
 }
 @Data
 class Mapping {
-    private List<Mapped> mapped;
-}
+    @JsonProperty("mapped")
+    private JsonNode mapped;
+    private List<OrthoMapped> mappedList;
+    private OrthoMapped singleMapped;
+    @JsonSetter("mapped")
+    public void setMapped(JsonNode mapped) {
+        if (mapped instanceof ArrayNode) {
+            ObjectMapper mapper = new ObjectMapper();
+            // acquire reader for the right type
+            ObjectReader reader = mapper.readerFor(new TypeReference<List<OrthoMapped>>() {});
+            try {
+                this.mappedList = reader.readValue(mapped);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        } else {
+            this.mappedList = new ArrayList<>();
+//            ObjectMapper mapper = new ObjectMapper();
+//            // acquire reader for the right type
+//            ObjectReader reader = mapper.readerFor(new TypeReference<Mapped>() {});
+//            try {
+//                Mapped single_mapped = reader.readValue(mapped);
+//                this.mappedList = new ArrayList<>();
+//                this.mappedList.add(single_mapped);
+//            } catch (Exception e) {
+//                System.out.println(e);
+//            }
+        }
+    }
 
-@Data
-class Mapped {
-    private String target_gene_symbol;
-    private String persistent_id;
-    private String target_persistent_id;
-    private String ortholog;
-    private String gene;
-    private String target_gene;
-    private String id;
+    public List<OrthoMapped> getMappedList() {
+        return mappedList;
+    }
+
+    public OrthoMapped getSingleMapped() {
+        return singleMapped;
+    }
 }
 
 
