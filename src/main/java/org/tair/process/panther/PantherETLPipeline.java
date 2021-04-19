@@ -11,6 +11,7 @@ import org.tair.process.paint.GOAnnotationPaintETLPipeline;
 import org.tair.process.pantherToPhyloXmlPipeline;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PantherETLPipeline {
 
@@ -380,19 +381,83 @@ public class PantherETLPipeline {
 		pantherLocal.closeLogWriter(0);
 	}
 
+	//save paralogs
+	//total time: 2:36
+	public void saveParalogS3_tairids() {
+		HashMap<String, String> mapping = pantherLocal.load_tairid2uniprots_csv();
+		Map<String, String> uniprot2tairid =
+				mapping.entrySet()
+						.stream()
+						.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+		int i = 0;
+		for (Map.Entry<String, String> entry : mapping.entrySet()) {
+//			System.out.println(entry.getKey());
+			if(entry.getKey().isEmpty()) continue;
+			i++;
+			if(i < 6922) continue;
+//			if(!entry.getKey().equals("AT2G47760")) continue;
+//			if(!entry.getKey().equals("AT4G27840")) continue;
+
+//			System.out.println(i);
+//			if (i++ > 0) break;
+			String uniprot_id = entry.getValue();
+			try {
+				String paralog_json = pantherServer.callParalog_uniprot(uniprot_id, uniprot2tairid);
+				if(paralog_json == null) {
+					System.out.println("Not saved " + entry.getKey());
+				} else {
+					String filename = entry.getKey() + ".json";
+					pgServer.uploadJsonToPGParalogsBucket(filename, paralog_json);
+					System.out.println("Saved " + filename + "-> " + Integer.toString(i));
+				}
+			} catch (Exception e) {
+				System.out.println("Not saved " + entry.getKey());
+				System.out.println(e);
+			}
+		}
+	}
+
+	//save orthologs
+	public void saveOrthologS3_tairids() {
+		HashMap<String, String> mapping = pantherLocal.load_tairid2uniprots_csv();
+		Map<String, String> uniprot2tairid =
+				mapping.entrySet()
+						.stream()
+						.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+		int i = 0;
+		for (Map.Entry<String, String> entry : mapping.entrySet()) {
+			if(entry.getKey().isEmpty()) continue;
+//			if (i++ > 0) break;
+			i++;
+			if(i < 13590) continue;
+			String uniprot_id = entry.getValue();
+			try {
+				String ortho_json = pantherServer.callOrtholog_uniprot(uniprot_id, uniprot2tairid);
+				String filename = entry.getKey() + ".json";
+				pgServer.uploadJsonToPGOrthologsBucket(filename, ortho_json);
+				System.out.println("Saved " + filename + " -> " + Integer.toString(i));
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}
+	}
+
 	public static void main(String args[]) throws Exception {
 		long startTime = System.nanoTime();
 
 		PantherETLPipeline etl = new PantherETLPipeline();
 //		etl.storePantherFilesLocally();
 //		etl.uploadToServer();
-		etl.updateLocusGeneNames();
+//		etl.updateLocusGeneNames();
 
 //		etl.updateSolr_selected();
 
 //		etl.generatePhyloXML();
 //		etl.generateCsvs();
 //		etl.generate_analyze_dump();
+
+//		etl.saveParalogS3_tairids();
+		etl.saveOrthologS3_tairids();
 
 		long endTime = System.nanoTime();
 		long timeElapsed = endTime - startTime;

@@ -49,6 +49,8 @@ public class PhylogenesServerWrapper {
     String S3_SECRET_KEY = "";
     String PG_TREE_BUCKET_NAME = "phg-panther-data-16";
     String PG_MSA_BUCKET_NAME = "phg-panther-msa-data-16";
+    String PG_PARALOG_BUCKET_NAME = "phg-paralogs";
+    String PG_ORTHO_BUCKET_NAME = "phg-orthologs";
 
 //    private String URL_SOLR = "http://localhost:8983/solr/panther";
     private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
@@ -825,6 +827,22 @@ public class PhylogenesServerWrapper {
             System.out.println("Failed to save to S3 " + e);
         }
     }
+
+	public void uploadJsonToPGParalogsBucket(String filename, String jsonStr) {
+		try {
+			uploadJsonToS3(PG_PARALOG_BUCKET_NAME, filename, jsonStr);
+		} catch(Exception e) {
+			System.out.println("Failed to save to S3 " + e);
+		}
+	}
+
+	public void uploadJsonToPGOrthologsBucket(String filename, String jsonStr) {
+		try {
+			uploadJsonToS3(PG_ORTHO_BUCKET_NAME, filename, jsonStr);
+		} catch(Exception e) {
+			System.out.println("Failed to save to S3 " + e);
+		}
+	}
 
 	/////////////////////////////////////////////////// S3 Calls
     public void createBucket(String bucket_name) throws Exception{
