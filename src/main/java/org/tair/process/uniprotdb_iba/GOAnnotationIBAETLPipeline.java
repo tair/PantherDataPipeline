@@ -32,13 +32,14 @@ public class GOAnnotationIBAETLPipeline {
     private SolrClient solrClient = null;
 
     //path where to save the processed gaf files
-    private String GO_IBA_RESOURCES_DIR = "src/main/resources/panther16/GO_IBA_annotations";
+    private String GO_IBA_RESOURCES_DIR = "";
     private static String GO_IBA_LOGS_DIR = "src/main/logs/uniprot_db";
 
 
     public GOAnnotationIBAETLPipeline() {
         loadProps();
         solrClient = new HttpSolrClient.Builder(BASE_SOLR_URL).build();
+        GO_IBA_RESOURCES_DIR = RESOURCES_BASE + "/iba/";
     }
 
     public void makeDir(String dirPath) {
@@ -57,10 +58,10 @@ public class GOAnnotationIBAETLPipeline {
             prop.load(input);
             if(prop.containsKey("RESOURCES_BASE")) {
                 RESOURCES_BASE = prop.getProperty("RESOURCES_BASE");
-                makeDir(RESOURCES_BASE);
             }
             if(prop.containsKey("BASE_SOLR_URL")) {
                 BASE_SOLR_URL= prop.getProperty("BASE_SOLR_URL");
+                System.out.println("BASE_SOLR_URL: " + BASE_SOLR_URL);
             }
         } catch(Exception e) {
             System.out.println("Prop file not found!");
@@ -119,7 +120,9 @@ public class GOAnnotationIBAETLPipeline {
      ***/
     public void updateGOAnnotationFromFileToUniprotDb(Boolean loadResources) throws Exception {
         // remove all data from this collection
-        solrClient.deleteByQuery("uniprot_db", "*:*");
+        solrClient.deleteByQuery(solr_collection, "*:*");
+        solrClient.commit(solr_collection);
+        System.out.println("removed all solr from uniprot_db");
 
         GOAnnotationGafUtils goAnnotationGafUtils = new GOAnnotationGafUtils();
 //        if(loadResources) {
@@ -135,6 +138,7 @@ public class GOAnnotationIBAETLPipeline {
             prop.load(input);
 
             // get all gaf files in folder
+            System.out.println("GO_IBA_RESOURCES_DIR " + GO_IBA_RESOURCES_DIR);
             File[] files = new File(GO_IBA_RESOURCES_DIR).listFiles(file -> file.toString().endsWith(".gaf"));
             for (File file : files) {
                 System.out.println("Processing: " + file);
@@ -192,7 +196,8 @@ public class GOAnnotationIBAETLPipeline {
         // important: if the url of gaf file or obo file changes, we need to update them in applications.properties file, otherwise it may not reflect the correct data;
         // if the format of gaf file or obo file has been changed, we need to change the code accordingly.
         // "loadResources": to true if the GAF files for IBA annotations are not in the resources folder, or want to redownload it.
-        ibaPipeline.updateGOAnnotationFromFileToUniprotDb(true);
+        //last process on 04/26/2021: totalLines 3981673
+        ibaPipeline.updateGOAnnotationFromFileToUniprotDb(false);
 
         long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;
