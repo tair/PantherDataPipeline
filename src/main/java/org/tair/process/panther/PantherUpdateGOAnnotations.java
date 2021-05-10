@@ -142,7 +142,7 @@ public class PantherUpdateGOAnnotations {
 			String id = (String) result.getFieldValue("id");
 			System.out.println("Processing: " + id + " idx: " + i);
 			Collection<Object> go_annos = result.getFieldValues("go_annotations");
-			if(go_annos == null) {
+//			if(go_annos == null) {
 				List<String> goAnnotationDataList = getGOAnnotationsForTree(uniprotIds);
 				System.out.println(goAnnotationDataList.size());
 				SolrInputDocument doc = new SolrInputDocument();
@@ -153,9 +153,9 @@ public class PantherUpdateGOAnnotations {
 				solrClient.add("panther", doc);
 				solrClient.commit("panther");
 				System.out.println("commited: " + id);
-			} else {
-				System.out.println("Go annotations already added");
-			}
+//			} else {
+//				System.out.println("Go annotations already added");
+//			}
 		}
 	}
 
@@ -207,7 +207,7 @@ public class PantherUpdateGOAnnotations {
 
 		PantherUpdateGOAnnotations pantherUpdateGOAnnotations = new PantherUpdateGOAnnotations();
 //		pantherUpdateGOAnnotations.getGoAnnotations();
-//		PantherUpdateGOAnnotations.updateGOAnnotations();
+		pantherUpdateGOAnnotations.updateGOAnnotations();
 //		PantherUpdateGOAnnotations.testUniprot();
 
 		long endTime = System.nanoTime();

@@ -457,7 +457,7 @@ public class PantherETLPipeline {
 //		etl.generate_analyze_dump();
 
 //		etl.saveParalogS3_tairids();
-		etl.saveOrthologS3_tairids();
+//		etl.saveOrthologS3_tairids();
 
 		long endTime = System.nanoTime();
 		long timeElapsed = endTime - startTime;
