@@ -306,7 +306,7 @@ public class PantherETLPipeline {
 	public void generate_analyze_dump() throws Exception {
 		String filename = "panther_16_dump_feb8.csv";
 //		pgServer.analyzePantherDump(filename);
-		filename = "panther_16_annos_feb8.csv";
+		filename = "panther_16_annos_may10.csv";
 		pgServer.analyzePantherAnnotations2(filename);
 	}
 
@@ -446,6 +446,7 @@ public class PantherETLPipeline {
 		long startTime = System.nanoTime();
 
 		PantherETLPipeline etl = new PantherETLPipeline();
+
 //		etl.storePantherFilesLocally();
 //		etl.uploadToServer();
 //		etl.updateLocusGeneNames();
