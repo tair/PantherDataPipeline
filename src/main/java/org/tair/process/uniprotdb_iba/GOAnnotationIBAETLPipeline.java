@@ -197,6 +197,7 @@ public class GOAnnotationIBAETLPipeline {
         // if the format of gaf file or obo file has been changed, we need to change the code accordingly.
         // "loadResources": to true if the GAF files for IBA annotations are not in the resources folder, or want to redownload it.
         //last process on 04/26/2021: totalLines 3981673
+        //last process on 08/14/2021: totalLines 3894973
         ibaPipeline.updateGOAnnotationFromFileToUniprotDb(false);
 
         long endTime = System.nanoTime();

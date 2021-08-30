@@ -303,6 +303,8 @@ public class PantherLocalWrapper {
         return persistentId2fasta;
     }
 
+
+
     public HashMap<String, Integer> getAllOrganismsFromTree(Annotation root) {
         HashMap<String, Integer> organism_count = new HashMap<>();
         try {
@@ -314,7 +316,7 @@ public class PantherLocalWrapper {
         return organism_count;
     }
 
-    private List<Annotation> iterate_getAllLeafNodes(Annotation currNode, List<Annotation> added_nodes) {
+    public List<Annotation> iterate_getAllLeafNodes(Annotation currNode, List<Annotation> added_nodes) {
         if(currNode.getChildren() == null) return added_nodes;
         for(int i=0; i<currNode.getChildren().getAnnotation_node().size(); i++) {
             Annotation child_node = currNode.getChildren().getAnnotation_node().get(i);

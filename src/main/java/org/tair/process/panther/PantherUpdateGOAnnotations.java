@@ -40,6 +40,7 @@ public class PantherUpdateGOAnnotations {
 			prop.load(input);
 			if (prop.containsKey("BASE_SOLR_URL")) {
 				BASE_SOLR_URL = prop.getProperty("BASE_SOLR_URL");
+				System.out.println(BASE_SOLR_URL);
 			}
 		}
 		catch (Exception e) {
@@ -158,22 +159,15 @@ public class PantherUpdateGOAnnotations {
 //			}
 		}
 	}
-
-	public void testUniprot() throws SolrServerException, IOException {
-		String uniprotId = "Q7JR71";
-		SolrQuery query = new SolrQuery("*:*");
-		query.setQuery("uniprot_id:"+uniprotId.toString().toLowerCase());
-		query.setRows(uniprot_rows);
-		QueryResponse response = solrClient.query("uniprot_db", query);
-		SolrDocumentList results = response.getResults();
-		System.out.println(uniprotId.toString().toLowerCase() + results.getNumFound());
-	}
 	
-	public List<String> getGOAnnotationsForTree(Collection<Object> uniprotIds) throws SolrServerException, IOException, InterruptedException {
+	public List<String> getGOAnnotationsForTree(Collection<Object> uniprotIds) throws SolrServerException, IOException {
+//		SolrQuery query = new SolrQuery("*:*");
 		SolrQuery query = new SolrQuery("*:*");
+		query.setFields("go_annotations");
 		List<String> goAnnotationDataList = new ArrayList<String>();
-//		System.out.println("uniprotIds "+ uniprotIds.size());
+		System.out.println("uniprotIds "+ uniprotIds.size());
 		for (Object uniprotId : uniprotIds) {
+			System.out.println("uniprotId: "+ uniprotId.toString().toUpperCase());
 			query.setQuery("uniprot_id:"+uniprotId.toString().toUpperCase());
 			query.setRows(uniprot_rows);
 			QueryResponse response1 = solrClient.query("paint_db", query);
@@ -181,15 +175,16 @@ public class PantherUpdateGOAnnotations {
 			query.setRows(uniprot_rows);
 			QueryResponse response2 = solrClient.query("uniprot_db", query);
 			List<String> goAnnotations = new ArrayList<String>();
-
+			System.out.println(response1.getResults());
 			for (SolrDocument result: response1.getResults()) {
+				System.out.println(result.getFieldValue("go_annotations"));
 				goAnnotations.add((String) result.getFieldValue("go_annotations"));
 			}
 			for (SolrDocument result: response2.getResults()) {
 				goAnnotations.add((String) result.getFieldValue("go_annotations"));
 			}
 			if (goAnnotations.size()>0) {
-//				System.out.println(uniprotId.toString().toLowerCase() + " results1: " + response1.getResults().getNumFound() + ", " + response2.getResults().getNumFound());
+				System.out.println(uniprotId.toString().toLowerCase() + " results1: " + response1.getResults().getNumFound() + ", " + response2.getResults().getNumFound());
 //				System.out.println(goAnnotations.toString());
 				GOAnnotationData goAnnotationData = new GOAnnotationData();
 				goAnnotationData.setGo_annotations(goAnnotations.toString());
@@ -202,13 +197,22 @@ public class PantherUpdateGOAnnotations {
 		return goAnnotationDataList;
 	}
 
+	public void testUniprot() throws SolrServerException, IOException {
+		String uniprotId = "Q9Y5Z9";
+		uniprot_rows = 56;
+		Collection<Object> ids = new ArrayList<>();
+		ids.add(uniprotId);
+		List<String> annos = getGOAnnotationsForTree(ids);
+		System.out.println(annos);
+	}
+
 	public static void main(String[] args) throws Exception {
 		long startTime = System.nanoTime();
 
-		PantherUpdateGOAnnotations pantherUpdateGOAnnotations = new PantherUpdateGOAnnotations();
+		PantherUpdateGOAnnotations pt = new PantherUpdateGOAnnotations();
 //		pantherUpdateGOAnnotations.getGoAnnotations();
-		pantherUpdateGOAnnotations.updateGOAnnotations();
-//		PantherUpdateGOAnnotations.testUniprot();
+		pt.updateGOAnnotations();
+		// pt.testUniprot();
 
 		long endTime = System.nanoTime();
 		long timeElapsed = endTime - startTime;
