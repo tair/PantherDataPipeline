@@ -11,9 +11,12 @@ import lombok.Data;
 public class SearchResult {
 	private Tree tree_topology;
 
+	private Annotation annotation_node;
+
 	private MSAList MSA_list;
 
 	public Annotation getAnnotation_node() {
+		if(annotation_node != null) return annotation_node;
 		if(tree_topology == null || tree_topology.getAnnotation_node() == null) return null;
 		return tree_topology.getAnnotation_node();
 	}
