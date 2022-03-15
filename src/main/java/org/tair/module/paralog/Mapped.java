@@ -1,6 +1,7 @@
 package org.tair.module.paralog;
 
 import lombok.Data;
+import lombok.Getter;
 
 @Data
 public class Mapped {
@@ -17,4 +18,5 @@ public class Mapped {
     private String id;
     private String species_preceding_duplication;
     private String taxon_after_duplication;
+    private String primary_symbol;
 }
