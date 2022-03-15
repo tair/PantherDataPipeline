@@ -2,6 +2,8 @@ package org.tair.process.panther;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.opencsv.CSVWriter;
+import javafx.util.Pair;
 import org.json.JSONObject;
 
 import org.tair.module.*;
@@ -10,6 +12,9 @@ import org.tair.process.PantherBookXmlToJson;
 import org.tair.process.paint.GOAnnotationPaintETLPipeline;
 import org.tair.process.pantherToPhyloXmlPipeline;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -381,63 +386,138 @@ public class PantherETLPipeline {
 		pantherLocal.closeLogWriter(0);
 	}
 
-	//save paralogs
-	//total time: 2:36
-	public void saveParalogS3_tairids() {
+	//save paralogs to 2 s3 buckets for json data and user download txt file
+	//total time: < 15h
+	public void saveParalogS3_tairids() throws IOException {
 		HashMap<String, String> mapping = pantherLocal.load_tairid2uniprots_csv();
 		Map<String, String> uniprot2tairid =
 				mapping.entrySet()
 						.stream()
 						.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-		int i = 0;
+		Map<String, String> mapping_revised = new HashMap<>();
 		for (Map.Entry<String, String> entry : mapping.entrySet()) {
+			String agi_id = entry.getKey();
+			if (agi_id.contains("/")){
+				String[] agi_id_list = agi_id.split("/");
+				for (String agi_id_item : agi_id_list){
+					mapping_revised.put(agi_id_item, entry.getValue());
+				}
+			} else {
+				mapping_revised.put(agi_id,entry.getValue());
+			}
+		}
+		HashMap<String, String> agi2symbol = pantherLocal.load_agi2symbol_json();
+		System.out.println(mapping_revised.size());
+		FileWriter nullCountFile = new FileWriter("panther_resources/nullCount_"+System.currentTimeMillis()+".csv");
+		CSVWriter paralogNullWriter = new CSVWriter(nullCountFile);
+		String[] header = {"AGI ID", "AGI Nulls", "Primary Symbol Nulls", "Total Number", "Uniprot Ids with AGI Nulls"};
+		paralogNullWriter.writeNext(header);
+		paralogNullWriter.flush();
+		int i = 0;
+		for (Map.Entry<String, String> entry : mapping_revised.entrySet()) {
 //			System.out.println(entry.getKey());
 			if(entry.getKey().isEmpty()) continue;
 			i++;
-			if(i < 6922) continue;
-//			if(!entry.getKey().equals("AT2G47760")) continue;
-//			if(!entry.getKey().equals("AT4G27840")) continue;
+//			 if (i < 14667) continue;
+//			if(!entry.getKey().equals("AT1G01010")) continue;
+
+//			String[] sampleAGIAray = new String[]{"AT1G01010", "AT1G53790", "AT3G26570","AT1G01130","AT1G01270"};
+//			List<String> sampleAGIs = new ArrayList<>(Arrays.asList(sampleAGIAray));
+//			if (!sampleAGIs.contains(entry.getKey())) continue;
+//			String[] errorAGIAray = new String[]{"AT5G39690", "AT5G39540", "AT3G56560", "AT3G56530", "AT3G55210", "AT1G32337"};
+//			List<String> errorAGIs = new ArrayList<>(Arrays.asList(errorAGIAray));
+//			if (!errorAGIs.contains(entry.getKey())) continue;
 
 //			System.out.println(i);
 //			if (i++ > 0) break;
 			String uniprot_id = entry.getValue();
 			try {
-				String paralog_json = pantherServer.callParalog_uniprot(uniprot_id, uniprot2tairid);
+				List<String> paraResList = pantherServer.callParalog_uniprot(uniprot_id, uniprot2tairid, agi2symbol);
+//				System.out.println("paraResList " + paraResList.toString());
+				String paralog_json = paraResList.get(0);
+//				System.out.println("paralog_json " + paralog_json);
 				if(paralog_json == null) {
 					System.out.println("Not saved " + entry.getKey());
 				} else {
-					String filename = entry.getKey() + ".json";
-					pgServer.uploadJsonToPGParalogsBucket(filename, paralog_json);
-					System.out.println("Saved " + filename + "-> " + Integer.toString(i));
+					String jsonFileName = entry.getKey() + ".json";
+					pgServer.uploadJsonToPGParalogsBucket(jsonFileName, paralog_json);
+					System.out.println("Saved " + jsonFileName + "-> " + Integer.toString(i));
 				}
+				String paralog_txt = paraResList.get(1);
+//				System.out.println("paralog_txt " + paralog_txt);
+				if(paralog_txt == null) {
+					System.out.println("Not saved " + entry.getKey());
+				} else {
+					String txtFileName = entry.getKey() + "_paralog.txt";
+					pgServer.uploadTxtToPGParalogsBucket(txtFileName, paralog_txt);
+					System.out.println("Saved " + txtFileName + "-> " + Integer.toString(i));
+				}
+
+				String agiNullCount = paraResList.get(2);
+				String primarySymbolNullCount = paraResList.get(3);
+				String totalCount = paraResList.get(4);
+				String agiNullUniprotIdsStr = paraResList.get(5);
+				String agiId = entry.getKey();
+
+				String[] nullCountLine = {agiId, agiNullCount, primarySymbolNullCount, totalCount, agiNullUniprotIdsStr};
+				paralogNullWriter.writeNext(nullCountLine);
+				paralogNullWriter.flush();
 			} catch (Exception e) {
 				System.out.println("Not saved " + entry.getKey());
 				System.out.println(e);
 			}
 		}
+		paralogNullWriter.close();
 	}
 
-	//save orthologs
+	//save orthologs to 2 s3 buckets for json data and user download txt file
+    // total time: < 24h
 	public void saveOrthologS3_tairids() {
 		HashMap<String, String> mapping = pantherLocal.load_tairid2uniprots_csv();
 		Map<String, String> uniprot2tairid =
 				mapping.entrySet()
 						.stream()
 						.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-		int i = 0;
+		Map<String, List<String>> organisms_mapping = pantherLocal.load_organisms_csv();
+		Map<String, String> mapping_revised = new HashMap<>();
 		for (Map.Entry<String, String> entry : mapping.entrySet()) {
+			String agi_id = entry.getKey();
+			if (agi_id.contains("/")){
+				String[] agi_id_list = agi_id.split("/");
+				for (String agi_id_item : agi_id_list){
+					mapping_revised.put(agi_id_item, entry.getValue());
+				}
+			} else {
+				mapping_revised.put(agi_id,entry.getValue());
+			}
+		}
+		int i = 0;
+		System.out.println(mapping_revised.size());
+		for (Map.Entry<String, String> entry : mapping_revised.entrySet()) {
 			if(entry.getKey().isEmpty()) continue;
 //			if (i++ > 0) break;
 			i++;
-			if(i < 13590) continue;
+//			 if(i < 22551) continue;
+//            if(!entry.getKey().equals("AT1G01010")) continue;
+//			String[] sampleAGIAray = new String[]{"AT1G01010", "AT1G53790", "AT3G26570","AT1G01130","AT1G01270"};
+//			List<String> sampleAGIs = new ArrayList<>(Arrays.asList(sampleAGIAray));
+//			if (!sampleAGIs.contains(entry.getKey())) continue;
 			String uniprot_id = entry.getValue();
 			try {
-				String ortho_json = pantherServer.callOrtholog_uniprot(uniprot_id, uniprot2tairid);
-				String filename = entry.getKey() + ".json";
-				pgServer.uploadJsonToPGOrthologsBucket(filename, ortho_json);
-				System.out.println("Saved " + filename + " -> " + Integer.toString(i));
+				List<String> orthoResList = pantherServer.callOrtholog_uniprot(uniprot_id, uniprot2tairid, organisms_mapping);
+//				System.out.println(orthoResList.toString());
+				String ortho_json = orthoResList.get(0);
+				String jsonFileName = entry.getKey() + ".json";
+				pgServer.uploadJsonToPGOrthologsBucket(jsonFileName, ortho_json);
+				System.out.println("Saved " + jsonFileName + " -> " + Integer.toString(i));
+				String ortho_txt = orthoResList.get(1);
+				String txtFileName = entry.getKey() + "_ortholog.txt";
+				pgServer.uploadTxtToPGOrthologsBucket(txtFileName, ortho_txt);
+				System.out.println("Saved " + txtFileName + " -> " + Integer.toString(i));
 			} catch (Exception e) {
+				System.out.println("Not saved " + entry.getKey());
 				System.out.println(e);
+				e.printStackTrace();
 			}
 		}
 	}

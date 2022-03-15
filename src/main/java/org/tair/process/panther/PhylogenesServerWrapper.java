@@ -52,6 +52,8 @@ public class PhylogenesServerWrapper {
     String PG_MSA_BUCKET_NAME = "phg-panther-msa-data-16";
     String PG_PARALOG_BUCKET_NAME = "phg-paralogs";
     String PG_ORTHO_BUCKET_NAME = "phg-orthologs";
+    String PG_PARALOG_DL_BUCKET_NAME = "phg-paralogs-download";
+    String PG_ORTHO_DL_BUCKET_NAME = "phg-orthologs-download";
 
 //    private String URL_SOLR = "http://localhost:8983/solr/panther";
 //    private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
@@ -786,7 +788,7 @@ public class PhylogenesServerWrapper {
 			CSVWriter writer = pantherLocal.createLogWriter("tairid2uniprots.csv", "Tair_agi");
 			writer.writeNext(new String[]{"tair_agi", "uniprots"});
 			SolrQuery sq = new SolrQuery("*:*");
-			sq.setRows(9000);
+			sq.setRows(90000);
 			sq.setFields("id");
 			sq.setSort("id", SolrQuery.ORDER.asc);
 			QueryResponse treeIdResponse = mysolr.query(sq);
@@ -862,6 +864,22 @@ public class PhylogenesServerWrapper {
 		}
 	}
 
+	public void uploadTxtToPGParalogsBucket(String filename, String txtStr) {
+    	try {
+			uploadTxtToS3(PG_PARALOG_DL_BUCKET_NAME, filename, txtStr);
+		} catch(Exception e) {
+    		System.out.println("Failed to save to S3 " + e);
+		}
+	}
+
+	public void uploadTxtToPGOrthologsBucket(String filename, String txtStr) {
+		try {
+			uploadTxtToS3(PG_ORTHO_DL_BUCKET_NAME, filename, txtStr);
+		} catch(Exception e) {
+			System.out.println("Failed to save to S3 " + e);
+		}
+	}
+
 	/////////////////////////////////////////////////// S3 Calls
     public void createBucket(String bucket_name) throws Exception{
         if(s3_server.doesBucketExistV2(bucket_name)) {
@@ -888,6 +906,10 @@ public class PhylogenesServerWrapper {
     public void uploadJsonToS3(String bucketName, String key, String content) {
         s3_server.putObject(bucketName, key, content);
     }
+
+	public void uploadTxtToS3(String bucketName, String key, String content) {
+		s3_server.putObject(bucketName, key, content);
+	}
 
 	private static String getAsString(InputStream is) throws IOException {
 		if (is == null)

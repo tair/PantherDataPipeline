@@ -8,6 +8,8 @@ import com.opencsv.CSVWriter;
 import com.opencsv.CSVReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
+import org.json.simple.parser.JSONParser;
 import org.tair.module.Children;
 import org.tair.module.FamilyNode;
 import org.tair.module.PantherData;
@@ -36,11 +38,13 @@ public class PantherLocalWrapper {
     private String PATH_EMPTY_LIST = RESOURCES_BASE + "/familyEmptyWhileIndexingList.csv";
     private String PATH_LOCUSID_TAIR_MAPPING = "/AGI_locusId_mapping_20200410.csv";
     private String NAME_TAIRID_UNIPROTS_MAPPING = "/tairid2uniprots.csv";
+    private String ORGANISMS_MAPPING = "/organisms.csv";
     private String PATH_ORG_MAPPING = "/organism_to_display.csv";
     // log family that has large msa data
     private String PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
     // log family that has invalid msa data
     private String PATH_INVALID_MSA_LIST = RESOURCES_BASE + "/invalidMsaFamilyList.csv";
+    private String PATH_NAME_AGI_SYMBOL_MAPPING = RESOURCES_DIR + "/tair/symbols.json";
 
     ObjectMapper mapper;
     File csvFile_noplants;
@@ -445,7 +449,7 @@ public class PantherLocalWrapper {
         }
     }
 
-    //"tairid2uniprots.csv" : eg. AT2G40450	-> O22890
+    //"tairid2uniprots.csv" : eg. AT2G40450	-> O22890f
     public HashMap<String, String> load_tairid2uniprots_csv() {
         String csv_path = RESOURCES_BASE + NAME_TAIRID_UNIPROTS_MAPPING;
 //        System.out.println(csv_path);
@@ -465,7 +469,45 @@ public class PantherLocalWrapper {
 
     }
 
+    //"organisms.csv" : eg. Juglans regia	-> walnut, JUGRE, eudicotyledons
+    public HashMap<String, List<String>> load_organisms_csv() {
+        String csv_path = RESOURCES_BASE + ORGANISMS_MAPPING;
+//        System.out.println(csv_path);
+        HashMap<String, List<String>> organisms_mapping = new HashMap<String, List<String>>();
+        String[] record = null;
+        try {
+            CSVReader reader = new CSVReader(new FileReader(csv_path), ',');
+//            System.out.println(reader.readNext());
+            while ((record = reader.readNext()) != null) {
+                organisms_mapping.put(record[2], Arrays.asList(record[0],record[1],record[3]));
+            }
+            return organisms_mapping;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
 
+    }
+
+    public HashMap<String, String> load_agi2symbol_json() {
+        String agi2symbol_path = PATH_NAME_AGI_SYMBOL_MAPPING;
+        System.out.println(agi2symbol_path);
+        HashMap<String, String> agi2symbol_mapping = new HashMap<String, String>();
+        String[] record = null;
+        try {
+            JSONTokener tokener = new JSONTokener(new FileReader(agi2symbol_path));
+            JSONArray symbolJsonArray = new JSONArray(tokener);
+            Iterator<Object> iterator = symbolJsonArray.iterator();
+            while (iterator.hasNext()) {
+                JSONObject symbolJsonObj = (JSONObject) iterator.next();
+                agi2symbol_mapping.put(symbolJsonObj.get("locusName").toString(), symbolJsonObj.get("symbolName").toString());
+            }
+            return agi2symbol_mapping;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
 
     public static void main(String args[]) throws Exception {
         PantherLocalWrapper lw = new PantherLocalWrapper();
