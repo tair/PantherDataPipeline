@@ -7,9 +7,10 @@ import org.json.JSONObject;
 import org.tair.module.*;
 import org.tair.module.panther.Annotation;
 import org.tair.process.PantherBookXmlToJson;
-import org.tair.process.paint.GOAnnotationPaintETLPipeline;
 import org.tair.process.uniprotdb_iba.GOAnnotationIBAETLPipeline;
 import org.tair.process.uniprotdb_iba.GO_IBA_Pipeline;
+import org.tair.process.uniprotdb_paint.GOAnnotationPaintETLPipeline;
+import org.tair.process.uniprotdb_paint.GO_PAINT_Pipeline;
 import org.tair.process.pantherToPhyloXmlPipeline;
 
 import java.util.*;
@@ -48,8 +49,6 @@ public class PantherETLPipeline {
 		/**
 		 * 7. update "uniprotdb" on solr with the mapping of uniprot Ids with GO
 		 * Annotations
-		 * 03.15.2022 - totalLines 3879262, Num Docs: 2620612
-		 * Execution time in milliseconds : 837011
 		 */
 		updateSolrAnnotations();
 
@@ -253,6 +252,15 @@ public class PantherETLPipeline {
 	// Locally Save Go Annotation Files
 	public void updateOrSaveGOAnnotations() {
 		// 1. Download GO IBA Annotation files
+		downloadIbaAnnotations();
+		// 2. Download GO PAINT Annotation files
+		downloadPaintAnnotations();
+	}
+
+	// Latest Download: 03.15.2022 from
+	// ftp://ftp.pantherdb.org/downloads/paint/presubmission
+	// (Panther 17)
+	private void downloadIbaAnnotations() {
 		GO_IBA_Pipeline iba_pipeline = new GO_IBA_Pipeline();
 		try {
 			iba_pipeline.downloadIBAFilesLocally();
@@ -262,18 +270,51 @@ public class PantherETLPipeline {
 		}
 	}
 
+	// Latest Download: 03.15.2022 from
+	// ftp://ftp.pantherdb.org/downloads/paint/17.0/2022-03-10/Pthr_GO_17.0.tsv.tar.gz
+	// (Panther 17)
+	private void downloadPaintAnnotations() {
+		GO_PAINT_Pipeline paint_pipe = new GO_PAINT_Pipeline();
+		try {
+			paint_pipe.downloadPAINTFilesLocally();
+		} catch (Exception e) {
+			System.out.println("Error while downloading IBA files locally!");
+			e.printStackTrace();
+		}
+	}
+
 	public void updateSolrAnnotations() {
-		// 1. Update "uniprotdb" on solr with the mapping of uniprot Ids with IBA GAF GO
-		// Annotations
+		/**
+		 * 1. Update "uniprot_db" on solr with the mapping of uniprot Ids with IBA GAF
+		 * GO
+		 * Annotations
+		 * 03.15.2022 - totalLines 3879262, Num Docs: 2620612
+		 * Execution time in milliseconds : 837011
+		 **/
 		GO_IBA_Pipeline iba_pipeline = new GO_IBA_Pipeline();
 		try {
-			// WARNING: setting "clearSolr" flag to true will clear the older "uniprotdb"
+			// WARNING: setting "clearSolr" flag to true will clear the older "uniprot_db"
 			// collection on solr, so make sure to have backup
 			iba_pipeline.updateIBAGOFromLocalToSolr(true);
 		} catch (Exception e) {
 			System.out.println("Error while updating solr uniprotdb annotations!");
 			e.printStackTrace();
 		}
+
+		/**
+		 * 2. Update "paint_db" on solr with the mapping of uniprot Ids with PAINT GO
+		 * Annotations
+		 **/
+		GO_PAINT_Pipeline paint_pipeline = new GO_PAINT_Pipeline();
+		// try {
+		// // WARNING: setting "clearSolr" flag to true will clear the older
+		// "uniprot_db"
+		// // collection on solr, so make sure to have backup
+		// paint_pipeline.updateIBAGOFromLocalToSolr(true);
+		// } catch (Exception e) {
+		// System.out.println("Error while updating solr uniprotdb annotations!");
+		// e.printStackTrace();
+		// }
 	}
 
 	// Delete panther trees from local which don't have any plant genes in it. Save
@@ -565,8 +606,8 @@ public class PantherETLPipeline {
 
 		PantherETLPipeline etl = new PantherETLPipeline();
 
-		// etl.storePantherFilesLocally();
-		etl.uploadToServer();
+		etl.storePantherFilesLocally();
+		// etl.uploadToServer();
 		// etl.updateLocusGeneNames();
 
 		// etl.generatePhyloXML();
