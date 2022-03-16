@@ -12,23 +12,16 @@ public class GOAnnotationGafUtils {
     private static String GO_IBA_SCRIPTS_PATH = "src/main/scripts/GO_IBA_annotations";
 
     // download gaf files and obo files
-    public void loadGoIbaAnnotationsResources(String goIbaResourcesDir) throws Exception {
-        try (
-                InputStream input = new FileInputStream(RESOURCES_DIR + "/application.properties");
-        ) {
-            // load props
-            Properties prop = new Properties();
-            prop.load(input);
-            // get relative url from script dir to resources dir for shell script to use
-            System.out.println(goIbaResourcesDir);
-            String relativePath = Paths.get(GO_IBA_SCRIPTS_PATH).relativize(Paths.get(goIbaResourcesDir)).toString();
-            // build process
-            ProcessBuilder pb = new ProcessBuilder("./resources.sh", relativePath, prop.getProperty("GoIbaAnnotationFtpUrl"), prop.getProperty("GoBasicOboUrl"));
-            pb.directory(new File(GO_IBA_SCRIPTS_PATH));
-            pb.inheritIO(); // print script output to console
-            Process p = pb.start();
-            p.waitFor(); // wait until script finish
-        }
+    public void loadGoIbaAnnotationsResources(String goIbaResourcesDir, String goIbaGafFtpUrl, String goBasicOboUrl)
+            throws Exception {
+        ProcessBuilder pb = new ProcessBuilder("./resources.sh",
+                goIbaResourcesDir,
+                goIbaGafFtpUrl,
+                goBasicOboUrl);
+        pb.directory(new File(GO_IBA_SCRIPTS_PATH));
+        pb.inheritIO(); // print script output to console
+        Process p = pb.start();
+        p.waitFor(); // wait until script finish
     }
 
     // generate properties file from obo file to get go id and go name mapping
@@ -38,8 +31,8 @@ public class GOAnnotationGafUtils {
         try (
                 FileReader fileReader = new FileReader(file);
                 BufferedReader br = new BufferedReader(fileReader);
-                BufferedWriter writer = new BufferedWriter(new FileWriter(goIbaResourcePath + "/goidname.properties"));
-        ) {
+                BufferedWriter writer = new BufferedWriter(
+                        new FileWriter(goIbaResourcePath + "/goidname.properties"));) {
             String thisLine = null;
             String goId = null;
             String goName = null;
@@ -49,14 +42,16 @@ public class GOAnnotationGafUtils {
                     if (goId == null) {
                         goId = thisLine.substring(4);
                     } else {
-                        // if go id already assigned with value, throw error to prevent unknown overwriting
+                        // if go id already assigned with value, throw error to prevent unknown
+                        // overwriting
                         throw new Exception("Invalid input. Line number: " + lineNum);
                     }
                 } else if (thisLine.startsWith("name: ")) {
                     if (goName == null) {
                         goName = thisLine.substring(6);
                     } else {
-                        // if go name already assigned with value, throw error to prevent unknown overwriting
+                        // if go name already assigned with value, throw error to prevent unknown
+                        // overwriting
                         throw new Exception("Invalid input. Line number: " + lineNum);
                     }
                 } else if (thisLine.startsWith("namespace: ")) {

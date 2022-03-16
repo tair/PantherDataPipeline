@@ -26,10 +26,10 @@ public class PantherLocalWrapper {
     private String RESOURCES_BASE = "panther_resources";
 
     // Change this to the location of where you have saved panther data
-    private String PATH_FAMILY_LIST = RESOURCES_BASE + "/familyList/";
+    String PATH_FAMILY_LIST = RESOURCES_BASE + "/familyList/";
     private String PATH_LOCAL_PRUNED_TREES = RESOURCES_BASE + "/pruned_panther_files/";
     private String PATH_LOCAL_MSA_DATA = RESOURCES_BASE + "/msa_jsons/";
-    private String PATH_LOCAL_SOLRTREE_JSON = RESOURCES_BASE + "/solr_trees_files/";
+    String PATH_LOCAL_SOLRTREE_JSON = RESOURCES_BASE + "/solr_trees_files/";
 
     private String PATH_HT_LIST = RESOURCES_BASE + "/familyHTList.csv";
     private String PATH_NP_LIST = RESOURCES_BASE + "/familyNoPlantsList.csv";
@@ -223,6 +223,17 @@ public class PantherLocalWrapper {
         }
     }
 
+    public String getMSAJsonFile(String familyId) throws Exception {
+        try {
+            String fileName = familyId + ".json";
+            String json_filepath = PATH_LOCAL_MSA_DATA + "/" + fileName;
+            return Util.loadJsonStringFromFile(json_filepath);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
     public String saveMSADataAsJsonFile(String familyId, String msaData) throws Exception {
         System.out.println("familyId " + familyId + " msaData " + msaData.length());
         String fileName = familyId + ".json";
@@ -382,6 +393,7 @@ public class PantherLocalWrapper {
 
     public void initLogWriter(int logType) throws Exception {
         if (logType == 0) {
+            System.out.println("Init csvFile_noplants Logs " + csvFile_noplants);
             FileWriter outputfile = new FileWriter(csvFile_noplants);
             deleteNoPlantsWriter = new CSVWriter(outputfile);
             String[] header = { "Deleted No Plants Ids" };
