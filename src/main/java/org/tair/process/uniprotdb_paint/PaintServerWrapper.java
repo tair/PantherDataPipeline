@@ -1,17 +1,10 @@
-package org.tair.process.paint;
+package org.tair.process.uniprotdb_paint;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
-import org.json.JSONObject;
-import org.json.simple.JSONArray;
-import org.tair.module.GOAnnotationData;
-import org.tair.module.paint.PaintAnnotationData;
-import org.tair.module.paint.UniqueAnnotation;
 import org.tair.module.paint.flatfile.GoBasic;
 import org.tair.module.paint.flatfile.Nodes;
 import org.tair.module.paint.flatfile.PaintAnno;

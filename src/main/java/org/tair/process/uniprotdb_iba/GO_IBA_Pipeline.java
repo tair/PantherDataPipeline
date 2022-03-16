@@ -1,19 +1,14 @@
 /*** 
- * Load go annotations from api into solr's uniprot_db collection
+ * Load mapping of go annotations from Panther's IBA GAF and uniprotID into solr's uniprot_db collection
  ***/
 
 package org.tair.process.uniprotdb_iba;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.tair.module.GOAnnotation;
 import org.tair.module.GOAnnotationData;
-import org.tair.process.paint.GOAnnotationPaintETLPipeline;
 
 import java.io.*;
 import java.util.ArrayList;
