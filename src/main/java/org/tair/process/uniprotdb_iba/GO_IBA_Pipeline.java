@@ -34,7 +34,7 @@ public class GO_IBA_Pipeline {
 
     // path where to save the processed gaf files
     private String GO_IBA_RESOURCES_DIR = "";
-    private static String GO_IBA_LOGS_DIR = "src/main/logs/uniprot_db";
+    private static String GO_IBA_LOGS_DIR = "";
 
     // External URLs to download
     private String GO_IBA_GAF_FTP_URL = "ftp://ftp.pantherdb.org/downloads/paint/presubmission";
@@ -44,6 +44,9 @@ public class GO_IBA_Pipeline {
         loadProps();
         solrClient = new HttpSolrClient.Builder(BASE_SOLR_URL).build();
         GO_IBA_RESOURCES_DIR = RESOURCES_BASE + "/iba/";
+        makeDir(GO_IBA_RESOURCES_DIR);
+        GO_IBA_LOGS_DIR = GO_IBA_RESOURCES_DIR + "/logs/";
+        makeDir(GO_IBA_LOGS_DIR);
         System.out.println("~~~~~~~~~~ GO_IBA_Pipeline ~~~~~~~~~~");
         System.out.println("RESOURCES_BASE: " + RESOURCES_BASE);
         System.out.println("GO_IBA_RESOURCES_DIR: " + GO_IBA_RESOURCES_DIR);
@@ -107,12 +110,15 @@ public class GO_IBA_Pipeline {
      * 2. traverse all gaf files and read go annotation data
      * 3. commit go annotation data in batch to uniprot_db collection
      ***/
-    public void updateGOAnnotationFromFileToUniprotDb(Boolean loadResources) throws Exception {
-        // remove all data from this collection
-        solrClient.deleteByQuery(solr_collection, "*:*");
-        solrClient.commit(solr_collection);
-        System.out.println("removed all solr from ");
+    public void updateIBAGOFromLocalToSolr(Boolean clearSolr) throws Exception {
+        if (clearSolr) {
+            // WARNING: remove all data from this collection, make sure you have backup
+            solrClient.deleteByQuery(solr_collection, "*:*");
+            solrClient.commit(solr_collection);
+            System.out.println("removed all solr from " + solr_collection);
+        }
 
+        GOAnnotationGafUtils goAnnotationGafUtils = new GOAnnotationGafUtils();
         int totalLines = 0;
         try (
                 BufferedWriter writer = new BufferedWriter(
@@ -123,7 +129,6 @@ public class GO_IBA_Pipeline {
             prop.load(input);
 
             // get all gaf files in folder
-            System.out.println("GO_IBA_RESOURCES_DIR " + GO_IBA_RESOURCES_DIR);
             File[] files = new File(GO_IBA_RESOURCES_DIR).listFiles(file -> file.toString().endsWith(".gaf"));
             for (File file : files) {
                 System.out.println("Processing: " + file);
