@@ -48,6 +48,14 @@ public class PantherETLPipeline {
 		/**
 		 * 7. update "uniprotdb" on solr with the mapping of uniprot Ids with GO
 		 * Annotations
+		 * 03.15.2022 - totalLines 3879262, Num Docs: 2620612
+		 * Execution time in milliseconds : 837011
+		 */
+		updateSolrAnnotations();
+
+		/**
+		 * 7. update "uniprotdb" on solr with the mapping of uniprot Ids with GO
+		 * Annotations
 		 * // important: if the url of gaf file or obo file changes, we need to update
 		 * them in applications.properties file, otherwise it may not reflect the
 		 * correct data;
@@ -250,6 +258,20 @@ public class PantherETLPipeline {
 			iba_pipeline.downloadIBAFilesLocally();
 		} catch (Exception e) {
 			System.out.println("Error while downloading IBA files locally!");
+			e.printStackTrace();
+		}
+	}
+
+	public void updateSolrAnnotations() {
+		// 1. Update "uniprotdb" on solr with the mapping of uniprot Ids with IBA GAF GO
+		// Annotations
+		GO_IBA_Pipeline iba_pipeline = new GO_IBA_Pipeline();
+		try {
+			// WARNING: setting "clearSolr" flag to true will clear the older "uniprotdb"
+			// collection on solr, so make sure to have backup
+			iba_pipeline.updateIBAGOFromLocalToSolr(true);
+		} catch (Exception e) {
+			System.out.println("Error while updating solr uniprotdb annotations!");
 			e.printStackTrace();
 		}
 	}
@@ -543,8 +565,8 @@ public class PantherETLPipeline {
 
 		PantherETLPipeline etl = new PantherETLPipeline();
 
-		etl.storePantherFilesLocally();
-		// etl.uploadToServer();
+		// etl.storePantherFilesLocally();
+		etl.uploadToServer();
 		// etl.updateLocusGeneNames();
 
 		// etl.generatePhyloXML();
