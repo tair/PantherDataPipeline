@@ -50,36 +50,23 @@ public class PantherETLPipeline {
 		 * 7. update "uniprotdb" on solr with the mapping of uniprot Ids with GO
 		 * Annotations
 		 */
-		updateSolrAnnotations();
-
-		/**
-		 * 7. update "uniprotdb" on solr with the mapping of uniprot Ids with GO
-		 * Annotations
-		 * // important: if the url of gaf file or obo file changes, we need to update
-		 * them in applications.properties file, otherwise it may not reflect the
-		 * correct data;
-		 * // if the format of gaf file or obo file has been changed, we need to change
-		 * the code accordingly.
-		 */
-
-		// GOAnnotationPaintETLPipeline paintPipeline = new
-		// GOAnnotationPaintETLPipeline();
-		// paintPipeline.loadIBAAnnotations();
-		// GOAnnotationIBAETLPipeline goAnnotationETLPipeline = new
-		// GOAnnotationIBAETLPipeline();
-		// // goAnnotationETLPipeline.storeGOAnnotationFromApiToUniprotDb();
-		// goAnnotationETLPipeline.updateGOAnnotationFromFileToUniprotDb(true);
+		// updateSolrAnnotations();
 
 		/**
 		 * 8. update/add go annotations field for panther trees loaded using the
 		 * "uniprot" core on solr.
 		 */
-		// PantherUpdateGOAnnotations PantherUpdateGOAnnotations= new
+		// PantherUpdateGOAnnotations PantherUpdateGOAnnotations = new
 		// PantherUpdateGOAnnotations();
 		// PantherUpdateGOAnnotations.updateGOAnnotations();
 
 		/**
-		 * 9. Set uniprotIds and GoAnnotations Count on solr for each tree
+		 * 9. Update Publication Counts on Solr
+		 */
+		pgServer.updateAllSolrTreePubCounts();
+
+		/**
+		 * 10. Set uniprotIds and GoAnnotations Count on solr for each tree
 		 */
 		// pgServer.setUniprotIdsCount();
 		// pgServer.setGoAnnotationsCount();
@@ -286,35 +273,48 @@ public class PantherETLPipeline {
 	public void updateSolrAnnotations() {
 		/**
 		 * 1. Update "uniprot_db" on solr with the mapping of uniprot Ids with IBA GAF
-		 * GO
-		 * Annotations
-		 * 03.15.2022 - totalLines 3879262, Num Docs: 2620612
-		 * Execution time in milliseconds : 837011
+		 * GO Annotations
 		 **/
+		// updateIbaSolr();
+
+		/**
+		 * 2. Update "paint_db" on solr with the mapping of uniprot Ids with PAINT GO
+		 * Annotations
+		 **/
+		// updatePaintSolr();
+
+	}
+
+	/**
+	 * Latest Update:03.15.2022
+	 * totalLines 3879262, Num Docs:2620612
+	 * Execution time in milliseconds:837011
+	 **/
+	private void updateIbaSolr() {
 		GO_IBA_Pipeline iba_pipeline = new GO_IBA_Pipeline();
 		try {
 			// WARNING: setting "clearSolr" flag to true will clear the older "uniprot_db"
 			// collection on solr, so make sure to have backup
 			iba_pipeline.updateIBAGOFromLocalToSolr(true);
 		} catch (Exception e) {
-			System.out.println("Error while updating solr uniprotdb annotations!");
+			System.out.println("Error while updating solr uniprot_db annotations!");
 			e.printStackTrace();
 		}
+	}
 
-		/**
-		 * 2. Update "paint_db" on solr with the mapping of uniprot Ids with PAINT GO
-		 * Annotations
-		 **/
+	/**
+	 * Latest Update:03.15.2022
+	 **/
+	private void updatePaintSolr() {
 		GO_PAINT_Pipeline paint_pipeline = new GO_PAINT_Pipeline();
-		// try {
-		// // WARNING: setting "clearSolr" flag to true will clear the older
-		// "uniprot_db"
-		// // collection on solr, so make sure to have backup
-		// paint_pipeline.updateIBAGOFromLocalToSolr(true);
-		// } catch (Exception e) {
-		// System.out.println("Error while updating solr uniprotdb annotations!");
-		// e.printStackTrace();
-		// }
+		try {
+			// WARNING: setting "clearSolr" flag to true will clear the older "uniprot_db"
+			// collection on solr, so make sure to have backup
+			paint_pipeline.updatePAINTGOFromLocalToSolr(false);
+		} catch (Exception e) {
+			System.out.println("Error while updating solr paint_db annotations!");
+			e.printStackTrace();
+		}
 	}
 
 	// Delete panther trees from local which don't have any plant genes in it. Save
@@ -606,8 +606,8 @@ public class PantherETLPipeline {
 
 		PantherETLPipeline etl = new PantherETLPipeline();
 
-		etl.storePantherFilesLocally();
-		// etl.uploadToServer();
+		// etl.storePantherFilesLocally();
+		etl.uploadToServer();
 		// etl.updateLocusGeneNames();
 
 		// etl.generatePhyloXML();

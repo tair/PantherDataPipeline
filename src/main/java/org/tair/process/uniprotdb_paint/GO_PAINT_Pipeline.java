@@ -40,7 +40,7 @@ public class GO_PAINT_Pipeline {
         solrClient = new HttpSolrClient.Builder(BASE_SOLR_URL).build();
         GO_PAINT_RESOURCES_DIR = RESOURCES_BASE + "/paint/";
         makeDir(GO_PAINT_RESOURCES_DIR);
-        System.out.println("~~~~~~~~~~ GO_IBA_Pipeline ~~~~~~~~~~");
+        System.out.println("~~~~~~~~~~ GO_PAINT_Pipeline ~~~~~~~~~~");
         System.out.println("RESOURCES_BASE: " + RESOURCES_BASE);
         System.out.println("BASE_SOLR_URL: " + BASE_SOLR_URL);
         System.out.println("GO_PAINT_TSV_FTP_URL: " + GO_PAINT_TSV_FTP_URL);
@@ -95,13 +95,14 @@ public class GO_PAINT_Pipeline {
             // WARNING: remove all data from this collection, make sure you have backup
             solrClient.deleteByQuery(solr_collection, "*:*");
             solrClient.commit(solr_collection);
-            System.out.println("removed all solr from " + solr_collection);
+            System.out.println("cleared all solr data from " + solr_collection);
         }
 
-        // get all gaf files in folder
+        // get tsv file
         File[] files = new File(GO_PAINT_RESOURCES_DIR).listFiles(file -> file.toString().endsWith(".tsv"));
+        File tsvFile = null;
         if (files.length == 1) {
-            File tsvFile = files[0];
+            tsvFile = files[0];
             System.out.println("Found TSV File: " + tsvFile.getName());
         } else {
             if (files.length == 0) {
@@ -109,26 +110,26 @@ public class GO_PAINT_Pipeline {
             } else {
                 System.out.println("Only one TSV file must be present at the GO_PAINT_RESOURCES_DIR");
             }
+            return;
         }
-        // String csv_path = GO_PAINT_RESOURCES_DIR + "/" + PAINT_TSV_NAME;
-        // File f = new File(csv_path);
-        // if (!f.exists()) {
-        // System.out.println("PAINT_TSV_NAME does not exist at " + csv_path);
-        // return;
-        // }
-        // String go_basic_path = RESOURCES_BASE + "/" + GO_BASIC_NAME;
-        // f = new File(go_basic_path);
-        // if (!f.exists()) {
-        // System.out.println("GO_BASIC_NAME does not exist at " + go_basic_path);
-        // return;
-        // }
-        // System.out.println("~~~~~~~~~~~~~~ Load IBA GO Annnotations from Paint DB
-        // ~~~~~~~~~~~~~~~~");
-        // System.out.println("PAINT_TSV_NAME: " + PAINT_TSV_NAME);
-        // System.out.println("SOLR_COLLECTION: " + solr_collection);
 
-        // paintServerWrapper.savePaintAnnotationsToSolr(csv_path, go_basic_path,
-        // solrClient, solr_collection);
+        // get tsv file
+        files = new File(GO_PAINT_RESOURCES_DIR).listFiles(file -> file.toString().endsWith(".json"));
+        File jsonFile = null;
+        if (files.length == 1) {
+            jsonFile = files[0];
+            System.out.println("Found JSON File: " + jsonFile.getName());
+        } else {
+            if (files.length == 0) {
+                System.out.println("No GO BASIC JSON file found at the GO_PAINT_RESOURCES_DIR");
+            } else {
+                System.out.println("Only one JSON file must be present at the GO_PAINT_RESOURCES_DIR");
+            }
+            return;
+        }
+
+        paintServerWrapper.savePaintAnnotationsToSolr(tsvFile.getAbsolutePath(), jsonFile.getAbsolutePath(), solrClient,
+                solr_collection);
     }
 
     public static void main(String args[]) throws Exception {
