@@ -173,6 +173,7 @@ public class PhylogenesServerWrapper {
 		}
 	}
 
+	// 03/29/2022 - G7J8V5
 	public void updateAllSolrTreePubCounts() throws Exception {
 		PublicationsServerWrapper psw = new PublicationsServerWrapper();
 		SolrQuery sq = new SolrQuery("*:*");

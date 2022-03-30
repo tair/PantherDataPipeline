@@ -32,5 +32,4 @@ mvnw.cmd
 /src/main/resources/
 /src/main/logs/
 !/src/main/logs/uniprot_db/.keep
-annos_stats_aug13.csv
-annos_stats_beforeAug10.csv
+src/main/resources/application.properties
