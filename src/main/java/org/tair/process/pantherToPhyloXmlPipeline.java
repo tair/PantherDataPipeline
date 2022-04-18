@@ -33,6 +33,7 @@ import javax.xml.transform.stream.StreamResult;
 public class pantherToPhyloXmlPipeline {
     private String RESOURCES_DIR = "src/main/resources";
     public static String RESOURCES_BASE = "panther_resources";
+    public static String PHYLO_BUCKET_NAME = "";
 
     PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
 
@@ -49,6 +50,9 @@ public class pantherToPhyloXmlPipeline {
             // System.out.println(prop);
             if (prop.containsKey("RESOURCES_BASE")) {
                 RESOURCES_BASE = prop.getProperty("RESOURCES_BASE");
+            }
+            if (prop.containsKey("PHYLO_BUCKET_NAME")) {
+                PHYLO_BUCKET_NAME = prop.getProperty("PHYLO_BUCKET_NAME");
             }
         } catch (Exception e) {
             // System.out.println("Prop file not found!");
@@ -74,7 +78,14 @@ public class pantherToPhyloXmlPipeline {
     // directory
     // and places them into phyloxml directory
     public static void convertAllInDirectory() {
-        File dir = new File(RESOURCES_BASE + "/pruned_panther_files");
+        String src_dir = RESOURCES_BASE + "/pruned_panther_files";
+        String target_dir = RESOURCES_BASE + "/phyloXml";
+        File dir = new File(src_dir);
+        File targetdir_file = new File(target_dir);
+        if (!targetdir_file.isDirectory()) {
+            targetdir_file.mkdir();
+            System.out.println("Making dir " + target_dir);
+        }
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
             int fileCount = 0;
@@ -89,15 +100,21 @@ public class pantherToPhyloXmlPipeline {
 
     public void uploadAlltoS3() {
         File dir = new File(RESOURCES_BASE + "/phyloXml");
-        String bucketName = "phyloxml-16";
+        if (PHYLO_BUCKET_NAME.isEmpty()) {
+            System.out.println("add PHYLO_BUCKET_NAME to application.properties");
+            return;
+        }
+        String bucketName = PHYLO_BUCKET_NAME;
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
             int fileCount = 0;
             for (File child : directoryListing) {
                 if (child.getName().charAt(0) != '.') {// to ignore files such as .gitignore and .ds_store
-                    fileCount++;
-                    pgServer.uploadObjectToBucket(bucketName, child.getName(), child);
-                    System.out.println("Saved S3: " + fileCount + " " + child.getName());
+                    if (child.getName().equals("PTHR16124.xml")) {
+                        fileCount++;
+                        pgServer.uploadObjectToBucket(bucketName, child.getName(), child);
+                        System.out.println("Saved S3: " + fileCount + " " + child.getName());
+                    }
                 }
             }
         }
@@ -140,11 +157,8 @@ public class pantherToPhyloXmlPipeline {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // System.out.println(fileName);
-        // System.out.println(panther.getSearch().getAnnotation_node().getSf_name());
         // some objects in the pruned files are empty with just an ID, this avoids
         // creating an xml for it
-
         if (panther.getSearch() != null) {
             // // creating the root node and setting up transformation(pantherForPhylo ->
             // phyloxml)
@@ -154,6 +168,7 @@ public class pantherToPhyloXmlPipeline {
             constructPhyloTreeWithAnnoTree(panther.getSearch().getAnnotation_node(), phylo.getPhylogeny().getClade());
             // transform phlyo java object to xml local file
             String xmlLocalFile_fullPath = RESOURCES_BASE + "/phyloXml/" + fileName + ".xml";
+            System.out.println(xmlLocalFile_fullPath);
             phyloObjToXML(phylo, xmlLocalFile_fullPath);
         }
 

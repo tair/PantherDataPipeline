@@ -4,7 +4,6 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
@@ -15,7 +14,6 @@ import com.amazonaws.util.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import de.siegmar.fastcsv.writer.CsvAppender;
 import de.siegmar.fastcsv.writer.CsvWriter;
@@ -26,25 +24,21 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.tair.module.*;
 import org.tair.module.panther.Annotation;
-import org.tair.module.panther.MSAList;
 import org.tair.module.panther.MSASequenceInfo;
 import org.tair.module.panther.MsaData;
-import org.tair.process.PantherBookXmlToJson;
 import org.tair.process.publications.PublicationsServerWrapper;
-import org.tair.util.Util;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class PhylogenesServerWrapper {
 	private String RESOURCES_DIR = "src/main/resources";
+	private String RESOURCES_BASE = "panther_resources";
 	// S3 Keys
 	String S3_ACCESS_KEY = "";
 	String S3_SECRET_KEY = "";
@@ -71,7 +65,7 @@ public class PhylogenesServerWrapper {
 
 		AWSCredentials credentials = new BasicAWSCredentials(S3_ACCESS_KEY, S3_SECRET_KEY);
 		s3_server = AmazonS3ClientBuilder.standard()
-				// .withCredentials(new AWSStaticCredentialsProvider(credentials))
+				.withCredentials(new AWSStaticCredentialsProvider(credentials))
 				.withRegion(Regions.US_WEST_2)
 				.build();
 	}
@@ -87,8 +81,13 @@ public class PhylogenesServerWrapper {
 			// if(prop.containsKey("URL_SOLR")) {
 			// PG_MSA_BUCKET_NAME = prop.getProperty("URL_SOLR");
 			// }
+			if (prop.containsKey("RESOURCES_BASE")) {
+				RESOURCES_BASE = prop.getProperty("RESOURCES_BASE");
+				// makeDir(RESOURCES_BASE);
+			}
 			if (prop.containsKey("S3_ACCESS_KEY")) {
 				S3_ACCESS_KEY = prop.getProperty("S3_ACCESS_KEY");
+				System.out.println(S3_ACCESS_KEY);
 			} else if (!System.getProperty("S3_ACCESS_KEY").isEmpty()) {
 				S3_ACCESS_KEY = System.getProperty("S3_ACCESS_KEY");
 			} else {
@@ -173,7 +172,7 @@ public class PhylogenesServerWrapper {
 		}
 	}
 
-	// 03/29/2022 - G7J8V5
+	// 04/215/2022 - A0A1U8BBT0
 	public void updateAllSolrTreePubCounts() throws Exception {
 		PublicationsServerWrapper psw = new PublicationsServerWrapper();
 		SolrQuery sq = new SolrQuery("*:*");
@@ -419,12 +418,13 @@ public class PhylogenesServerWrapper {
 	// go annotations
 	public void analyzePantherDump(String filename) throws Exception {
 		// SolrQuery sq = new SolrQuery("id:PTHR23140");
+		String filePath = RESOURCES_BASE + "/" + filename;
 		SolrQuery sq = new SolrQuery("*:*");
 		sq.setRows(9000);
 		sq.setFields("id", "family_name", "sf_names", "go_annotations", "taxonomic_ranges");
 		sq.setSort("id", SolrQuery.ORDER.asc);
 		QueryResponse treeIdResponse = mysolr.query(sq);
-		File file = new File(filename);
+		File file = new File(filePath);
 		CsvWriter csvWriter = new CsvWriter();
 		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
 			List<String> cols = Arrays.asList("family ID", "family name", "subfamily name", "taxon range");
@@ -543,12 +543,13 @@ public class PhylogenesServerWrapper {
 	// Lists pre tree: count of uniprots, genes and annotations
 	public void analyzePantherAnnotations2(String filename) throws Exception {
 		// SolrQuery sq = new SolrQuery("id:PTHR10012");
+		String filePath = RESOURCES_BASE + "/" + filename;
 		SolrQuery sq = new SolrQuery("*:*");
 		sq.setRows(9000);
 		sq.setFields("id", "go_annotations", "uniprot_ids");
 		sq.setSort("id", SolrQuery.ORDER.asc);
 		QueryResponse treeIdResponse = mysolr.query(sq);
-		File file = new File(filename);
+		File file = new File(filePath);
 		CsvWriter csvWriter = new CsvWriter();
 		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
 			csvAppender.appendLine("treeId", "UniprotIds_count", "genes_count_1F", "genes_count_1P", "genes_count_1IBA",
@@ -907,7 +908,7 @@ public class PhylogenesServerWrapper {
 
 	public void uploadJsonToPGTreeBucket(String filename, String jsonStr) {
 		try {
-			System.out.println("PG_TREE_BUCKET_NAME " + PG_TREE_BUCKET_NAME);
+			// System.out.println("PG_TREE_BUCKET_NAME " + PG_TREE_BUCKET_NAME);
 			uploadJsonToS3(PG_TREE_BUCKET_NAME, filename, jsonStr);
 		} catch (Exception e) {
 			System.out.println("Failed to save to S3 " + e);
