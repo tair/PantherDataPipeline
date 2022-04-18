@@ -32,9 +32,10 @@ public class PantherETLPipeline {
 		 */
 		// updateOrSaveFamilyList_Json();
 		// updateOrSavePantherTrees_Json();
-		// deleteTreesWithoutPlantGenes();
+		deleteTreesWithoutPlantGenes();
 		// updateOrSaveMSAData();
-		updateOrSaveGOAnnotations();
+		// updateOrSaveGOAnnotations();
+		// saveLocalMsaToS3();
 	}
 
 	public void uploadToServer() throws Exception {
@@ -42,11 +43,13 @@ public class PantherETLPipeline {
 		/**
 		 * 6. Reindex Solr DB based on local panther files and change in solr schema.
 		 */
-		// indexSolrDB(true);
+		// indexSolrDB(false);
+
+		// saveLocalMsaToS3();
 
 		/**
-		 * 7. update "uniprotdb" on solr with the mapping of uniprot Ids with GO
-		 * Annotations
+		 * 7. update "uniprotdb" and "paint_db" on solr with the mapping of uniprot Ids
+		 * with GO Annotations
 		 */
 		// updateSolrAnnotations();
 
@@ -71,8 +74,6 @@ public class PantherETLPipeline {
 
 		// 10. Analyze panther trees
 		// pgServer.analyzePantherTrees();
-
-		// 11. Go to pantherToPhyloXmlPipeline Update PhyloXML files locally and on S3
 	}
 
 	public void updateSolr_selected() throws Exception {
@@ -174,14 +175,14 @@ public class PantherETLPipeline {
 						System.out.println("MSA Data is empty " + familyId);
 						continue;
 					}
-					// Save json string as local file
-					String msaJson = pantherLocal.saveMSADataAsJsonFile(familyId, msaData);
-					String fileName = familyId + ".json";
-					pgServer.uploadJsonToPGMsaBucket(fileName, msaJson);
+					// // Save json string as local file
+					// String msaJson = pantherLocal.saveMSADataAsJsonFile(familyId, msaData);
+					// String fileName = familyId + ".json";
+					// pgServer.uploadJsonToPGMsaBucket(fileName, msaJson);
 				}
 
 				if (i % 20 == 0) {
-					System.out.println("MSA saved " + i);
+					// System.out.println("MSA saved " + i);
 				}
 			}
 			si = si + 1000;
@@ -191,22 +192,18 @@ public class PantherETLPipeline {
 	public void saveLocalMsaToS3() throws Exception {
 		int si = 1;
 		System.out.println("PATH_LOCAL_MSA_DATA: " + pantherLocal.getLocalMSAPath());
+		System.out.println("MSA_S3_BUCKET: " + pgServer.PG_MSA_BUCKET_NAME);
 		List<FamilyNode> familyList = pantherLocal.getLocalPantherFamilyList(si);
 		while (si < 16001) {
 			for (int i = 0; i < familyList.size(); i++) {
 				String familyId = familyList.get(i).getFamily_id();
-				String msaData = pantherServer.readMsaByIdFromServer(familyId);
-				if (msaData.length() < 3) {
-					System.out.println("MSA Data is empty " + familyId);
-					continue;
-				}
+				System.out.print("Saving " + familyId);
 				String msaJson = pantherLocal.getMSAJsonFile(familyId);
-				System.out.println(msaJson);
-				// String fileName = familyId + ".json";
-				// pgServer.uploadJsonToPGMsaBucket(fileName, msaJson);
+				// System.out.println(msaJson);
+				String fileName = familyId + ".json";
+				pgServer.uploadJsonToPGMsaBucket(fileName, msaJson);
 			}
 		}
-
 	}
 
 	// Locally Save trees from panther server for given id
@@ -443,9 +440,9 @@ public class PantherETLPipeline {
 
 	// Generate csv files which analyzes panther etl dumps
 	public void generate_analyze_dump() throws Exception {
-		String filename = "panther_16_dump_feb8.csv";
+		String filename = "panther17_dump_apr182022.csv";
 		// pgServer.analyzePantherDump(filename);
-		filename = "panther_16_annos_may10.csv";
+		filename = "panther17_annos_apr182022.csv";
 		pgServer.analyzePantherAnnotations2(filename);
 	}
 
@@ -606,11 +603,17 @@ public class PantherETLPipeline {
 
 		// etl.storePantherFilesLocally();
 		// etl.uploadToServer();
-		etl.updateLocusGeneNames();
 
+		// TASK: PHG-337: https://jira.phoenixbioinformatics.org/browse/PHG-327
+		// etl.updateLocusGeneNames();
+
+		// TASK: PHG-330: https://jira.phoenixbioinformatics.org/browse/PHG-330
 		// etl.generatePhyloXML();
+
 		// etl.generateCsvs();
-		// etl.generate_analyze_dump();
+
+		// TASK: PHG-326: https://jira.phoenixbioinformatics.org/browse/PHG-326
+		etl.generate_analyze_dump();
 
 		// etl.saveParalogS3_tairids();
 		// etl.saveOrthologS3_tairids();
