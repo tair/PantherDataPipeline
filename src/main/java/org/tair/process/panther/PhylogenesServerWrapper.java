@@ -44,6 +44,7 @@ public class PhylogenesServerWrapper {
 	String S3_SECRET_KEY = "";
 	String PG_TREE_BUCKET_NAME = "";
 	String PG_MSA_BUCKET_NAME = "";
+	String PG_CSV_BUCKET_NAME = "";
 	String PG_PARALOG_BUCKET_NAME = "phg-paralogs";
 	String PG_ORTHO_BUCKET_NAME = "phg-orthologs";
 
@@ -106,6 +107,9 @@ public class PhylogenesServerWrapper {
 			if (prop.containsKey("PG_MSA_BUCKET_NAME")) {
 				PG_MSA_BUCKET_NAME = prop.getProperty("PG_MSA_BUCKET_NAME");
 			}
+			if (prop.containsKey("PG_CSV_BUCKET_NAME")) {
+				PG_CSV_BUCKET_NAME = prop.getProperty("PG_CSV_BUCKET_NAME");
+			}
 		} catch (Exception e) {
 			System.out.println("Prop file not found!");
 			System.out.println("S3_ACCESS_KEY " + System.getenv("S3_ACCESS_KEY"));
@@ -117,6 +121,14 @@ public class PhylogenesServerWrapper {
 			// if(!System.getenv("S3_ACCESS_KEY").isEmpty()) {
 			// S3_ACCESS_KEY = System.getenv("S3_ACCESS_KEY");
 			// }
+		}
+	}
+
+	public void makeDir(String dirPath) {
+		File dir = new File(dirPath);
+		if (!dir.isDirectory()) {
+			dir.mkdir();
+			System.out.println("Making dir " + dirPath);
 		}
 	}
 
@@ -135,6 +147,25 @@ public class PhylogenesServerWrapper {
 		mysolr.commit();
 		committedCount += pantherList.size();
 		System.out.println("Total file commited to solr until now " + committedCount);
+	}
+
+	public void uploadAllPantherCSVtoS3() {
+		if (PG_CSV_BUCKET_NAME.isEmpty()) {
+			System.out.println("PG_CSV_BUCKET_NAME not set in application.properties");
+			return;
+		}
+		File dir = new File(RESOURCES_BASE + "/panther_csv");
+		File[] directoryListing = dir.listFiles();
+		if (directoryListing != null) {
+			int fileCount = 0;
+			for (File child : directoryListing) {
+				if (child.getName().charAt(0) != '.') {// to ignore files such as .gitignore and .ds_store
+					fileCount++;
+					uploadCSVToPGCsvBucket(child.getName(), child);
+					System.out.println("Saved S3: " + fileCount + " " + child.getName());
+				}
+			}
+		}
 	}
 
 	// Update a specific field values for all trees saved in solr
@@ -394,26 +425,6 @@ public class PhylogenesServerWrapper {
 		}
 	}
 
-	// public void dumpForGenodo() throws Exception {
-	// SolrQuery sq = new SolrQuery("id:PTHR23140");
-	// sq.setRows(9000);
-	// sq.setFields("id", "family_name", "sf_names", "go_annotations",
-	// "taxonomic_ranges");
-	// sq.setSort("id", SolrQuery.ORDER.asc);
-	// QueryResponse treeIdResponse = mysolr.query(sq);
-	// File file = new File("PTHR23140");
-	// CsvWriter csvWriter = new CsvWriter();
-	// try (CsvAppender csvAppender = csvWriter.append(file,
-	// StandardCharsets.UTF_8)) {
-	// List<String> cols = Arrays.asList("Uniprot ID", "Gene", "Gene ID", "Gene
-	// name", "Organism", "Subfamily name");
-	// for(int i=0; i<cols.size(); i++) {
-	// csvAppender.appendField(cols.get(i));
-	// }
-	//
-	// }
-	// }
-
 	// Lists the panther trees, and number of total organisms per tree and list of
 	// go annotations
 	public void analyzePantherDump(String filename) throws Exception {
@@ -654,20 +665,6 @@ public class PhylogenesServerWrapper {
 					csvAppender.endLine();
 				}
 			}
-		}
-	}
-
-	public void generatePantherAnnotationsCsvs(String filename) throws Exception {
-		SolrQuery sq = new SolrQuery("id:PTHR10012");
-		// SolrQuery sq = new SolrQuery("*:*");
-		sq.setRows(9000);
-		sq.setFields("id", "go_annotations", "uniprot_ids");
-		sq.setSort("id", SolrQuery.ORDER.asc);
-		QueryResponse treeIdResponse = mysolr.query(sq);
-		File file = new File(filename);
-		CsvWriter csvWriter = new CsvWriter();
-		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
-
 		}
 	}
 
@@ -923,6 +920,14 @@ public class PhylogenesServerWrapper {
 		}
 	}
 
+	public void uploadCSVToPGCsvBucket(String filename, File file) {
+		try {
+			uploadObjectToBucket(PG_CSV_BUCKET_NAME, filename, file);
+		} catch (Exception e) {
+			System.out.println("Failed to save to S3 " + e);
+		}
+	}
+
 	public void uploadJsonToPGParalogsBucket(String filename, String jsonStr) {
 		try {
 			uploadJsonToS3(PG_PARALOG_BUCKET_NAME, filename, jsonStr);
@@ -1077,13 +1082,15 @@ public class PhylogenesServerWrapper {
 				}
 			}
 
-			System.out.println("mapping processed");
+			// System.out.println("mapping processed");
 		}
 
 		return uni_mapping;
 	}
 
 	public void generateGenodoCsvAll() throws Exception {
+		String filename = RESOURCES_BASE + "/panther_csv/";
+		makeDir(filename);
 		SolrQuery sq = new SolrQuery("*:*");
 		sq.setRows(9000);
 		sq.setFields("id");
@@ -1120,7 +1127,8 @@ public class PhylogenesServerWrapper {
 		// System.out.println("leaf_nodes size "+ leaf_nodes.size());
 
 		// System.out.println("cols length " + cols_list.size());
-		String filename = "panther_resources/" + familyId + ".csv";
+		String filename = RESOURCES_BASE + "/panther_csv/" + familyId + ".csv";
+
 		File file = new File(filename);
 		CsvWriter csvWriter = new CsvWriter();
 		String intro_txt = "Columns after 'Subfamily name', if any, are GO annotations. Each column is a GO molecular function or biological process term that is annotated to at least one member of the gene family AND the annotation is supported by an experimental evidence (indicated by 'EXP') or phylogenetic inference (indicated by 'IBA'). A '0' indicates absence of either annotations.";
@@ -1136,7 +1144,7 @@ public class PhylogenesServerWrapper {
 			for (int i = 0; i < leaf_nodes.size(); i++) {
 				Annotation node = leaf_nodes.get(i);
 				if (node.getGene_symbol() == null) {
-					System.out.println("getGene_id null");
+					// System.out.println("getGene_id null");
 				}
 
 				String gene_id = node.getGene_id().split(":")[1];
@@ -1203,7 +1211,7 @@ public class PhylogenesServerWrapper {
 		Iterator<String> keys = jsonObject.keys();
 		while (keys.hasNext()) {
 			String k = keys.next();
-			System.out.println(k);
+			// System.out.println(k);
 			if (k.equals("jsonString")) {
 				// System.out.println(jsonObject.get(k));
 				String jsonString = (String) jsonObject.get(k);
