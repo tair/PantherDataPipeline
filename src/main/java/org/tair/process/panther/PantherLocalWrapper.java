@@ -494,7 +494,6 @@ public class PantherLocalWrapper {
             System.out.println(e);
             return null;
         }
-
     }
 
     public static void main(String args[]) throws Exception {

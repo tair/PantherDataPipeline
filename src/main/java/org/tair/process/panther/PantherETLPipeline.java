@@ -434,8 +434,8 @@ public class PantherETLPipeline {
 	}
 
 	public void generateCsvs() throws Exception {
-		String filename = "panther_16_anno_csvs.csv";
-		pgServer.generatePantherAnnotationsCsvs(filename);
+		// pgServer.generateGenodoCsvAll();
+		pgServer.uploadAllPantherCSVtoS3();
 	}
 
 	// Generate csv files which analyzes panther etl dumps
@@ -610,10 +610,11 @@ public class PantherETLPipeline {
 		// TASK: PHG-330: https://jira.phoenixbioinformatics.org/browse/PHG-330
 		// etl.generatePhyloXML();
 
-		// etl.generateCsvs();
+		// TASK: PHHG-331: https://jira.phoenixbioinformatics.org/browse/PHG-308
+		etl.generateCsvs();
 
 		// TASK: PHG-326: https://jira.phoenixbioinformatics.org/browse/PHG-326
-		etl.generate_analyze_dump();
+		// etl.generate_analyze_dump();
 
 		// etl.saveParalogS3_tairids();
 		// etl.saveOrthologS3_tairids();
