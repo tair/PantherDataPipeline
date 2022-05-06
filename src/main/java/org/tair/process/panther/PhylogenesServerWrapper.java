@@ -43,7 +43,7 @@ public class PhylogenesServerWrapper {
 	String S3_ACCESS_KEY = "";
 	String S3_SECRET_KEY = "";
 	String PG_TREE_BUCKET_NAME = "phg-panther-data-17";
-	String PG_MSA_BUCKET_NAME = "";
+	String PG_MSA_BUCKET_NAME = "phg-panther-msa-data-17";
 	String PG_CSV_BUCKET_NAME = "";
 	String PG_PARALOG_BUCKET_NAME = "phg-paralogs";
 	String PG_ORTHO_BUCKET_NAME = "phg-orthologs";
