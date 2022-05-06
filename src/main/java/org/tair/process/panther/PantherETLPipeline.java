@@ -32,10 +32,9 @@ public class PantherETLPipeline {
 		 */
 		// updateOrSaveFamilyList_Json();
 		// updateOrSavePantherTrees_Json();
-		deleteTreesWithoutPlantGenes();
+		// deleteTreesWithoutPlantGenes();
 		// updateOrSaveMSAData();
 		// updateOrSaveGOAnnotations();
-		// saveLocalMsaToS3();
 	}
 
 	public void uploadToServer() throws Exception {
@@ -45,7 +44,7 @@ public class PantherETLPipeline {
 		 */
 		// indexSolrDB(false);
 
-		// saveLocalMsaToS3();
+		saveLocalMsaToS3();
 
 		/**
 		 * 7. update "uniprotdb" and "paint_db" on solr with the mapping of uniprot Ids
@@ -193,16 +192,23 @@ public class PantherETLPipeline {
 		int si = 1;
 		System.out.println("PATH_LOCAL_MSA_DATA: " + pantherLocal.getLocalMSAPath());
 		System.out.println("MSA_S3_BUCKET: " + pgServer.PG_MSA_BUCKET_NAME);
-		List<FamilyNode> familyList = pantherLocal.getLocalPantherFamilyList(si);
+
+		int count_saved = 0;
 		while (si < 16001) {
+			List<FamilyNode> familyList = pantherLocal.getLocalPantherFamilyList(si);
 			for (int i = 0; i < familyList.size(); i++) {
 				String familyId = familyList.get(i).getFamily_id();
-				System.out.print("Saving " + familyId);
+				if (pantherLocal.doesPantherTreeExist(familyId)) {
+					System.out.println(count_saved + " Saving " + familyId);
+					count_saved++;
+				}
+
 				String msaJson = pantherLocal.getMSAJsonFile(familyId);
 				// System.out.println(msaJson);
 				String fileName = familyId + ".json";
 				pgServer.uploadJsonToPGMsaBucket(fileName, msaJson);
 			}
+			si = si + 1000;
 		}
 	}
 
@@ -602,7 +608,7 @@ public class PantherETLPipeline {
 		PantherETLPipeline etl = new PantherETLPipeline();
 
 		// etl.storePantherFilesLocally();
-		// etl.uploadToServer();
+		etl.uploadToServer();
 
 		// TASK: PHG-337: https://jira.phoenixbioinformatics.org/browse/PHG-327
 		// etl.updateLocusGeneNames();
@@ -611,7 +617,7 @@ public class PantherETLPipeline {
 		// etl.generatePhyloXML();
 
 		// TASK: PHHG-331: https://jira.phoenixbioinformatics.org/browse/PHG-308
-		etl.generateCsvs();
+		// etl.generateCsvs();
 
 		// TASK: PHG-326: https://jira.phoenixbioinformatics.org/browse/PHG-326
 		// etl.generate_analyze_dump();
