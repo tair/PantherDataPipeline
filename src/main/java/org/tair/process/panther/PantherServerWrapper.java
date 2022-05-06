@@ -98,7 +98,7 @@ public class PantherServerWrapper {
                 .mapToObj(Integer::toString)
                 .collect(Collectors.joining(","));
         String prunedTreeUrl = PANTHER_BASE_URL + "?family=" + family_id + "&taxonFltr=" + taxonFiltersParam;
-        System.out.println(prunedTreeUrl);
+        System.out.println("prunedTreeUrl " + prunedTreeUrl);
         String jsonString = Util.readJsonFromUrl(prunedTreeUrl);
         return jsonString;
     }
@@ -165,7 +165,7 @@ public class PantherServerWrapper {
             // System.out.println(processedParalogsJsonStr);
             return processedParalogsJsonStr;
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
             return null;
         }
     }

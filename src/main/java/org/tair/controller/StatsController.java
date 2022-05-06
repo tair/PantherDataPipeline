@@ -16,8 +16,7 @@ public class StatsController {
     SolrClient solr = new HttpSolrClient.Builder(URL_SOLR).build();
 
     @GetMapping(path = "/panther/genecount")
-    public @ResponseBody
-    SolrDocumentList getPantherGeneCount() throws Exception {
+    public @ResponseBody SolrDocumentList getPantherGeneCount() throws Exception {
         SolrQuery sq = new SolrQuery("*:*");
         sq.setRows(9000);
         sq.setFields("id, uniprot_ids_count");
@@ -27,14 +26,13 @@ public class StatsController {
         req.setBasicAuthCredentials("phxphy", "phoenixphyl0genes");
 
         QueryResponse treeIdResponse = req.process(solr);
-        System.out.println(treeIdResponse.getResults());
+        // System.out.println(treeIdResponse.getResults());
         SolrDocumentList docList = treeIdResponse.getResults();
         return docList;
     }
 
     @GetMapping(path = "/panther/annotation")
-    public @ResponseBody
-    SolrDocumentList getPantherAnnotations() throws Exception {
+    public @ResponseBody SolrDocumentList getPantherAnnotations() throws Exception {
         SolrQuery sq = new SolrQuery("*:*");
         sq.setRows(9000);
         sq.setFields("id, go_annotations_count, species_list");
@@ -44,7 +42,7 @@ public class StatsController {
         req.setBasicAuthCredentials("phxphy", "phoenixphyl0genes");
 
         QueryResponse treeIdResponse = req.process(solr);
-        System.out.println(treeIdResponse.getResults());
+        // System.out.println(treeIdResponse.getResults());
         SolrDocumentList docList = treeIdResponse.getResults();
         return docList;
     }

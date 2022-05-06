@@ -170,7 +170,7 @@ public class PruningController {
         String orthologUrl = ORTHO_URL + uniprotId + "&organism=" + queryOrganismId + "&targetOrganism="
                 + taxonFiltersParam
                 + "&orthologType=all";
-        System.out.println(orthologUrl);
+        System.out.println("orthologUrl " + orthologUrl);
         JSONObject orthoTree;
         try {
             orthoTree = Util.getJsonObjectFromUrl(orthologUrl);
@@ -200,9 +200,9 @@ public class PruningController {
         String family_id = "PTHR10683";
         String filterIds = "3702";
         String prunedTreeUrl = BOOK_INFO_URL + "&book=" + family_id + "&taxonFltr=" + filterIds;
-        System.out.println(prunedTreeUrl);
+        // System.out.println(prunedTreeUrl);
         String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, prunedTreeUrl);
-        System.out.println(jsonString);
+        // System.out.println(jsonString);
     }
 
     public void testPruningProcess() throws Exception {
@@ -215,14 +215,14 @@ public class PruningController {
     public void testGraftingApi() throws Exception {
         String seq = "MPTFEIHDEAWYPWILGGLFALSLVTYWACDRITAPYGRHVKRGWGPAWGVRECWIVMESPALWAMVLFYSMGEQKLGRVPLILLRLHQVHYFNRVLIYPMRMKVRGKGMPIIVAACAFAFNILNSYVQARWLSNYGSYPDSWLTSPKFILGATLFGLGFLGNFWSDSYLFSLRADEDDRSYKIPKAGLFKFITCPNYFSEMVEWLGWAIMTWSPAGLAFFIYTIANLAPRAVSNHQWYLSKFNDYPKERRILIPFVY";
         String jsonStr = callGraftingApi(seq, taxon_filters_arr);
-        System.out.println(jsonStr);
+        // System.out.println(jsonStr);
     }
 
     public void testPrunedGraftingApi() throws Exception {
         int[] taxon_filters_arr = { 13333, 3702 };
         String seq = "MPTFEIHDEAWYPWILGGLFALSLVTYWACDRITAPYGRHVKRGWGPAWGVRECWIVMESPALWAMVLFYSMGEQKLGRVPLILLRLHQVHYFNRVLIYPMRMKVRGKGMPIIVAACAFAFNILNSYVQARWLSNYGSYPDSWLTSPKFILGATLFGLGFLGNFWSDSYLFSLRADEDDRSYKIPKAGLFKFITCPNYFSEMVEWLGWAIMTWSPAGLAFFIYTIANLAPRAVSNHQWYLSKFNDYPKERRILIPFVY";
         String jsonStr = callGraftingApi(seq, taxon_filters_arr);
-        System.out.println(jsonStr);
+        // System.out.println(jsonStr);
     }
 
     public void testOrtholog() throws Exception {

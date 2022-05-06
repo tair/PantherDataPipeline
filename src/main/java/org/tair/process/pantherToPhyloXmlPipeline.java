@@ -168,7 +168,7 @@ public class pantherToPhyloXmlPipeline {
             constructPhyloTreeWithAnnoTree(panther.getSearch().getAnnotation_node(), phylo.getPhylogeny().getClade());
             // transform phlyo java object to xml local file
             String xmlLocalFile_fullPath = RESOURCES_BASE + "/phyloXml/" + fileName + ".xml";
-            System.out.println(xmlLocalFile_fullPath);
+            // System.out.println(xmlLocalFile_fullPath);
             phyloObjToXML(phylo, xmlLocalFile_fullPath);
         }
 
