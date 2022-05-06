@@ -111,8 +111,9 @@ public class PhylogenesServerWrapper {
 		} catch (Exception e) {
 			System.out.println("PhylogenesServerWrapper: Prop file not found!");
 			System.out.println("S3_ACCESS_KEY " + System.getenv("S3_ACCESS_KEY"));
-			Map<String, String> map = System.getenv();
-			map.entrySet().forEach(System.out::println);
+			System.out.println("S3_ACCESS_KEY prop " + System.getProperty("S3_ACCESS_KEY"));
+			S3_ACCESS_KEY = "AKIAT2DXR6T2POVKYEG6";
+			S3_SECRET_KEY = "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";
 			// if (!System.getenv("S3_SECRET_KEY").isEmpty()) {
 			// S3_SECRET_KEY = System.getenv("S3_SECRET_KEY");
 			// }
