@@ -330,8 +330,6 @@ public class PantherLocalWrapper {
         } catch (Exception e) {
             System.out.println("getAllOrganismsFromTree except");
         }
-        // organism_count.forEach((key, value) -> System.out.println(key + ":" +
-        // value));
         return organism_count;
     }
 

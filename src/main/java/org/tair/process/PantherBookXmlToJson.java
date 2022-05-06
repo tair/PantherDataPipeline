@@ -25,7 +25,7 @@ public class PantherBookXmlToJson {
 		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
 				PantherData.class);
 		this.pantherData.setId(book_id);
-		System.out.println(this.pantherData);
+		// System.out.println(this.pantherData);
 		return this.pantherData;
 	}
 
@@ -60,65 +60,73 @@ public class PantherBookXmlToJson {
 		}
 	}
 
-	//PantherData has a list of unique variables which solr uses to index and search from and return the panther ID matching the search
+	// PantherData has a list of unique variables which solr uses to index and
+	// search from and return the panther ID matching the search
 	private void addToListFromAnnotation(Annotation annotation) {
-		//Internal Node Variables
-		//"accession"
-//		if (annotation.getAccession() != null && !this.pantherData.getAccessions().contains(annotation.getAccession()))
-//			this.pantherData.getAccessions().add(annotation.getAccession());
-		//"public_id" - not indexed
-		//"sf_id"
+		// Internal Node Variables
+		// "accession"
+		// if (annotation.getAccession() != null &&
+		// !this.pantherData.getAccessions().contains(annotation.getAccession()))
+		// this.pantherData.getAccessions().add(annotation.getAccession());
+		// "public_id" - not indexed
+		// "sf_id"
 		if (annotation.getSf_id() != null && !this.pantherData.getSf_ids().contains(annotation.getSf_id()))
 			this.pantherData.getSf_ids().add(annotation.getSf_id());
-		//"sf_name"
+		// "sf_name"
 		if (annotation.getSf_name() != null && !this.pantherData.getSf_names().contains(annotation.getSf_name()))
 			this.pantherData.getSf_names().add(annotation.getSf_name());
-		//"prop_sf_id" - not indexed
-		//"species" - only add the top species from the list
+		// "prop_sf_id" - not indexed
+		// "species" - only add the top species from the list
 		if (annotation.getSpecies() != null
 				&& !this.pantherData.getSpecies_list().contains(annotation.getSpecies())
 				&& this.pantherData.getSpecies_list().size() == 0)
 			this.pantherData.getSpecies_list().add(annotation.getSpecies());
-		//"taxonomic_range_root"
+		// "taxonomic_range_root"
 		if (annotation.getTaxonomic_range() != null
 				&& !this.pantherData.getTaxonomic_ranges_root().contains(annotation.getTaxonomic_range())
 				&& this.pantherData.getTaxonomic_ranges_root().size() == 0) {
 			this.pantherData.getTaxonomic_ranges_root().add(annotation.getTaxonomic_range());
 		}
 		// "taxonomic_range"
-		if (annotation.getTaxonomic_range() != null && !this.pantherData.getTaxonomic_ranges().contains(annotation.getTaxonomic_range()))
+		if (annotation.getTaxonomic_range() != null
+				&& !this.pantherData.getTaxonomic_ranges().contains(annotation.getTaxonomic_range()))
 			this.pantherData.getTaxonomic_ranges().add(annotation.getTaxonomic_range());
-		//"tree_node_type" - not indexed
-		//"event_type" = not indexed
-		//"branch_length"
-		if (annotation.getBranch_length() != null && !this.pantherData.getBranch_lengths().contains(annotation.getBranch_length()))
+		// "tree_node_type" - not indexed
+		// "event_type" = not indexed
+		// "branch_length"
+		if (annotation.getBranch_length() != null
+				&& !this.pantherData.getBranch_lengths().contains(annotation.getBranch_length()))
 			this.pantherData.getBranch_lengths().add(annotation.getBranch_length());
-		//"gene_id"
+		// "gene_id"
 		if (annotation.getGene_id() != null && !this.pantherData.getGene_ids().contains(annotation.getGene_id()))
 			this.pantherData.getGene_ids().add(annotation.getGene_id());
-		//"gene_symbol"
-		if (annotation.getGene_symbol() != null && !this.pantherData.getGene_symbols().contains(annotation.getGene_symbol()))
+		// "gene_symbol"
+		if (annotation.getGene_symbol() != null
+				&& !this.pantherData.getGene_symbols().contains(annotation.getGene_symbol()))
 			this.pantherData.getGene_symbols().add(annotation.getGene_symbol());
-		//"definition"
-		if (annotation.getDefinition() != null && !this.pantherData.getDefinitions().contains(annotation.getDefinition()))
+		// "definition"
+		if (annotation.getDefinition() != null
+				&& !this.pantherData.getDefinitions().contains(annotation.getDefinition()))
 			this.pantherData.getDefinitions().add(annotation.getDefinition());
-		//"node_name" -> "uniprotId"
-		if (annotation.getNode_name() != null && !this.pantherData.getNode_names().contains(annotation.getNode_name())) {
+		// "node_name" -> "uniprotId"
+		if (annotation.getNode_name() != null
+				&& !this.pantherData.getNode_names().contains(annotation.getNode_name())) {
 			this.pantherData.getNode_names().add(annotation.getNode_name());
 			// DICDI|dictyBase=DDB_G0277745|UniProtKB=Q86KT5
 			int pos = annotation.getNode_name().indexOf("UniProtKB");
 			String uniProtId = null;
-			if(pos != -1) {
+			if (pos != -1) {
 				uniProtId = annotation.getNode_name().substring(pos + 10);
-				if(!this.pantherData.getUniprot_ids().contains(uniProtId))
+				if (!this.pantherData.getUniprot_ids().contains(uniProtId))
 					this.pantherData.getUniprot_ids().add(uniProtId);
 			}
 		}
-		//"persistent_id"
-		if (annotation.getPersistent_id() != null && !this.pantherData.getPersistent_ids().contains(annotation.getPersistent_id())) {
+		// "persistent_id"
+		if (annotation.getPersistent_id() != null
+				&& !this.pantherData.getPersistent_ids().contains(annotation.getPersistent_id())) {
 			this.pantherData.getPersistent_ids().add(annotation.getPersistent_id());
 		}
-		//"organism"
+		// "organism"
 		if (annotation.getOrganism() != null && !this.pantherData.getOrganisms().contains(annotation.getOrganism()))
 			this.pantherData.getOrganisms().add(annotation.getOrganism());
 	}
@@ -132,13 +140,12 @@ public class PantherBookXmlToJson {
 		readPantherXmlToObject(id);
 		try {
 			flattenTree(pantherData.getSearch().getAnnotation_node().getChildren());
-		}
-		catch(Exception e) {
-			System.out.println("Error "+ e);
+		} catch (Exception e) {
+			System.out.println("Error " + e);
 		}
 		buildListItems();
-		
-//		this.pantherData.setFamily_name(getFamilyName(id));
+
+		// this.pantherData.setFamily_name(getFamilyName(id));
 
 		return this.pantherData;
 	}
@@ -152,12 +159,12 @@ public class PantherBookXmlToJson {
 		this.pantherData.setJsonString(jsonString);
 		this.pantherData.setFamily_name("familyName");
 		try {
-			if(this.pantherData.getSearch() == null) {
+			if (this.pantherData.getSearch() == null) {
 				System.out.println("Error in: " + this.pantherData.getId());
 			} else {
 				Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
-				if(rootNodeAnnotation == null) {
-//					System.out.println(this.pantherData.getSearch().getParameters().getBook());
+				if (rootNodeAnnotation == null) {
+					// System.out.println(this.pantherData.getSearch().getParameters().getBook());
 					this.pantherData = null;
 				} else {
 					addToListFromAnnotation(rootNodeAnnotation);
@@ -165,7 +172,7 @@ public class PantherBookXmlToJson {
 					buildListItems();
 				}
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Error in building list: " + e.getMessage());
 		}
@@ -183,11 +190,11 @@ public class PantherBookXmlToJson {
 		this.pantherData.setJsonString(jsonString);
 		this.pantherData.setFamily_name(familyName);
 		try {
-			if(this.pantherData.getSearch() == null) {
+			if (this.pantherData.getSearch() == null) {
 				System.out.println("Error in: " + this.pantherData.getId());
 			} else {
 				Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
-				if(rootNodeAnnotation == null) {
+				if (rootNodeAnnotation == null) {
 					this.pantherData = null;
 				} else {
 					addToListFromAnnotation(rootNodeAnnotation);
@@ -195,7 +202,7 @@ public class PantherBookXmlToJson {
 					buildListItems();
 				}
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Error in building list: " + e.getMessage());
 		}
@@ -208,11 +215,11 @@ public class PantherBookXmlToJson {
 		List<String> fieldValue = new ArrayList<>();
 		// convert json string to Panther object
 		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
-										PantherData.class);
+				PantherData.class);
 		try {
 			Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
 			fieldValue.add(rootNodeAnnotation.getSpecies());
-		} catch(NullPointerException e) {
+		} catch (NullPointerException e) {
 			return null;
 		}
 		return fieldValue;
@@ -222,22 +229,22 @@ public class PantherBookXmlToJson {
 		this.annotations = new ArrayList<Annotation>();
 		String jsonString = orig.getJsonString();
 
-			// convert json string to Panther object
+		// convert json string to Panther object
 		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
-																		PantherData.class);
+				PantherData.class);
 		this.pantherData.setId(orig.getId());
-		if(this.pantherData.getSearch() != null) {
+		if (this.pantherData.getSearch() != null) {
 			Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
 			this.annotations.add(rootNodeAnnotation);
-			if(rootNodeAnnotation != null) {
+			if (rootNodeAnnotation != null) {
 				flattenTree(this.pantherData.getSearch().getAnnotation_node().getChildren());
 			}
 		}
 		List<String> pantherWithHorizTrans = new ArrayList<>();
-		for(int i = 0; i < this.annotations.size(); i++) {
-			Annotation currAnno = this.annotations.get(i); //&&
-			if(currAnno!= null && currAnno.getEvent_type() != null) {
-				if(currAnno.getEvent_type().equals("HORIZ_TRANSFER")) {
+		for (int i = 0; i < this.annotations.size(); i++) {
+			Annotation currAnno = this.annotations.get(i); // &&
+			if (currAnno != null && currAnno.getEvent_type() != null) {
+				if (currAnno.getEvent_type().equals("HORIZ_TRANSFER")) {
 					return true;
 				}
 			}
@@ -253,8 +260,8 @@ public class PantherBookXmlToJson {
 		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
 				PantherData.class);
 		this.pantherData.setId(orig.getId());
-		if(this.pantherData.getSearch() != null) {
-			if(this.pantherData.getSearch().getAnnotation_node() != null) {
+		if (this.pantherData.getSearch() != null) {
+			if (this.pantherData.getSearch().getAnnotation_node() != null) {
 				Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
 				if (rootNodeAnnotation == null) {
 					return true;
@@ -266,10 +273,10 @@ public class PantherBookXmlToJson {
 			}
 		}
 
-		for(int i = 0; i < this.annotations.size(); i++) {
-			Annotation currAnno = this.annotations.get(i); //&&
-			if(currAnno!= null && currAnno.getOrganism() != null) {
-				if(getPlantOrganisms().contains(currAnno.getOrganism())) {
+		for (int i = 0; i < this.annotations.size(); i++) {
+			Annotation currAnno = this.annotations.get(i); // &&
+			if (currAnno != null && currAnno.getOrganism() != null) {
+				if (getPlantOrganisms().contains(currAnno.getOrganism())) {
 					return true;
 				}
 			}
@@ -331,11 +338,12 @@ public class PantherBookXmlToJson {
 
 		String jsonString = oldPantherData.getJsonString();
 		// convert json string to Panther object
-		PantherData oldPantherData2 = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
+		PantherData oldPantherData2 = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(
+				jsonString,
 				PantherData.class);
 
 		try {
-			if(oldPantherData2.getSearch() == null) {
+			if (oldPantherData2.getSearch() == null) {
 				System.out.println("Error in: " + oldPantherData.getId());
 			} else {
 				Annotation rootNodeAnnotation = oldPantherData2.getSearch().getAnnotation_node();
@@ -345,7 +353,7 @@ public class PantherBookXmlToJson {
 			}
 
 			this.pantherData.setFamily_name(oldPantherData.getFamily_name());
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Error in building list: " + e.getMessage());
 		}
