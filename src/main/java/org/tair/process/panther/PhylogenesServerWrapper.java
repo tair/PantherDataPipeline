@@ -1204,30 +1204,36 @@ public class PhylogenesServerWrapper {
 	}
 
 	public Annotation getPantherTreeRootById(String familyId) throws Exception {
-		S3Object fullObject = s3_server.getObject(new GetObjectRequest(PG_TREE_BUCKET_NAME, familyId + ".json"));
-		S3ObjectInputStream s3is = fullObject.getObjectContent();
-		String str = getAsString(s3is);
-		JSONObject jsonObject = new JSONObject(str);
-		Iterator<String> keys = jsonObject.keys();
-		while (keys.hasNext()) {
-			String k = keys.next();
-			// System.out.println(k);
-			if (k.equals("jsonString")) {
-				// System.out.println(jsonObject.get(k));
-				String jsonString = (String) jsonObject.get(k);
-				PantherData pantherStructureData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
-						.readValue(jsonString,
-								PantherData.class);
-				// System.out.println(pantherStructureData.getSearch().getAnnotation_node());
-				return pantherStructureData.getSearch().getAnnotation_node();
-			} else if (k.equals("search")) {
-				PantherData pantherStructureData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
-						.readValue(str,
-								PantherData.class);
-				return pantherStructureData.getSearch().getAnnotation_node();
+		System.out.println("BUCKET NAME " + PG_TREE_BUCKET_NAME + " familyId:" + familyId);
+		try {
+			S3Object fullObject = s3_server.getObject(new GetObjectRequest(PG_TREE_BUCKET_NAME, familyId + ".json"));
+			S3ObjectInputStream s3is = fullObject.getObjectContent();
+			String str = getAsString(s3is);
+			JSONObject jsonObject = new JSONObject(str);
+			Iterator<String> keys = jsonObject.keys();
+			while (keys.hasNext()) {
+				String k = keys.next();
+				// System.out.println(k);
+				if (k.equals("jsonString")) {
+					// System.out.println(jsonObject.get(k));
+					String jsonString = (String) jsonObject.get(k);
+					PantherData pantherStructureData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+							.readValue(jsonString,
+									PantherData.class);
+					// System.out.println(pantherStructureData.getSearch().getAnnotation_node());
+					return pantherStructureData.getSearch().getAnnotation_node();
+				} else if (k.equals("search")) {
+					PantherData pantherStructureData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+							.readValue(str,
+									PantherData.class);
+					return pantherStructureData.getSearch().getAnnotation_node();
+				}
 			}
+			return null;
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return null;
 		}
-		return null;
 	}
 
 	public String getFastaDocForPrunedTree(String treeId, int[] selected_taxons) throws Exception {
