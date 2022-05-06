@@ -80,7 +80,7 @@ public class PantherLocalWrapper {
             initPaths();
             // System.out.println(PATH_LOCAL_PRUNED_TREES);
         } catch (Exception e) {
-            System.out.println("PantherLocalWrapper: Prop file not found!");
+            // System.out.println("PantherLocalWrapper: Prop file not found!");
         }
     }
 

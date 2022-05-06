@@ -51,7 +51,7 @@ public class PantherServerWrapper {
             // load props
             Properties prop = new Properties();
             prop.load(input);
-            System.out.println(prop);
+            // System.out.println(prop);
             if (prop.containsKey("PANTHER_FL_URL")) {
                 PANTHER_FL_URL = prop.getProperty("PANTHER_FL_URL");
             }
