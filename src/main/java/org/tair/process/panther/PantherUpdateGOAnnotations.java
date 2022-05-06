@@ -39,7 +39,6 @@ public class PantherUpdateGOAnnotations {
 			prop.load(input);
 			if (prop.containsKey("BASE_SOLR_URL")) {
 				BASE_SOLR_URL = prop.getProperty("BASE_SOLR_URL");
-				System.out.println(BASE_SOLR_URL);
 			}
 		} catch (Exception e) {
 			System.out.println("Prop file not found!");
@@ -147,7 +146,6 @@ public class PantherUpdateGOAnnotations {
 			Collection<Object> go_annos = result.getFieldValues("go_annotations");
 			// if(go_annos == null) {
 			List<String> goAnnotationDataList = getGOAnnotationsForTree(uniprotIds);
-			System.out.println(goAnnotationDataList.size());
 			SolrInputDocument doc = new SolrInputDocument();
 			doc.addField("id", id);
 			Map<String, List<String>> partialUpdate = new HashMap<>();
@@ -178,7 +176,7 @@ public class PantherUpdateGOAnnotations {
 			QueryResponse response2 = solrClient.query("uniprot_db", query);
 			List<String> goAnnotations = new ArrayList<String>();
 			for (SolrDocument result : response1.getResults()) {
-				System.out.println(result.getFieldValue("go_annotations"));
+				// System.out.println(result.getFieldValue("go_annotations"));
 				goAnnotations.add((String) result.getFieldValue("go_annotations"));
 			}
 			for (SolrDocument result : response2.getResults()) {
@@ -205,7 +203,6 @@ public class PantherUpdateGOAnnotations {
 		Collection<Object> ids = new ArrayList<>();
 		ids.add(uniprotId);
 		List<String> annos = getGOAnnotationsForTree(ids);
-		System.out.println(annos);
 	}
 
 	public static void main(String[] args) throws Exception {

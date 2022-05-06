@@ -176,7 +176,6 @@ public class PhylogenesServerWrapper {
 		System.out.println("totalDocsFound " + totalDocsFound);
 		for (int i = 0; i < totalDocsFound; i++) {
 			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
-			System.out.println(treeId);
 			Object[] gene_ids = treeIdResponse.getResults().get(i).getFieldValues("gene_ids").toArray();
 			List<String> new_gene_ids = new ArrayList<>();
 			for (int j = 0; j < gene_ids.length; j++) {
@@ -298,7 +297,7 @@ public class PhylogenesServerWrapper {
 				mysolr.add(sdoc);
 				mysolr.commit();
 			} else {
-				System.out.println("null");
+				// System.out.println("null");
 			}
 		}
 	}
@@ -416,7 +415,7 @@ public class PhylogenesServerWrapper {
 		}
 		for (String s : solr_ids) {
 			if (!file_ids.contains(s)) {
-				System.out.println(s);
+				// System.out.println(s);
 			}
 		}
 	}
@@ -449,7 +448,6 @@ public class PhylogenesServerWrapper {
 			System.out.println("totalDocsFound " + totalDocsFound);
 			for (int i = 0; i < totalDocsFound; i++) {
 				String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
-				System.out.println(treeId);
 				Object[] family_name = treeIdResponse.getResults().get(i).getFieldValues("family_name").toArray();
 				Object[] sf_names = treeIdResponse.getResults().get(i).getFieldValues("sf_names").toArray();
 				csvAppender.appendField(treeId);

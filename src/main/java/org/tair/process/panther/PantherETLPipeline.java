@@ -391,9 +391,6 @@ public class PantherETLPipeline {
 			List<FamilyNode> pantherFamilyList = pantherLocal.getLocalPantherFamilyList(si);
 			for (int i = 0; i < pantherFamilyList.size(); i++) {
 				String id = pantherFamilyList.get(i).getFamily_id();
-
-				// if (id.equals("PTHR31989")) {
-				System.out.println(id);
 				PantherData origPantherData = pantherLocal.readPantherTreeById(id);
 				if (origPantherData != null) {
 					String familyName = pantherFamilyList.get(i).getFamily_name();
@@ -427,7 +424,6 @@ public class PantherETLPipeline {
 				if (i % 100 == 0) {
 					System.out.println("processed " + i);
 				}
-				// }
 			}
 			si = si + 1000;
 		}
@@ -455,13 +451,11 @@ public class PantherETLPipeline {
 	public void indexSingleIdOnSolr(String id) throws Exception {
 		// int si = 1;
 		PantherData origPantherData = pantherLocal.readPantherTreeById(id);
-		System.out.println(origPantherData.getFamily_name());
 		List<PantherData> pantherList = new ArrayList<>();
 		if (origPantherData != null) {
 			String familyName = origPantherData.getFamily_name();
 			PantherData modiPantherData = new PantherBookXmlToJson().convertJsonToSolrDocument(origPantherData,
 					familyName);
-			System.out.println(modiPantherData.getGene_ids().size());
 			if (modiPantherData != null) {
 				pantherList.add(modiPantherData);
 			} else {
@@ -571,7 +565,7 @@ public class PantherETLPipeline {
 				}
 			} catch (Exception e) {
 				System.out.println("Not saved " + entry.getKey());
-				System.out.println(e);
+				// System.out.println(e);
 			}
 		}
 	}
@@ -597,7 +591,7 @@ public class PantherETLPipeline {
 				pgServer.uploadJsonToPGOrthologsBucket(filename, ortho_json);
 				System.out.println("Saved " + filename + " -> " + Integer.toString(i));
 			} catch (Exception e) {
-				System.out.println(e);
+				System.out.println(e.getMessage());
 			}
 		}
 	}
