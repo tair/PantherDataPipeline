@@ -61,9 +61,8 @@ public class PantherServerWrapper {
             if (prop.containsKey("BASE_MSA_URL")) {
                 BASE_MSA_URL = prop.getProperty("BASE_MSA_URL");
             }
-
         } catch (Exception e) {
-            // System.out.println("Prop file not found!");
+            System.out.println("PantherServerWrapper: Prop file not found!");
         }
     }
 

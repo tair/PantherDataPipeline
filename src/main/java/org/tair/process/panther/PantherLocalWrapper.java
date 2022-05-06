@@ -64,11 +64,6 @@ public class PantherLocalWrapper {
         csvFile_ht = new File(PATH_HT_LIST);
         this.process_locus2tairId_mapping();
         this.process_organism_mapping();
-
-        // System.out.println("Locus2idmapping loaded "+ locus2tairId_mapping.size());
-        // System.out.println("Orgidmapping loaded "+ organism_mapping.size());
-        //
-        System.out.println("RESOURCES_BASE " + RESOURCES_BASE);
     }
 
     private void loadProps() {
@@ -83,9 +78,9 @@ public class PantherLocalWrapper {
                 makeDir(RESOURCES_BASE);
             }
             initPaths();
-            System.out.println(PATH_LOCAL_PRUNED_TREES);
+            // System.out.println(PATH_LOCAL_PRUNED_TREES);
         } catch (Exception e) {
-            // System.out.println("Prop file not found!");
+            System.out.println("PantherLocalWrapper: Prop file not found!");
         }
     }
 
