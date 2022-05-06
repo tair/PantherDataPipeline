@@ -42,7 +42,7 @@ public class PhylogenesServerWrapper {
 	// S3 Keys
 	String S3_ACCESS_KEY = "";
 	String S3_SECRET_KEY = "";
-	String PG_TREE_BUCKET_NAME = "";
+	String PG_TREE_BUCKET_NAME = "phg-panther-data-17";
 	String PG_MSA_BUCKET_NAME = "";
 	String PG_CSV_BUCKET_NAME = "";
 	String PG_PARALOG_BUCKET_NAME = "phg-paralogs";
@@ -73,15 +73,13 @@ public class PhylogenesServerWrapper {
 
 	private void loadProps() {
 		try {
-			InputStream input = new FileInputStream(RESOURCES_DIR + "/application.properties");
+			String propPath = RESOURCES_DIR + "/application.properties";
+			InputStream input = new FileInputStream(propPath);
+			System.out.println("Prop path " + propPath);
 			// load props
 			Properties prop = new Properties();
 			prop.load(input);
-			// System.out.println(prop);
 
-			// if(prop.containsKey("URL_SOLR")) {
-			// PG_MSA_BUCKET_NAME = prop.getProperty("URL_SOLR");
-			// }
 			if (prop.containsKey("RESOURCES_BASE")) {
 				RESOURCES_BASE = prop.getProperty("RESOURCES_BASE");
 				// makeDir(RESOURCES_BASE);
@@ -111,10 +109,8 @@ public class PhylogenesServerWrapper {
 				PG_CSV_BUCKET_NAME = prop.getProperty("PG_CSV_BUCKET_NAME");
 			}
 		} catch (Exception e) {
-			System.out.println("Prop file not found!");
-			System.out.println("S3_ACCESS_KEY " + System.getenv("S3_ACCESS_KEY"));
-			System.out.println("HOME " + System.getenv("HOME"));
-
+			System.out.println("PhylogenesServerWrapper: Prop file not found!");
+			// System.out.println("S3_ACCESS_KEY " + System.getenv("S3_ACCESS_KEY"));
 			// if(!System.getenv("S3_SECRET_KEY").isEmpty()) {
 			// S3_SECRET_KEY = System.getenv("S3_SECRET_KEY");
 			// }

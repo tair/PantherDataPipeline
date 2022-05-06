@@ -76,7 +76,7 @@ public class GO_PAINT_Pipeline {
                 GO_OBO_URL = prop.getProperty("GO_OBO_URL");
             }
         } catch (Exception e) {
-            System.out.println("Prop file not found!");
+            System.out.println("GO_PAINT_Pipeline: Prop file not found!");
         }
     }
 
