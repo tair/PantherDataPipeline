@@ -101,6 +101,7 @@ public class PantherLocalWrapper {
 
     private void process_locus2tairId_mapping() {
         locus2tairId_mapping = new HashMap<String, String>();
+        System.out.println("PATH_LOCUSID_TAIR_MAPPING " + PATH_LOCUSID_TAIR_MAPPING);
         try {
             File csv_tair_mapping = new File(getClass().getResource(PATH_LOCUSID_TAIR_MAPPING).toURI());
             CSVReader reader = new CSVReader(new FileReader(csv_tair_mapping), ' ');
@@ -139,7 +140,7 @@ public class PantherLocalWrapper {
                 organism_mapping.put(org_code, org);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("process_organism_mapping: Error");
         }
     }
 
