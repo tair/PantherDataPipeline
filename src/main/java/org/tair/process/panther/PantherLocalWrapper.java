@@ -114,7 +114,7 @@ public class PantherLocalWrapper {
                 locus2tairId_mapping.put(locusId, agiId);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("process_locus2tairId_mapping: Error");
         }
     }
 
