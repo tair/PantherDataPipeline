@@ -177,13 +177,13 @@ public class PruningController {
             OrthoMapping orthoMapping = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(
                     orthoTree.toString(),
                     OrthoMapping.class);
+            // System.out.println(orthoMapping.toString());
             JSONArray json = new JSONArray(orthoMapping.getAllMapped(tair_locus2id_mapping, org_mapping));
             return json.toString();
         } catch (Exception e) {
-            System.out.println("Error " + e.getMessage());
+            System.out.println("callOrthologApi: Error " + e.toString());
             return "{}";
         }
-
     }
 
     public String callFastaApi(String treeId, int[] taxon_array) throws Exception {
