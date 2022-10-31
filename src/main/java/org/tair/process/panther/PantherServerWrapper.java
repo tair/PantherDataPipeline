@@ -36,7 +36,7 @@ public class PantherServerWrapper {
     // };
 
     // Panther 17.0 -
-    private int[] taxon_filters_arr = { 13333, 3702, 15368, 51351, 3055, 2711, 3659, 4155, 3847, 3635, 4232, 112509,
+    private int[] taxon_filters_arr = { 13333, 15368, 51351, 3055, 2711, 3659, 4155, 3847, 3635, 4232, 112509,
             3880, 214687, 4097, 39947, 105231, 3197, 3218, 3694, 3760, 3988, 4555, 4081, 4558, 3641, 4565, 29760, 4577,
             29655, 3708, 4072, 71139, 51240, 4236, 3983, 4432, 88036, 4113, 3562, 6239, 7955, 44689, 7227, 83333, 9606,
             10090, 10116, 559292, 284812 };
@@ -114,11 +114,13 @@ public class PantherServerWrapper {
     public String callOrtholog_uniprot(String uniprotId, Map<String, String> uniprot2agi_mapping) throws Exception {
         String taxonFiltersParam = IntStream.of(taxon_filters_arr)
                 .mapToObj(Integer::toString)
-                .collect(Collectors.joining("%2C"));
+                .collect(Collectors.joining(","));
+        // System.out.println(taxonFiltersParam);
         String url = PANTHER_ORTHO_URL + "/matchortho?geneInputList=" + uniprotId
                 + "&organism=3702&targetOrganism=" +
                 taxonFiltersParam
                 + "&orthologType=all";
+        // System.out.println(url);
         String jsonString = Util.readJsonFromUrl(url);
         // System.out.println(jsonString);
         OrthoMapping orthoResult = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
