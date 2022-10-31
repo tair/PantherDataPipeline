@@ -11,6 +11,7 @@ import org.tair.process.uniprotdb_iba.GO_IBA_Pipeline;
 import org.tair.process.uniprotdb_paint.GO_PAINT_Pipeline;
 import org.tair.process.pantherToPhyloXmlPipeline;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,7 @@ public class PantherETLPipeline {
 		 */
 		// indexSolrDB(false);
 
-		saveLocalMsaToS3();
+		// saveLocalMsaToS3();
 
 		/**
 		 * 7. update "uniprotdb" and "paint_db" on solr with the mapping of uniprot Ids
@@ -63,7 +64,7 @@ public class PantherETLPipeline {
 		/**
 		 * 9. Update Publication Counts on Solr: PHG-329
 		 */
-		// pgServer.updateAllSolrTreePubCounts();
+		pgServer.updateAllSolrTreePubCounts();
 
 		/**
 		 * 10. Set uniprotIds and GoAnnotations Count on solr for each tree
@@ -73,6 +74,10 @@ public class PantherETLPipeline {
 
 		// 10. Analyze panther trees
 		// pgServer.analyzePantherTrees();
+	}
+
+	public void updatePublicationsCount() throws Exception {
+		pgServer.updateAllSolrTreePubCounts();
 	}
 
 	public void updateSolr_selected() throws Exception {
@@ -372,9 +377,12 @@ public class PantherETLPipeline {
 					String code = childNode.getGene_id().split(":")[0];
 					if (code.equals("TAIR")) {
 						String val = childNode.getGene_id().split(":")[1];
-						val = val.split("=")[1];
-						String updatedGeneId = mapping.get(val);
-						childNode.setGene_id(code + ":" + updatedGeneId);
+						if (val.split("=").length > 1) {
+							val = val.split("=")[1];
+							String updatedGeneId = mapping.get(val);
+							childNode.setGene_id(code + ":" + updatedGeneId);
+							// System.out.println(childNode.getGene_id());
+						}
 					}
 				}
 				updatePantherTree(childNode, mapping);
@@ -383,7 +391,51 @@ public class PantherETLPipeline {
 		return node;
 	}
 
-	// Update gene names for tair ids.
+	private void updateLocusGeneNameById(String pantherId) throws Exception {
+		HashMap<String, String> mapping = pantherLocal.read_locus2tair_mapping_csv();
+		PantherData origPantherData = pantherLocal.readPantherTreeById(pantherId);
+		if (origPantherData != null) {
+			String familyName = "TEST";
+			PantherData modiPantherData = new PantherBookXmlToJson().convertJsonToSolrDocument(
+					origPantherData,
+					familyName);
+			List<String> gene_ids = modiPantherData.getGene_ids();
+			System.out.println("gene_ids " + gene_ids.size());
+			for (int j = 0; j < gene_ids.size(); j++) {
+				String code = gene_ids.get(j).split(":")[0];
+				if (code.equals("TAIR")) {
+					String val = gene_ids.get(j).split(":")[1];
+					val = val.split("=")[1];
+					String updatedGeneId = mapping.get(val);
+					System.out.println(val + " _ " + updatedGeneId);
+					gene_ids.set(j, code + ":" + updatedGeneId);
+				}
+				modiPantherData.setGene_ids(gene_ids);
+				pgServer.atomicUpdateSolr(pantherId, "gene_ids", modiPantherData.getGene_ids());
+			}
+			Annotation rootNodeAnnotation = modiPantherData.getSearch().getAnnotation_node();
+			rootNodeAnnotation = updatePantherTree(rootNodeAnnotation, mapping);
+			modiPantherData.getSearch().setAnnotation_node(rootNodeAnnotation);
+			ObjectMapper mapper = new ObjectMapper();
+			String newJsonStr = mapper.writeValueAsString(modiPantherData);
+			String filename = pantherId + ".json";
+			pgServer.uploadJsonToPGTreeBucket(filename, newJsonStr);
+			System.out.println("Saved S3: " + pantherId);
+			pantherLocal.saveSolrIndexedTreeAsFile(pantherId, newJsonStr);
+		} else {
+			System.out.println("No panther file found for " + pantherId);
+		}
+	}
+
+	private void analyzePantherFamilies() throws Exception {
+		List<String> pantherTree_ids = pantherLocal.getAllLocalPrunedTreeIds();
+		System.out.println("pantherTree_ids Size " + pantherTree_ids.size());
+		// List<String> pantherFamilyList_ids = pantherLocal.getAllLocalFamilyListIds();
+		// System.out.println("pantherFamilyList_ids Size " +
+		// pantherFamilyList_ids.size());
+	}
+
+	// Update gene names for tair ids (locus=2043813 => AT3G45780).
 	public void updateLocusGeneNames() throws Exception {
 		HashMap<String, String> mapping = pantherLocal.read_locus2tair_mapping_csv();
 		int si = 1;
@@ -391,36 +443,43 @@ public class PantherETLPipeline {
 			List<FamilyNode> pantherFamilyList = pantherLocal.getLocalPantherFamilyList(si);
 			for (int i = 0; i < pantherFamilyList.size(); i++) {
 				String id = pantherFamilyList.get(i).getFamily_id();
+				// if (id == "PTHR20835") {
+				// System.out.println("Found family name");
+				// }
 				PantherData origPantherData = pantherLocal.readPantherTreeById(id);
 				if (origPantherData != null) {
 					String familyName = pantherFamilyList.get(i).getFamily_name();
+					// System.out.println(familyName);
 					PantherData modiPantherData = new PantherBookXmlToJson().convertJsonToSolrDocument(
 							origPantherData,
 							familyName);
 					List<String> gene_ids = modiPantherData.getGene_ids();
+					boolean needsUpdate = false;
 					for (int j = 0; j < gene_ids.size(); j++) {
 						String code = gene_ids.get(j).split(":")[0];
 						if (code.equals("TAIR")) {
 							String val = gene_ids.get(j).split(":")[1];
 							val = val.split("=")[1];
 							String updatedGeneId = mapping.get(val);
-							System.out.println(val + " _ " + updatedGeneId);
 							gene_ids.set(j, code + ":" + updatedGeneId);
+							needsUpdate = true;
 						}
 					}
-					modiPantherData.setGene_ids(gene_ids);
-					pgServer.atomicUpdateSolr(id, "gene_ids", modiPantherData.getGene_ids());
-					// Update s3 tree
-					Annotation rootNodeAnnotation = modiPantherData.getSearch().getAnnotation_node();
-					rootNodeAnnotation = updatePantherTree(rootNodeAnnotation, mapping);
-					modiPantherData.getSearch().setAnnotation_node(rootNodeAnnotation);
-					ObjectMapper mapper = new ObjectMapper();
-					String newJsonStr = mapper.writeValueAsString(modiPantherData);
-					String filename = id + ".json";
-					pgServer.uploadJsonToPGTreeBucket(filename, newJsonStr);
-					// pantherLocal.saveSolrIndexedTreeAsFile(id, newJsonStr);
+					if (needsUpdate) {
+						System.out.println("needsUpdate " + needsUpdate + " ID: " + id);
+						modiPantherData.setGene_ids(gene_ids);
+						pgServer.atomicUpdateSolr(id, "gene_ids", modiPantherData.getGene_ids());
+						// Update s3 tree
+						Annotation rootNodeAnnotation = modiPantherData.getSearch().getAnnotation_node();
+						rootNodeAnnotation = updatePantherTree(rootNodeAnnotation, mapping);
+						modiPantherData.getSearch().setAnnotation_node(rootNodeAnnotation);
+						ObjectMapper mapper = new ObjectMapper();
+						String newJsonStr = mapper.writeValueAsString(modiPantherData);
+						String filename = id + ".json";
+						pgServer.uploadJsonToPGTreeBucket(filename, newJsonStr);
+						pantherLocal.saveSolrIndexedTreeAsFile(id, newJsonStr);
+					}
 				}
-				i++;
 				if (i % 100 == 0) {
 					System.out.println("processed " + i);
 				}
@@ -546,16 +605,10 @@ public class PantherETLPipeline {
 			if (entry.getKey().isEmpty())
 				continue;
 			i++;
-			if (i < 6922)
-				continue;
-			// if(!entry.getKey().equals("AT2G47760")) continue;
-			// if(!entry.getKey().equals("AT4G27840")) continue;
-
-			// System.out.println(i);
-			// if (i++ > 0) break;
 			String uniprot_id = entry.getValue();
 			try {
-				String paralog_json = pantherServer.callParalog_uniprot(uniprot_id, uniprot2tairid);
+				String paralog_json = pantherServer.callParalog_uniprot(uniprot_id,
+						uniprot2tairid);
 				if (paralog_json == null) {
 					System.out.println("Not saved " + entry.getKey());
 				} else {
@@ -568,6 +621,7 @@ public class PantherETLPipeline {
 				// System.out.println(e);
 			}
 		}
+		System.out.println("total csv " + i);
 	}
 
 	// save orthologs
@@ -582,16 +636,17 @@ public class PantherETLPipeline {
 				continue;
 			// if (i++ > 0) break;
 			i++;
-			if (i < 13590)
-				continue;
+			// if (i < 13590)
+			// continue;
 			String uniprot_id = entry.getValue();
 			try {
+				System.out.println("Uniprot: " + uniprot_id);
 				String ortho_json = pantherServer.callOrtholog_uniprot(uniprot_id, uniprot2tairid);
 				String filename = entry.getKey() + ".json";
 				pgServer.uploadJsonToPGOrthologsBucket(filename, ortho_json);
 				System.out.println("Saved " + filename + " -> " + Integer.toString(i));
 			} catch (Exception e) {
-				System.out.println(e.getMessage());
+				System.out.println("Error: " + e.getMessage());
 			}
 		}
 	}
@@ -602,10 +657,14 @@ public class PantherETLPipeline {
 		PantherETLPipeline etl = new PantherETLPipeline();
 
 		// etl.storePantherFilesLocally();
-		etl.uploadToServer();
+		// etl.uploadToServer();
+
+		// etl.updatePublicationsCount();
 
 		// TASK: PHG-337: https://jira.phoenixbioinformatics.org/browse/PHG-327
 		// etl.updateLocusGeneNames();
+		// etl.updateLocusGeneNameById("PTHR20835");
+		// etl.analyzePantherFamilies();
 
 		// TASK: PHG-330: https://jira.phoenixbioinformatics.org/browse/PHG-330
 		// etl.generatePhyloXML();
@@ -617,7 +676,7 @@ public class PantherETLPipeline {
 		// etl.generate_analyze_dump();
 
 		// etl.saveParalogS3_tairids();
-		// etl.saveOrthologS3_tairids();
+		etl.saveOrthologS3_tairids();
 
 		long endTime = System.nanoTime();
 		long timeElapsed = endTime - startTime;

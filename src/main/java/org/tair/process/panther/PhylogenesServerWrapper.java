@@ -45,12 +45,12 @@ public class PhylogenesServerWrapper {
 	String PG_TREE_BUCKET_NAME = "phg-panther-data-17";
 	String PG_MSA_BUCKET_NAME = "phg-panther-msa-data-17";
 	String PG_CSV_BUCKET_NAME = "";
-	String PG_PARALOG_BUCKET_NAME = "phg-paralogs";
-	String PG_ORTHO_BUCKET_NAME = "phg-orthologs";
+	String PG_PARALOG_BUCKET_NAME = "phg-paralogs-17";
+	String PG_ORTHO_BUCKET_NAME = "phg-orthologs-17";
 
-	// private String URL_SOLR = "http://localhost:8983/solr/panther";
+	private String URL_SOLR = "http://localhost:8983/solr/panther";
 	// private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
-	String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
+	// String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 
 	SolrClient mysolr = null;
 	AmazonS3 s3_server = null;
@@ -61,6 +61,7 @@ public class PhylogenesServerWrapper {
 
 	public PhylogenesServerWrapper() {
 		loadProps();
+		System.out.println("URL_SOLR: " + URL_SOLR);
 		mysolr = new HttpSolrClient.Builder(URL_SOLR).build();
 		committedCount = 0;
 
@@ -107,6 +108,9 @@ public class PhylogenesServerWrapper {
 			}
 			if (prop.containsKey("PG_CSV_BUCKET_NAME")) {
 				PG_CSV_BUCKET_NAME = prop.getProperty("PG_CSV_BUCKET_NAME");
+			}
+			if (prop.containsKey("URL_SOLR")) {
+				URL_SOLR = prop.getProperty("URL_SOLR");
 			}
 		} catch (Exception e) {
 			System.out.println("PhylogenesServerWrapper: Prop file not found!");
@@ -220,7 +224,7 @@ public class PhylogenesServerWrapper {
 			List<String> publicationCountList = new ArrayList<String>();
 			for (int j = 0; j < uniprot_ids.length; j++) {
 				String uniprot_id = uniprot_ids[j].toString();
-				// System.out.println("uni " + uniprot_id);
+				System.out.println("uni " + uniprot_id);
 				Uniprot2PubMapping uni2pub = new Uniprot2PubMapping();
 				List<String> pubs = psw.getPublicationsByUniprotId(uniprot_id);
 				uni2pub.setPub_count(pubs.size());
@@ -902,7 +906,7 @@ public class PhylogenesServerWrapper {
 
 	public void uploadJsonToPGTreeBucket(String filename, String jsonStr) {
 		try {
-			// System.out.println("PG_TREE_BUCKET_NAME " + PG_TREE_BUCKET_NAME);
+			System.out.println("PG_TREE_BUCKET_NAME " + PG_TREE_BUCKET_NAME);
 			uploadJsonToS3(PG_TREE_BUCKET_NAME, filename, jsonStr);
 		} catch (Exception e) {
 			System.out.println("Failed to save to S3 " + e);

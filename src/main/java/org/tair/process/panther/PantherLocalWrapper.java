@@ -144,11 +144,6 @@ public class PantherLocalWrapper {
         }
     }
 
-    private void process_tairId2uniprot_mapping() {
-        tairId2uniprotId_mapping = new HashMap<String, String>();
-
-    }
-
     public String getLocalFamiliListPath() {
         return PATH_FAMILY_LIST;
     }
@@ -199,6 +194,12 @@ public class PantherLocalWrapper {
 
     public boolean doesPantherTreeExist(String familyId) {
         String filePath = PATH_LOCAL_PRUNED_TREES + familyId + ".json";
+        File tempFile = new File(filePath);
+        return tempFile.exists();
+    }
+
+    public boolean isPantherTreeDeleted(String familyId) {
+        String filePath = PATH_LOCAL_PRUNED_TREES + "Deleted/" + familyId + ".json";
         File tempFile = new File(filePath);
         return tempFile.exists();
     }
@@ -254,6 +255,7 @@ public class PantherLocalWrapper {
     public void saveSolrIndexedTreeAsFile(String familyId, String solrTree) throws Exception {
         String fileName = familyId + ".json";
         String json_filepath = PATH_LOCAL_SOLRTREE_JSON + "/" + fileName;
+        // System.out.println("json_filepath " + json_filepath);
         try {
             Util.saveJsonStringAsFile(solrTree, json_filepath);
         } catch (IOException e) {
@@ -483,11 +485,56 @@ public class PantherLocalWrapper {
             while ((record = reader.readNext()) != null) {
                 tairid2uniprots_mapping.put(record[0], record[1]);
             }
+            System.out.println(csv_path);
             return tairid2uniprots_mapping;
         } catch (Exception e) {
             System.out.println(e);
             return null;
         }
+    }
+
+    public List<String> getAllLocalPrunedTreeIds() {
+        File folder = new File(PATH_LOCAL_PRUNED_TREES);
+        File[] listOfFiles = folder.listFiles();
+        List<String> panther_ids = new ArrayList<>();
+        for (File file : listOfFiles) {
+            if (file.isFile()) {
+                // System.out.println(file.getName());
+                if (file.getName().contains(".json")) {
+                    // System.out.println(file.getName().split(".json")[0]);
+                    String id = file.getName().split(".json")[0];
+                    // System.out.println(id);s
+                    if (id.equals("PTHR45637")) {
+                        System.out.println("Found " + id);
+                    }
+                    panther_ids.add(id);
+                }
+            }
+        }
+        return panther_ids;
+    }
+
+    public List<String> getAllLocalFamilyListIds() throws Exception {
+        int si = 1;
+        List<String> panther_ids = new ArrayList<>();
+        while (si < 16001) {
+            List<FamilyNode> pantherFamilyList = getLocalPantherFamilyList(si);
+            for (int i = 0; i < pantherFamilyList.size(); i++) {
+                String id = pantherFamilyList.get(i).getFamily_id();
+                if (!doesPantherTreeExist(id)) {
+                    //
+                    if (isPantherTreeDeleted(id)) {
+                        // System.out.println("Deleted ID: " + id);
+                    } else {
+                        System.out.println("Not Found: " + id);
+                    }
+                } else {
+                    panther_ids.add(id);
+                }
+            }
+            si = si + 1000;
+        }
+        return panther_ids;
     }
 
     public static void main(String args[]) throws Exception {
