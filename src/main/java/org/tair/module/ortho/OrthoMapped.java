@@ -14,4 +14,7 @@ public class OrthoMapped {
     private String organism;
     private String target_gene_id;
     private String id;
+    private String full_name;
+    private String common_name;
+    private String group_name;
 }
