@@ -499,8 +499,8 @@ public class PantherETLPipeline {
 	}
 
 	public void generateCsvs() throws Exception {
-		pgServer.generateGenodoCsvAll();
-		// pgServer.uploadAllPantherCSVtoS3();
+		// pgServer.generateGenodoCsvAll();
+		pgServer.uploadAllPantherCSVtoS3();
 	}
 
 	// Generate csv files which analyzes panther etl dumps
@@ -741,7 +741,7 @@ public class PantherETLPipeline {
 		// etl.storePantherFilesLocally();
 		// etl.uploadToServer();
 
-		// etl.updatePublicationsCount();
+		etl.updatePublicationsCount();
 
 		// TASK: PHG-337: https://jira.phoenixbioinformatics.org/browse/PHG-327
 		// etl.updateLocusGeneNames();
@@ -752,7 +752,7 @@ public class PantherETLPipeline {
 		// etl.generatePhyloXML();
 
 		// TASK: PHHG-331: https://jira.phoenixbioinformatics.org/browse/PHG-308
-		etl.generateCsvs();
+		// etl.generateCsvs();
 
 		// TASK: PHG-326: https://jira.phoenixbioinformatics.org/browse/PHG-326
 		// etl.generate_analyze_dump();
