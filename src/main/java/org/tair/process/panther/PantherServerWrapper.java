@@ -129,7 +129,7 @@ public class PantherServerWrapper {
                 + "&organism=3702&targetOrganism=" +
                 taxonFiltersParam
                 + "&orthologType=all";
-        // System.out.println(url);
+        System.out.println(url);
         String jsonString = Util.readJsonFromUrl(url);
         // System.out.println(jsonString);
         OrthoMapping orthoResult = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
@@ -154,10 +154,10 @@ public class PantherServerWrapper {
             mapped.setTarget_gene_id(gene_id);
             List<String> organism_names = organisms_mapping.get(organism);
             if (organism_names == null) {
-                System.out.println("No Mapping found for " + organism);
-                mapped.setFull_name("Amborella trichopoda");
-                mapped.setCommon_name("sss");
-                mapped.setGroup_name("other plants");
+                // System.out.println("No Mapping found for " + organism);
+                mapped.setFull_name("Unknown");
+                mapped.setCommon_name("");
+                mapped.setGroup_name("Unknown");
             } else {
                 String full_name = organism_names.get(0);
                 String common_name = organism_names.get(1);
