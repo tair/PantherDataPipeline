@@ -81,7 +81,8 @@ public class PantherETLPipeline {
 	}
 
 	public void updatePublicationsCount() throws Exception {
-		pgServer.updateAllSolrTreePubCounts();
+		// pgServer.updateAllSolrTreePubCounts();
+		pgServer.Temp_updateAllSolrTreePubCounts();
 	}
 
 	public void updateSolr_selected() throws Exception {
@@ -499,8 +500,8 @@ public class PantherETLPipeline {
 	}
 
 	public void generateCsvs() throws Exception {
-		// pgServer.generateGenodoCsvAll();
-		pgServer.uploadAllPantherCSVtoS3();
+		pgServer.generateGenodoCsvAll();
+		// pgServer.uploadAllPantherCSVtoS3();
 	}
 
 	// Generate csv files which analyzes panther etl dumps
@@ -616,7 +617,7 @@ public class PantherETLPipeline {
 			}
 		}
 		HashMap<String, String> agi2symbol = pantherLocal.load_agi2symbol_json();
-		System.out.println(mapping_revised.size());
+		System.out.println(mapping_revised.size()); // 22412
 		FileWriter nullCountFile = new FileWriter("panther_resources/nullCount_" + System.currentTimeMillis() + ".csv");
 		CSVWriter paralogNullWriter = new CSVWriter(nullCountFile);
 		String[] header = { "AGI ID", "AGI Nulls", "Primary Symbol Nulls", "Total Number",
@@ -663,7 +664,7 @@ public class PantherETLPipeline {
 				} else {
 					String txtFileName = entry.getKey() + "_paralog.txt";
 					pgServer.uploadTxtToPGParalogsBucket(txtFileName, paralog_txt);
-					System.out.println("Saved " + txtFileName + "-> " + Integer.toString(i));
+					System.out.println(i + "Saved " + txtFileName + "-> " + Integer.toString(i));
 				}
 
 				String agiNullCount = paraResList.get(2);
@@ -710,21 +711,28 @@ public class PantherETLPipeline {
 			if (entry.getKey().isEmpty())
 				continue;
 			i++;
-			// // if(i < 22551) continue;
+			// i = 15937
+			// if (i < 15937)
+			// 	continue;
 			String uniprot_id = entry.getValue();
-			System.out.println("uniprot_id: " + uniprot_id);
+			// System.out.println("uniprot_id: " + uniprot_id);
 			try {
-				List<String> orthoResList = pantherServer.callOrtholog_uniprot(uniprot_id, uniprot2tairid,
+				if (entry.getKey().equals("AT3G26570")) {
+						System.out.println(entry.getKey());
+						List<String> orthoResList = pantherServer.callOrtholog_uniprot(uniprot_id, uniprot2tairid,
 						organisms_mapping);
-				// System.out.println(orthoResList.toString());
-				String ortho_json = orthoResList.get(0);
-				String jsonFileName = entry.getKey() + ".json";
-				pgServer.uploadJsonToPGOrthologsBucket(jsonFileName, ortho_json);
-				System.out.println("Saved " + jsonFileName + " -> " + Integer.toString(i));
-				String ortho_txt = orthoResList.get(1);
-				String txtFileName = entry.getKey() + "_ortholog.txt";
-				pgServer.uploadTxtToPGOrthologsBucket(txtFileName, ortho_txt);
-				System.out.println("Saved " + txtFileName + " -> " + Integer.toString(i));
+						System.out.println(orthoResList.toString());
+				}
+			
+			// 	String ortho_json = orthoResList.get(0);
+			// 	String jsonFileName = entry.getKey() + ".json";
+			// 	pgServer.uploadJsonToPGOrthologsBucket(jsonFileName, ortho_json);
+			// 	System.out.println("Saved " + jsonFileName + " -> " + Integer.toString(i));
+			// 	String ortho_txt = orthoResList.get(1);
+			// 	String txtFileName = entry.getKey() + "_ortholog.txt";
+			// 	pgServer.uploadTxtToPGOrthologsBucket(txtFileName, ortho_txt);
+			// 	System.out.println(
+			// 			i + "/" + mapping_revised.size() + ": Saved " + txtFileName + " -> " + Integer.toString(i));
 			} catch (Exception e) {
 				System.out.println("Not saved " + entry.getKey());
 				System.out.println(e);
@@ -741,7 +749,7 @@ public class PantherETLPipeline {
 		// etl.storePantherFilesLocally();
 		// etl.uploadToServer();
 
-		etl.updatePublicationsCount();
+		// etl.updatePublicationsCount();
 
 		// TASK: PHG-337: https://jira.phoenixbioinformatics.org/browse/PHG-327
 		// etl.updateLocusGeneNames();
@@ -752,7 +760,7 @@ public class PantherETLPipeline {
 		// etl.generatePhyloXML();
 
 		// TASK: PHHG-331: https://jira.phoenixbioinformatics.org/browse/PHG-308
-		// etl.generateCsvs();
+		etl.generateCsvs();
 
 		// TASK: PHG-326: https://jira.phoenixbioinformatics.org/browse/PHG-326
 		// etl.generate_analyze_dump();

@@ -9,7 +9,7 @@ import java.util.List;
 public class PublicationsServerWrapper {
     String publications_url = "";
 
-    PublicationsServerWrapper(String url) {
+    public PublicationsServerWrapper(String url) {
         publications_url = url;
     }
 

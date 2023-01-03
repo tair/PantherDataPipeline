@@ -44,7 +44,7 @@ public class PantherLocalWrapper {
     private String PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
     // log family that has invalid msa data
     private String PATH_INVALID_MSA_LIST = RESOURCES_BASE + "/invalidMsaFamilyList.csv";
-    private String PATH_NAME_AGI_SYMBOL_MAPPING = RESOURCES_DIR + "/tair/symbols.json";
+    private String PATH_NAME_AGI_SYMBOL_MAPPING = "/symbols.json";
 
     ObjectMapper mapper;
     File csvFile_noplants;
@@ -527,8 +527,8 @@ public class PantherLocalWrapper {
         String[] record = null;
         try {
             CSVReader reader = new CSVReader(new FileReader(csv_path), ',');
-            // System.out.println(reader.readNext());
             while ((record = reader.readNext()) != null) {
+                // System.out.println(record[3]);
                 organisms_mapping.put(record[3], Arrays.asList(record[0], record[2], record[6]));
             }
             // Logs
@@ -546,7 +546,7 @@ public class PantherLocalWrapper {
     }
 
     public HashMap<String, String> load_agi2symbol_json() {
-        String agi2symbol_path = PATH_NAME_AGI_SYMBOL_MAPPING;
+        String agi2symbol_path = RESOURCES_BASE + PATH_NAME_AGI_SYMBOL_MAPPING;
         System.out.println(agi2symbol_path);
         HashMap<String, String> agi2symbol_mapping = new HashMap<String, String>();
         String[] record = null;
