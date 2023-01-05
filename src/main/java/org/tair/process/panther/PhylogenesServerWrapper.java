@@ -1012,6 +1012,7 @@ public class PhylogenesServerWrapper {
 
 	public void uploadJsonToPGParalogsBucket(String filename, String jsonStr) {
 		try {
+			// System.out.println("uploadJsonToPGParalogsBucket " + PG_PARALOG_BUCKET_NAME + " - " + filename);
 			uploadJsonToS3(PG_PARALOG_BUCKET_NAME, filename, jsonStr);
 		} catch (Exception e) {
 			System.out.println("Failed to save to S3 " + e);

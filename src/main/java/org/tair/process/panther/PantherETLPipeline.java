@@ -12,6 +12,7 @@ import org.tair.process.PantherBookXmlToJson;
 import org.tair.process.uniprotdb_iba.GO_IBA_Pipeline;
 import org.tair.process.uniprotdb_paint.GO_PAINT_Pipeline;
 import org.tair.process.pantherToPhyloXmlPipeline;
+import org.tair.util.Util;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -598,6 +599,7 @@ public class PantherETLPipeline {
 	}
 
 	// save paralogs to 2 s3 buckets for json data and user download txt file
+	// local files needed: tairid2uniprots.csv and symbols.json in local resources folder
 	// total time: < 15h
 	public void saveParalogS3_tairids() throws IOException {
 		HashMap<String, String> mapping = pantherLocal.load_tairid2uniprots_csv();
@@ -626,24 +628,26 @@ public class PantherETLPipeline {
 		paralogNullWriter.flush();
 		int i = 0;
 		for (Map.Entry<String, String> entry : mapping_revised.entrySet()) {
+			// if (!entry.getKey().equals("AT1G01010")) {
+			// 	continue;
+			// }
 			// System.out.println(entry.getKey());
 			if (entry.getKey().isEmpty())
 				continue;
 			i++;
-			// if (i < 14667) continue;
-			// if(!entry.getKey().equals("AT1G01010")) continue;
+		// 	// if (i < 14667) continue;
 
-			// String[] sampleAGIAray = new String[]{"AT1G01010", "AT1G53790",
-			// "AT3G26570","AT1G01130","AT1G01270"};
-			// List<String> sampleAGIs = new ArrayList<>(Arrays.asList(sampleAGIAray));
-			// if (!sampleAGIs.contains(entry.getKey())) continue;
-			// String[] errorAGIAray = new String[]{"AT5G39690", "AT5G39540", "AT3G56560",
-			// "AT3G56530", "AT3G55210", "AT1G32337"};
-			// List<String> errorAGIs = new ArrayList<>(Arrays.asList(errorAGIAray));
-			// if (!errorAGIs.contains(entry.getKey())) continue;
+		// 	// String[] sampleAGIAray = new String[]{"AT1G01010", "AT1G53790",
+		// 	// "AT3G26570","AT1G01130","AT1G01270"};
+		// 	// List<String> sampleAGIs = new ArrayList<>(Arrays.asList(sampleAGIAray));
+		// 	// if (!sampleAGIs.contains(entry.getKey())) continue;
+		// 	// String[] errorAGIAray = new String[]{"AT5G39690", "AT5G39540", "AT3G56560",
+		// 	// "AT3G56530", "AT3G55210", "AT1G32337"};
+		// 	// List<String> errorAGIs = new ArrayList<>(Arrays.asList(errorAGIAray));
+		// 	// if (!errorAGIs.contains(entry.getKey())) continue;
 
-			// System.out.println(i);
-			// if (i++ > 0) break;
+		// 	// System.out.println(i);
+		// 	// if (i++ > 0) break;
 			String uniprot_id = entry.getValue();
 			try {
 				List<String> paraResList = pantherServer.callParalog_uniprot(uniprot_id, uniprot2tairid, agi2symbol);
@@ -655,6 +659,13 @@ public class PantherETLPipeline {
 				} else {
 					String jsonFileName = entry.getKey() + ".json";
 					pgServer.uploadJsonToPGParalogsBucket(jsonFileName, paralog_json);
+					//Debug: Save locally
+					// try {
+					// 	String json_filepath = "panther_resources/" + jsonFileName;
+					// 	Util.saveJsonStringAsFile(paralog_json, json_filepath);
+					// } catch (IOException e) {
+						
+					// }
 					System.out.println("Saved " + jsonFileName + "-> " + Integer.toString(i));
 				}
 				String paralog_txt = paraResList.get(1);
@@ -667,16 +678,16 @@ public class PantherETLPipeline {
 					System.out.println(i + "Saved " + txtFileName + "-> " + Integer.toString(i));
 				}
 
-				String agiNullCount = paraResList.get(2);
-				String primarySymbolNullCount = paraResList.get(3);
-				String totalCount = paraResList.get(4);
-				String agiNullUniprotIdsStr = paraResList.get(5);
-				String agiId = entry.getKey();
+		// 		String agiNullCount = paraResList.get(2);
+		// 		String primarySymbolNullCount = paraResList.get(3);
+		// 		String totalCount = paraResList.get(4);
+		// 		String agiNullUniprotIdsStr = paraResList.get(5);
+		// 		String agiId = entry.getKey();
 
-				String[] nullCountLine = { agiId, agiNullCount, primarySymbolNullCount, totalCount,
-						agiNullUniprotIdsStr };
-				paralogNullWriter.writeNext(nullCountLine);
-				paralogNullWriter.flush();
+		// 		String[] nullCountLine = { agiId, agiNullCount, primarySymbolNullCount, totalCount,
+		// 				agiNullUniprotIdsStr };
+		// 		paralogNullWriter.writeNext(nullCountLine);
+		// 		paralogNullWriter.flush();
 			} catch (Exception e) {
 				System.out.println("Not saved " + entry.getKey());
 				// System.out.println(e);
@@ -760,12 +771,12 @@ public class PantherETLPipeline {
 		// etl.generatePhyloXML();
 
 		// TASK: PHHG-331: https://jira.phoenixbioinformatics.org/browse/PHG-308
-		etl.generateCsvs();
+		// etl.generateCsvs();
 
 		// TASK: PHG-326: https://jira.phoenixbioinformatics.org/browse/PHG-326
 		// etl.generate_analyze_dump();
 
-		// etl.saveParalogS3_tairids();
+		etl.saveParalogS3_tairids();
 		// etl.saveOrthologS3_tairids();
 
 		long endTime = System.nanoTime();

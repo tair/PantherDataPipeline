@@ -253,8 +253,7 @@ public class PantherServerWrapper {
                     para_obj.setPrimary_symbol(primarySymbol);
                 } else {
                     agiNullUniprotIds.add(uniprot_id);
-                    para_obj.setTarget_agi(null);
-                    para_obj.setPrimary_symbol(null);
+                    toDelete.add(para_obj); //If target agi is null, don't append to json file
                 }
                 // System.out.println(uniprot_id + "->" + agi_id);
                 // System.out.println(agi_id + " " + primarySymbol);
@@ -265,8 +264,10 @@ public class PantherServerWrapper {
             StringBuilder paraTxtSb = new StringBuilder(String.join("\t", "AGI ID", "Locus primary symbol\n"));
             for (int i = 0; i < paralogs.size(); i++) {
                 Mapped para_obj = paralogs.get(i);
+                // System.out.println(para_obj.getTarget_agi() + " " + para_obj.getPrimary_symbol());
                 if (para_obj.getTarget_agi() == null) {
                     agiNullCount += 1;
+                    continue; //If target agi is null, don't append to json file
                 } else {
                     String upperTarget_agi = para_obj.getTarget_agi().toUpperCase(Locale.ROOT);
                     para_obj.setTarget_agi(upperTarget_agi);
@@ -274,8 +275,8 @@ public class PantherServerWrapper {
                 if (para_obj.getPrimary_symbol() == null) {
                     primarySymbolNullCount += 1;
                 }
+                // System.out.println(para_obj.getTarget_agi() + " " + para_obj.getPrimary_symbol());
                 paraTxtSb.append(String.join("\t", para_obj.getTarget_agi(), para_obj.getPrimary_symbol() + "\n"));
-
             }
 
             ObjectMapper mapper = new ObjectMapper();
