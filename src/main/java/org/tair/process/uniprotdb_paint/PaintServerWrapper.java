@@ -84,20 +84,22 @@ public class PaintServerWrapper {
 
     // Added on 08/13/2021
     // Total records in paint 18011627, not added: 4457000+13125202
-    // Total records added to solr
     // Total Docs in solr: 856466
 
     // Added on 03/15/2021
 
     // Added on 03/16/2021
     // Last processed: 14176000, added 560070
+
+    // Added on 10/31/2022
+    // Completed: 18837000, added 695925, not - 17185076
     void savePaintAnnotationsToSolr(String csv_path, String go_basic_path, SolrClient solrClient,
             String solr_collection) throws Exception {
         GoBasic go_basic = Util.loadJsonFromFile(go_basic_path);
 
         String[] evidence_codes = new String[] { "EXP", "IDA", "IEP", "IGI", "IMP", "IPI" };
 
-        int last_processed = 16599000;
+        int last_processed = 956000;
         try (BufferedReader br = new BufferedReader(new FileReader(csv_path))) {
             String line;
             int count = 0;

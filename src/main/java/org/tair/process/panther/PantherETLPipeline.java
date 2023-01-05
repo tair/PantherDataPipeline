@@ -2,6 +2,8 @@ package org.tair.process.panther;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.opencsv.CSVWriter;
+import javafx.util.Pair;
 import org.json.JSONObject;
 
 import org.tair.module.*;
@@ -10,7 +12,11 @@ import org.tair.process.PantherBookXmlToJson;
 import org.tair.process.uniprotdb_iba.GO_IBA_Pipeline;
 import org.tair.process.uniprotdb_paint.GO_PAINT_Pipeline;
 import org.tair.process.pantherToPhyloXmlPipeline;
+import org.tair.util.Util;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,7 +50,7 @@ public class PantherETLPipeline {
 		 */
 		// indexSolrDB(false);
 
-		saveLocalMsaToS3();
+		// saveLocalMsaToS3();
 
 		/**
 		 * 7. update "uniprotdb" and "paint_db" on solr with the mapping of uniprot Ids
@@ -63,7 +69,7 @@ public class PantherETLPipeline {
 		/**
 		 * 9. Update Publication Counts on Solr: PHG-329
 		 */
-		// pgServer.updateAllSolrTreePubCounts();
+		pgServer.updateAllSolrTreePubCounts();
 
 		/**
 		 * 10. Set uniprotIds and GoAnnotations Count on solr for each tree
@@ -73,6 +79,11 @@ public class PantherETLPipeline {
 
 		// 10. Analyze panther trees
 		// pgServer.analyzePantherTrees();
+	}
+
+	public void updatePublicationsCount() throws Exception {
+		// pgServer.updateAllSolrTreePubCounts();
+		pgServer.Temp_updateAllSolrTreePubCounts();
 	}
 
 	public void updateSolr_selected() throws Exception {
@@ -372,9 +383,12 @@ public class PantherETLPipeline {
 					String code = childNode.getGene_id().split(":")[0];
 					if (code.equals("TAIR")) {
 						String val = childNode.getGene_id().split(":")[1];
-						val = val.split("=")[1];
-						String updatedGeneId = mapping.get(val);
-						childNode.setGene_id(code + ":" + updatedGeneId);
+						if (val.split("=").length > 1) {
+							val = val.split("=")[1];
+							String updatedGeneId = mapping.get(val);
+							childNode.setGene_id(code + ":" + updatedGeneId);
+							// System.out.println(childNode.getGene_id());
+						}
 					}
 				}
 				updatePantherTree(childNode, mapping);
@@ -383,7 +397,51 @@ public class PantherETLPipeline {
 		return node;
 	}
 
-	// Update gene names for tair ids.
+	private void updateLocusGeneNameById(String pantherId) throws Exception {
+		HashMap<String, String> mapping = pantherLocal.read_locus2tair_mapping_csv();
+		PantherData origPantherData = pantherLocal.readPantherTreeById(pantherId);
+		if (origPantherData != null) {
+			String familyName = "TEST";
+			PantherData modiPantherData = new PantherBookXmlToJson().convertJsonToSolrDocument(
+					origPantherData,
+					familyName);
+			List<String> gene_ids = modiPantherData.getGene_ids();
+			System.out.println("gene_ids " + gene_ids.size());
+			for (int j = 0; j < gene_ids.size(); j++) {
+				String code = gene_ids.get(j).split(":")[0];
+				if (code.equals("TAIR")) {
+					String val = gene_ids.get(j).split(":")[1];
+					val = val.split("=")[1];
+					String updatedGeneId = mapping.get(val);
+					System.out.println(val + " _ " + updatedGeneId);
+					gene_ids.set(j, code + ":" + updatedGeneId);
+				}
+				modiPantherData.setGene_ids(gene_ids);
+				pgServer.atomicUpdateSolr(pantherId, "gene_ids", modiPantherData.getGene_ids());
+			}
+			Annotation rootNodeAnnotation = modiPantherData.getSearch().getAnnotation_node();
+			rootNodeAnnotation = updatePantherTree(rootNodeAnnotation, mapping);
+			modiPantherData.getSearch().setAnnotation_node(rootNodeAnnotation);
+			ObjectMapper mapper = new ObjectMapper();
+			String newJsonStr = mapper.writeValueAsString(modiPantherData);
+			String filename = pantherId + ".json";
+			pgServer.uploadJsonToPGTreeBucket(filename, newJsonStr);
+			System.out.println("Saved S3: " + pantherId);
+			pantherLocal.saveSolrIndexedTreeAsFile(pantherId, newJsonStr);
+		} else {
+			System.out.println("No panther file found for " + pantherId);
+		}
+	}
+
+	private void analyzePantherFamilies() throws Exception {
+		List<String> pantherTree_ids = pantherLocal.getAllLocalPrunedTreeIds();
+		System.out.println("pantherTree_ids Size " + pantherTree_ids.size());
+		// List<String> pantherFamilyList_ids = pantherLocal.getAllLocalFamilyListIds();
+		// System.out.println("pantherFamilyList_ids Size " +
+		// pantherFamilyList_ids.size());
+	}
+
+	// Update gene names for tair ids (locus=2043813 => AT3G45780).
 	public void updateLocusGeneNames() throws Exception {
 		HashMap<String, String> mapping = pantherLocal.read_locus2tair_mapping_csv();
 		int si = 1;
@@ -391,36 +449,43 @@ public class PantherETLPipeline {
 			List<FamilyNode> pantherFamilyList = pantherLocal.getLocalPantherFamilyList(si);
 			for (int i = 0; i < pantherFamilyList.size(); i++) {
 				String id = pantherFamilyList.get(i).getFamily_id();
+				// if (id == "PTHR20835") {
+				// System.out.println("Found family name");
+				// }
 				PantherData origPantherData = pantherLocal.readPantherTreeById(id);
 				if (origPantherData != null) {
 					String familyName = pantherFamilyList.get(i).getFamily_name();
+					// System.out.println(familyName);
 					PantherData modiPantherData = new PantherBookXmlToJson().convertJsonToSolrDocument(
 							origPantherData,
 							familyName);
 					List<String> gene_ids = modiPantherData.getGene_ids();
+					boolean needsUpdate = false;
 					for (int j = 0; j < gene_ids.size(); j++) {
 						String code = gene_ids.get(j).split(":")[0];
 						if (code.equals("TAIR")) {
 							String val = gene_ids.get(j).split(":")[1];
 							val = val.split("=")[1];
 							String updatedGeneId = mapping.get(val);
-							System.out.println(val + " _ " + updatedGeneId);
 							gene_ids.set(j, code + ":" + updatedGeneId);
+							needsUpdate = true;
 						}
 					}
-					modiPantherData.setGene_ids(gene_ids);
-					pgServer.atomicUpdateSolr(id, "gene_ids", modiPantherData.getGene_ids());
-					// Update s3 tree
-					Annotation rootNodeAnnotation = modiPantherData.getSearch().getAnnotation_node();
-					rootNodeAnnotation = updatePantherTree(rootNodeAnnotation, mapping);
-					modiPantherData.getSearch().setAnnotation_node(rootNodeAnnotation);
-					ObjectMapper mapper = new ObjectMapper();
-					String newJsonStr = mapper.writeValueAsString(modiPantherData);
-					String filename = id + ".json";
-					pgServer.uploadJsonToPGTreeBucket(filename, newJsonStr);
-					// pantherLocal.saveSolrIndexedTreeAsFile(id, newJsonStr);
+					if (needsUpdate) {
+						System.out.println("needsUpdate " + needsUpdate + " ID: " + id);
+						modiPantherData.setGene_ids(gene_ids);
+						pgServer.atomicUpdateSolr(id, "gene_ids", modiPantherData.getGene_ids());
+						// Update s3 tree
+						Annotation rootNodeAnnotation = modiPantherData.getSearch().getAnnotation_node();
+						rootNodeAnnotation = updatePantherTree(rootNodeAnnotation, mapping);
+						modiPantherData.getSearch().setAnnotation_node(rootNodeAnnotation);
+						ObjectMapper mapper = new ObjectMapper();
+						String newJsonStr = mapper.writeValueAsString(modiPantherData);
+						String filename = id + ".json";
+						pgServer.uploadJsonToPGTreeBucket(filename, newJsonStr);
+						pantherLocal.saveSolrIndexedTreeAsFile(id, newJsonStr);
+					}
 				}
-				i++;
 				if (i % 100 == 0) {
 					System.out.println("processed " + i);
 				}
@@ -436,8 +501,8 @@ public class PantherETLPipeline {
 	}
 
 	public void generateCsvs() throws Exception {
-		// pgServer.generateGenodoCsvAll();
-		pgServer.uploadAllPantherCSVtoS3();
+		pgServer.generateGenodoCsvAll();
+		// pgServer.uploadAllPantherCSVtoS3();
 	}
 
 	// Generate csv files which analyzes panther etl dumps
@@ -533,65 +598,156 @@ public class PantherETLPipeline {
 		pantherLocal.closeLogWriter(1);
 	}
 
-	// save paralogs
-	// total time: 2:36
-	public void saveParalogS3_tairids() {
+	// save paralogs to 2 s3 buckets for json data and user download txt file
+	// local files needed: tairid2uniprots.csv and symbols.json in local resources folder
+	// total time: < 15h
+	public void saveParalogS3_tairids() throws IOException {
 		HashMap<String, String> mapping = pantherLocal.load_tairid2uniprots_csv();
 		Map<String, String> uniprot2tairid = mapping.entrySet()
 				.stream()
 				.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-		int i = 0;
+		Map<String, String> mapping_revised = new HashMap<>();
 		for (Map.Entry<String, String> entry : mapping.entrySet()) {
+			String agi_id = entry.getKey();
+			if (agi_id.contains("/")) {
+				String[] agi_id_list = agi_id.split("/");
+				for (String agi_id_item : agi_id_list) {
+					mapping_revised.put(agi_id_item, entry.getValue());
+				}
+			} else {
+				mapping_revised.put(agi_id, entry.getValue());
+			}
+		}
+		HashMap<String, String> agi2symbol = pantherLocal.load_agi2symbol_json();
+		System.out.println(mapping_revised.size()); // 22412
+		FileWriter nullCountFile = new FileWriter("panther_resources/nullCount_" + System.currentTimeMillis() + ".csv");
+		CSVWriter paralogNullWriter = new CSVWriter(nullCountFile);
+		String[] header = { "AGI ID", "AGI Nulls", "Primary Symbol Nulls", "Total Number",
+				"Uniprot Ids with AGI Nulls" };
+		paralogNullWriter.writeNext(header);
+		paralogNullWriter.flush();
+		int i = 0;
+		for (Map.Entry<String, String> entry : mapping_revised.entrySet()) {
+			// if (!entry.getKey().equals("AT1G01010")) {
+			// 	continue;
+			// }
 			// System.out.println(entry.getKey());
 			if (entry.getKey().isEmpty())
 				continue;
 			i++;
-			if (i < 6922)
-				continue;
-			// if(!entry.getKey().equals("AT2G47760")) continue;
-			// if(!entry.getKey().equals("AT4G27840")) continue;
+		// 	// if (i < 14667) continue;
 
-			// System.out.println(i);
-			// if (i++ > 0) break;
+		// 	// String[] sampleAGIAray = new String[]{"AT1G01010", "AT1G53790",
+		// 	// "AT3G26570","AT1G01130","AT1G01270"};
+		// 	// List<String> sampleAGIs = new ArrayList<>(Arrays.asList(sampleAGIAray));
+		// 	// if (!sampleAGIs.contains(entry.getKey())) continue;
+		// 	// String[] errorAGIAray = new String[]{"AT5G39690", "AT5G39540", "AT3G56560",
+		// 	// "AT3G56530", "AT3G55210", "AT1G32337"};
+		// 	// List<String> errorAGIs = new ArrayList<>(Arrays.asList(errorAGIAray));
+		// 	// if (!errorAGIs.contains(entry.getKey())) continue;
+
+		// 	// System.out.println(i);
+		// 	// if (i++ > 0) break;
 			String uniprot_id = entry.getValue();
 			try {
-				String paralog_json = pantherServer.callParalog_uniprot(uniprot_id, uniprot2tairid);
+				List<String> paraResList = pantherServer.callParalog_uniprot(uniprot_id, uniprot2tairid, agi2symbol);
+				// System.out.println("paraResList " + paraResList.toString());
+				String paralog_json = paraResList.get(0);
+				// System.out.println("paralog_json " + paralog_json);
 				if (paralog_json == null) {
 					System.out.println("Not saved " + entry.getKey());
 				} else {
-					String filename = entry.getKey() + ".json";
-					pgServer.uploadJsonToPGParalogsBucket(filename, paralog_json);
-					System.out.println("Saved " + filename + "-> " + Integer.toString(i));
+					String jsonFileName = entry.getKey() + ".json";
+					pgServer.uploadJsonToPGParalogsBucket(jsonFileName, paralog_json);
+					//Debug: Save locally
+					// try {
+					// 	String json_filepath = "panther_resources/" + jsonFileName;
+					// 	Util.saveJsonStringAsFile(paralog_json, json_filepath);
+					// } catch (IOException e) {
+						
+					// }
+					System.out.println("Saved " + jsonFileName + "-> " + Integer.toString(i));
 				}
+				String paralog_txt = paraResList.get(1);
+				// System.out.println("paralog_txt " + paralog_txt);
+				if (paralog_txt == null) {
+					System.out.println("Not saved " + entry.getKey());
+				} else {
+					String txtFileName = entry.getKey() + "_paralog.txt";
+					pgServer.uploadTxtToPGParalogsBucket(txtFileName, paralog_txt);
+					System.out.println(i + "Saved " + txtFileName + "-> " + Integer.toString(i));
+				}
+
+		// 		String agiNullCount = paraResList.get(2);
+		// 		String primarySymbolNullCount = paraResList.get(3);
+		// 		String totalCount = paraResList.get(4);
+		// 		String agiNullUniprotIdsStr = paraResList.get(5);
+		// 		String agiId = entry.getKey();
+
+		// 		String[] nullCountLine = { agiId, agiNullCount, primarySymbolNullCount, totalCount,
+		// 				agiNullUniprotIdsStr };
+		// 		paralogNullWriter.writeNext(nullCountLine);
+		// 		paralogNullWriter.flush();
 			} catch (Exception e) {
 				System.out.println("Not saved " + entry.getKey());
 				// System.out.println(e);
 			}
 		}
+		paralogNullWriter.close();
 	}
 
-	// save orthologs
+	// save orthologs to 2 s3 buckets for json data and user download txt file
+	// total time: < 24h
 	public void saveOrthologS3_tairids() {
 		HashMap<String, String> mapping = pantherLocal.load_tairid2uniprots_csv();
 		Map<String, String> uniprot2tairid = mapping.entrySet()
 				.stream()
 				.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-		int i = 0;
+		Map<String, List<String>> organisms_mapping = pantherLocal.load_organisms_csv();
+		Map<String, String> mapping_revised = new HashMap<>();
 		for (Map.Entry<String, String> entry : mapping.entrySet()) {
+			String agi_id = entry.getKey();
+			if (agi_id.contains("/")) {
+				String[] agi_id_list = agi_id.split("/");
+				for (String agi_id_item : agi_id_list) {
+					mapping_revised.put(agi_id_item, entry.getValue());
+				}
+			} else {
+				mapping_revised.put(agi_id, entry.getValue());
+			}
+		}
+		int i = 0;
+		System.out.println("mapping_revised size: " + mapping_revised.size());
+		for (Map.Entry<String, String> entry : mapping_revised.entrySet()) {
 			if (entry.getKey().isEmpty())
 				continue;
-			// if (i++ > 0) break;
 			i++;
-			if (i < 13590)
-				continue;
+			// i = 15937
+			// if (i < 15937)
+			// 	continue;
 			String uniprot_id = entry.getValue();
+			// System.out.println("uniprot_id: " + uniprot_id);
 			try {
-				String ortho_json = pantherServer.callOrtholog_uniprot(uniprot_id, uniprot2tairid);
-				String filename = entry.getKey() + ".json";
-				pgServer.uploadJsonToPGOrthologsBucket(filename, ortho_json);
-				System.out.println("Saved " + filename + " -> " + Integer.toString(i));
+				if (entry.getKey().equals("AT3G26570")) {
+						System.out.println(entry.getKey());
+						List<String> orthoResList = pantherServer.callOrtholog_uniprot(uniprot_id, uniprot2tairid,
+						organisms_mapping);
+						System.out.println(orthoResList.toString());
+				}
+			
+			// 	String ortho_json = orthoResList.get(0);
+			// 	String jsonFileName = entry.getKey() + ".json";
+			// 	pgServer.uploadJsonToPGOrthologsBucket(jsonFileName, ortho_json);
+			// 	System.out.println("Saved " + jsonFileName + " -> " + Integer.toString(i));
+			// 	String ortho_txt = orthoResList.get(1);
+			// 	String txtFileName = entry.getKey() + "_ortholog.txt";
+			// 	pgServer.uploadTxtToPGOrthologsBucket(txtFileName, ortho_txt);
+			// 	System.out.println(
+			// 			i + "/" + mapping_revised.size() + ": Saved " + txtFileName + " -> " + Integer.toString(i));
 			} catch (Exception e) {
-				System.out.println(e.getMessage());
+				System.out.println("Not saved " + entry.getKey());
+				System.out.println(e);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -602,10 +758,14 @@ public class PantherETLPipeline {
 		PantherETLPipeline etl = new PantherETLPipeline();
 
 		// etl.storePantherFilesLocally();
-		etl.uploadToServer();
+		// etl.uploadToServer();
+
+		// etl.updatePublicationsCount();
 
 		// TASK: PHG-337: https://jira.phoenixbioinformatics.org/browse/PHG-327
 		// etl.updateLocusGeneNames();
+		// etl.updateLocusGeneNameById("PTHR20835");
+		// etl.analyzePantherFamilies();
 
 		// TASK: PHG-330: https://jira.phoenixbioinformatics.org/browse/PHG-330
 		// etl.generatePhyloXML();
@@ -616,7 +776,7 @@ public class PantherETLPipeline {
 		// TASK: PHG-326: https://jira.phoenixbioinformatics.org/browse/PHG-326
 		// etl.generate_analyze_dump();
 
-		// etl.saveParalogS3_tairids();
+		etl.saveParalogS3_tairids();
 		// etl.saveOrthologS3_tairids();
 
 		long endTime = System.nanoTime();
