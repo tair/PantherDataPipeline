@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
+import com.opencsv.CSVReader;
 import de.siegmar.fastcsv.writer.CsvAppender;
 import de.siegmar.fastcsv.writer.CsvWriter;
 import org.apache.solr.client.solrj.SolrClient;
@@ -45,12 +46,15 @@ public class PhylogenesServerWrapper {
 	String PG_TREE_BUCKET_NAME = "phg-panther-data-17";
 	String PG_MSA_BUCKET_NAME = "phg-panther-msa-data-17";
 	String PG_CSV_BUCKET_NAME = "";
-	String PG_PARALOG_BUCKET_NAME = "phg-paralogs";
-	String PG_ORTHO_BUCKET_NAME = "phg-orthologs";
+	String PG_PARALOG_BUCKET_NAME = "phg-paralogs-17";
+	String PG_ORTHO_BUCKET_NAME = "phg-orthologs-17";
+	String PG_PARALOG_DL_BUCKET_NAME = "phg-paralogs-download-17";
+	String PG_ORTHO_DL_BUCKET_NAME = "phg-orthologs-download-17";
+	String PG_PUBLICATIONS_URL = "https://rest.uniprot.org/uniprotkb/search?query=accession:%s&format=tsv&fields=accession,lit_pubmed_id";
 
-	// private String URL_SOLR = "http://localhost:8983/solr/panther";
+	private String URL_SOLR = "http://localhost:8983/solr/panther";
 	// private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
-	String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
+	// String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 
 	SolrClient mysolr = null;
 	AmazonS3 s3_server = null;
@@ -61,6 +65,7 @@ public class PhylogenesServerWrapper {
 
 	public PhylogenesServerWrapper() {
 		loadProps();
+		System.out.println("URL_SOLR: " + URL_SOLR);
 		mysolr = new HttpSolrClient.Builder(URL_SOLR).build();
 		committedCount = 0;
 
@@ -86,7 +91,7 @@ public class PhylogenesServerWrapper {
 			}
 			if (prop.containsKey("S3_ACCESS_KEY")) {
 				S3_ACCESS_KEY = prop.getProperty("S3_ACCESS_KEY");
-				System.out.println(S3_ACCESS_KEY);
+				System.out.println("S3_ACCESS_KEY =============> " + S3_ACCESS_KEY);
 			} else if (!System.getProperty("S3_ACCESS_KEY").isEmpty()) {
 				S3_ACCESS_KEY = System.getProperty("S3_ACCESS_KEY");
 			} else {
@@ -108,18 +113,16 @@ public class PhylogenesServerWrapper {
 			if (prop.containsKey("PG_CSV_BUCKET_NAME")) {
 				PG_CSV_BUCKET_NAME = prop.getProperty("PG_CSV_BUCKET_NAME");
 			}
+			if (prop.containsKey("URL_SOLR")) {
+				URL_SOLR = prop.getProperty("URL_SOLR");
+			}
+			if (prop.containsKey("PG_PUBLICATIONS_URL")) {
+				PG_PUBLICATIONS_URL = prop.getProperty("PG_PUBLICATIONS_URL");
+			}
 		} catch (Exception e) {
 			System.out.println("PhylogenesServerWrapper: Prop file not found!");
 			System.out.println("S3_ACCESS_KEY " + System.getenv("S3_ACCESS_KEY"));
 			System.out.println("S3_ACCESS_KEY prop " + System.getProperty("S3_ACCESS_KEY"));
-			S3_ACCESS_KEY = "AKIAT2DXR6T2POVKYEG6";
-			S3_SECRET_KEY = "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";
-			// if (!System.getenv("S3_SECRET_KEY").isEmpty()) {
-			// S3_SECRET_KEY = System.getenv("S3_SECRET_KEY");
-			// }
-			// if (!System.getenv("S3_ACCESS_KEY").isEmpty()) {
-			// S3_ACCESS_KEY = System.getenv("S3_ACCESS_KEY");
-			// }
 		}
 	}
 
@@ -153,7 +156,8 @@ public class PhylogenesServerWrapper {
 			System.out.println("PG_CSV_BUCKET_NAME not set in application.properties");
 			return;
 		}
-		File dir = new File(RESOURCES_BASE + "/panther_csv");
+		File dir = new File(RESOURCES_BASE + "/panther_csv_regen");
+		System.out.println(RESOURCES_BASE + "/panther_csv_regen");
 		File[] directoryListing = dir.listFiles();
 		if (directoryListing != null) {
 			int fileCount = 0;
@@ -203,7 +207,8 @@ public class PhylogenesServerWrapper {
 
 	// 04/215/2022 - A0A1U8BBT0
 	public void updateAllSolrTreePubCounts() throws Exception {
-		PublicationsServerWrapper psw = new PublicationsServerWrapper();
+		System.out.println("PG_PUBLICATIONS_URL =============> " + PG_PUBLICATIONS_URL);
+		PublicationsServerWrapper psw = new PublicationsServerWrapper(PG_PUBLICATIONS_URL);
 		SolrQuery sq = new SolrQuery("*:*");
 		// SolrQuery sq = new SolrQuery("id:PTHR10263");
 		sq.setRows(9000);
@@ -214,19 +219,63 @@ public class PhylogenesServerWrapper {
 		System.out.println("totalDocsFound " + totalDocsFound);
 		for (int i = 0; i < totalDocsFound; i++) {
 			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
-			System.out.println("updating treeId " + treeId + " ...");
+
 			Object[] uniprot_ids = treeIdResponse.getResults().get(i).getFieldValues("uniprot_ids").toArray();
 
 			List<String> publicationCountList = new ArrayList<String>();
+			// 7589
+			// if (i < 7589) {
+			// // System.out.println("break ...");
+			// continue;
+			// }
+			// System.out.println(i + " -updating treeId " + treeId + " ... uniprots:" +
+			// uniprot_ids.length);
 			for (int j = 0; j < uniprot_ids.length; j++) {
 				String uniprot_id = uniprot_ids[j].toString();
 				// System.out.println("uni " + uniprot_id);
 				Uniprot2PubMapping uni2pub = new Uniprot2PubMapping();
-				List<String> pubs = psw.getPublicationsByUniprotId(uniprot_id);
-				uni2pub.setPub_count(pubs.size());
-				uni2pub.setUniprot_id(uniprot_id.toLowerCase());
+				if (uniprot_id.equals("Q9SLA2")) {
+					List<String> pubs = psw.getPublicationsByUniprotId(uniprot_id);
+					uni2pub.setPub_count(pubs.size());
+					uni2pub.setUniprot_id(uniprot_id.toLowerCase());
+					ObjectWriter ow = new ObjectMapper().writer();
+					String goAnnotationDataStr = ow.writeValueAsString(uni2pub);
+					System.out.println(goAnnotationDataStr);
+					publicationCountList.add(goAnnotationDataStr);
+				}
+			}
+			// atomicUpdateSolr(treeId, "publications_count", publicationCountList);
+		}
+	}
+
+	public void Temp_updateAllSolrTreePubCounts() throws Exception {
+		SolrQuery sq = new SolrQuery("*:*");
+		// SolrQuery sq = new SolrQuery("id:PTHR10263");
+		sq.setRows(9000);
+		sq.setFields("id", "uniprot_ids", "publications_count");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		int totalDocsFound = treeIdResponse.getResults().size();
+		System.out.println("totalDocsFound " + totalDocsFound);
+		for (int i = 0; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			System.out.println("treeId " + treeId);
+			Object[] publication_counts = treeIdResponse.getResults().get(i).getFieldValues("publications_count")
+					.toArray();
+			List<String> publicationCountList = new ArrayList<String>();
+			for (int j = 0; j < publication_counts.length; j++) {
+				String pub = publication_counts[j].toString();
+				// System.out.println(pub);
+				Uniprot2PubMapping uni2pub = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(
+						pub,
+						Uniprot2PubMapping.class);
+				// System.out.println(uni2pub.getUniprot_id() + "-" + uni2pub.getPub_count());
+				if (uni2pub.getPub_count() > 0) {
+					uni2pub.setPub_count(uni2pub.getPub_count() - 1);
+				}
 				ObjectWriter ow = new ObjectMapper().writer();
 				String goAnnotationDataStr = ow.writeValueAsString(uni2pub);
+				// System.out.println(goAnnotationDataStr);
 				publicationCountList.add(goAnnotationDataStr);
 			}
 			atomicUpdateSolr(treeId, "publications_count", publicationCountList);
@@ -418,8 +467,39 @@ public class PhylogenesServerWrapper {
 		}
 		for (String s : solr_ids) {
 			if (!file_ids.contains(s)) {
-				// System.out.println(s);
+				System.out.println(s);
 			}
+		}
+	}
+
+	public void pantherDump_genodo() throws Exception {
+		SolrQuery sq = new SolrQuery("*:*");
+		sq.setRows(9000);
+		sq.setFields("id", "family_name", "sf_names", "go_annotations", "taxonomic_ranges");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		int totalDocsFound = treeIdResponse.getResults().size();
+		for (int i = 0; i < totalDocsFound; i++) {
+			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
+			System.out.println(treeId);
+		}
+	}
+
+	public void dumpForGenodo() throws Exception {
+		SolrQuery sq = new SolrQuery("id:PTHR23140");
+		sq.setRows(9000);
+		sq.setFields("id", "family_name", "sf_names", "go_annotations", "taxonomic_ranges");
+		sq.setSort("id", SolrQuery.ORDER.asc);
+		QueryResponse treeIdResponse = mysolr.query(sq);
+		File file = new File("PTHR23140");
+		CsvWriter csvWriter = new CsvWriter();
+		try (CsvAppender csvAppender = csvWriter.append(file, StandardCharsets.UTF_8)) {
+			List<String> cols = Arrays.asList("Uniprot ID", "Gene", "Gene ID", "Gene name", "Organism",
+					"Subfamily name");
+			for (int i = 0; i < cols.size(); i++) {
+				csvAppender.appendField(cols.get(i));
+			}
+
 		}
 	}
 
@@ -818,7 +898,7 @@ public class PhylogenesServerWrapper {
 			CSVWriter writer = pantherLocal.createLogWriter("tairid2uniprots_2.csv", "Tair_agi");
 			writer.writeNext(new String[] { "tair_agi", "uniprots" });
 			SolrQuery sq = new SolrQuery("*:*");
-			sq.setRows(9500);
+			sq.setRows(90000);
 			sq.setFields("id");
 			sq.setSort("id", SolrQuery.ORDER.asc);
 			QueryResponse treeIdResponse = mysolr.query(sq);
@@ -857,6 +937,11 @@ public class PhylogenesServerWrapper {
 				String uniprots = String.join(",", entry.getValue());
 				writer.writeNext(new String[] { entry.getKey(), uniprots });
 			}
+			// for (Map.Entry<String, List<String>> entry :
+			// tairid2uniprot_mapping.entrySet()) {
+			// String uniprots = String.join(",", entry.getValue());
+			// writer.writeNext(new String[]{entry.getKey(), uniprots});
+			// }
 			writer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -902,7 +987,7 @@ public class PhylogenesServerWrapper {
 
 	public void uploadJsonToPGTreeBucket(String filename, String jsonStr) {
 		try {
-			// System.out.println("PG_TREE_BUCKET_NAME " + PG_TREE_BUCKET_NAME);
+			System.out.println("PG_TREE_BUCKET_NAME " + PG_TREE_BUCKET_NAME);
 			uploadJsonToS3(PG_TREE_BUCKET_NAME, filename, jsonStr);
 		} catch (Exception e) {
 			System.out.println("Failed to save to S3 " + e);
@@ -927,6 +1012,7 @@ public class PhylogenesServerWrapper {
 
 	public void uploadJsonToPGParalogsBucket(String filename, String jsonStr) {
 		try {
+			// System.out.println("uploadJsonToPGParalogsBucket " + PG_PARALOG_BUCKET_NAME + " - " + filename);
 			uploadJsonToS3(PG_PARALOG_BUCKET_NAME, filename, jsonStr);
 		} catch (Exception e) {
 			System.out.println("Failed to save to S3 " + e);
@@ -936,6 +1022,22 @@ public class PhylogenesServerWrapper {
 	public void uploadJsonToPGOrthologsBucket(String filename, String jsonStr) {
 		try {
 			uploadJsonToS3(PG_ORTHO_BUCKET_NAME, filename, jsonStr);
+		} catch (Exception e) {
+			System.out.println("Failed to save to S3 " + e);
+		}
+	}
+
+	public void uploadTxtToPGParalogsBucket(String filename, String txtStr) {
+		try {
+			uploadTxtToS3(PG_PARALOG_DL_BUCKET_NAME, filename, txtStr);
+		} catch (Exception e) {
+			System.out.println("Failed to save to S3 " + e);
+		}
+	}
+
+	public void uploadTxtToPGOrthologsBucket(String filename, String txtStr) {
+		try {
+			uploadTxtToS3(PG_ORTHO_DL_BUCKET_NAME, filename, txtStr);
 		} catch (Exception e) {
 			System.out.println("Failed to save to S3 " + e);
 		}
@@ -968,6 +1070,10 @@ public class PhylogenesServerWrapper {
 		s3_server.putObject(bucketName, key, content);
 	}
 
+	public void uploadTxtToS3(String bucketName, String key, String content) {
+		s3_server.putObject(bucketName, key, content);
+	}
+
 	private static String getAsString(InputStream is) throws IOException {
 		if (is == null)
 			return "";
@@ -993,7 +1099,7 @@ public class PhylogenesServerWrapper {
 		QueryResponse treeIdResponse = mysolr.query(sq);
 
 		int totalDocsFound = treeIdResponse.getResults().size();
-		System.out.println("totalDocsFound " + totalDocsFound);
+		// System.out.println("totalDocsFound " + totalDocsFound);
 
 		List<String> col_names = new ArrayList<>();
 		if (totalDocsFound == 0) {
@@ -1026,7 +1132,7 @@ public class PhylogenesServerWrapper {
 					}
 				}
 			}
-			System.out.println("col names " + col_names.size());
+			// System.out.println("col names " + col_names.size());
 		}
 		java.util.Collections.sort(col_names, String.CASE_INSENSITIVE_ORDER);
 		return col_names;
@@ -1052,7 +1158,7 @@ public class PhylogenesServerWrapper {
 			}
 			Object[] go_annotations = treeIdResponse.getResults().get(i).getFieldValues("go_annotations").toArray();
 			if (go_annotations != null) {
-				System.out.println("go length " + go_annotations.length);
+				System.out.println("total go_annotations in the tree: " + go_annotations.length);
 				for (int j = 0; j < go_annotations.length; j++) {
 					String annoStr = go_annotations[j].toString();
 					JSONObject obj = new JSONObject(annoStr);
@@ -1098,8 +1204,51 @@ public class PhylogenesServerWrapper {
 		System.out.println("totalDocsFound " + totalDocsFound);
 		for (int i = 0; i < totalDocsFound; i++) {
 			String treeId = treeIdResponse.getResults().get(i).getFieldValue("id").toString();
-			System.out.println("Generating " + treeId);
+			// if (treeId.equals("PTHR11909")) {
+			// 	System.out.println(i + "/" + totalDocsFound + ": Generating " + treeId);
+			// 	parsePantherTreeFromS3(treeId);
+			// }
+			
 			parsePantherTreeFromS3(treeId);
+			// if (checkCsvForMismatch(treeId)) {
+			// 	parsePantherTreeFromS3(treeId);
+			// }
+		}
+	}
+
+	private boolean checkCsvForMismatch(String familyId) throws Exception {
+		try {
+			String filename = RESOURCES_BASE + "/panther_csv/" + familyId + ".csv";
+			// System.out.println(filename);
+			File csv_tair_mapping = new File(filename);
+			CSVReader reader = new CSVReader(new FileReader(csv_tair_mapping), ' ');
+			// // read line by line
+			String[] record = null;
+			int i = 0;
+			while ((record = reader.readNext()) != null) {
+				// System.out.println(record[0]);
+				i++;
+			}
+
+			Annotation curr_node = getPantherTreeRootById(familyId);
+			if (curr_node == null) {
+				System.out.println("stop " + familyId);
+				return false;
+			}
+			List<Annotation> leaf_nodes = new ArrayList<>();
+			leaf_nodes = pantherLocal.iterate_getAllLeafNodes(curr_node, leaf_nodes);
+			if (leaf_nodes.size() + 2 != i) {
+				System.out.println("Mismatch found: " + familyId);
+				System.out.println("total leaf nodes: " + leaf_nodes.size());
+				System.out.println("csv rows: " + i);
+				return true;
+			} else {
+				System.out.println("No Mismatch found: " + familyId);
+				return false;
+			}
+		} catch (Exception e) {
+			System.out.println("checkCsvForMismatch: Error");
+			return false;
 		}
 	}
 
@@ -1107,7 +1256,7 @@ public class PhylogenesServerWrapper {
 		HashMap<String, String> tair_locus2id_mapping = pantherLocal.read_locus2tair_mapping_csv();
 		// load column names
 		List<String> anno_cols = getUniqueAnnoColNamesFromSolr(familyId);
-		System.out.println("anno_col_names " + anno_cols.size());
+		System.out.println("total annotation cols " + anno_cols.size());
 		List<String> cols = new ArrayList<String>(
 				Arrays.asList("Uniprot ID", "Gene", "Gene ID", "Gene name", "Organism", "Subfamily name"));
 		cols.addAll(anno_cols);
@@ -1117,11 +1266,12 @@ public class PhylogenesServerWrapper {
 		Annotation curr_node = getPantherTreeRootById(familyId);
 		if (curr_node == null) {
 			System.out.println("stop " + familyId);
+			return;
 		}
 		List<Annotation> leaf_nodes = new ArrayList<>();
 		leaf_nodes = pantherLocal.iterate_getAllLeafNodes(curr_node, leaf_nodes);
 		// System.out.println(PG_TREE_BUCKET_NAME + "tree " + root);
-		// System.out.println("leaf_nodes size "+ leaf_nodes.size());
+		// System.out.println("leaf_nodes size " + leaf_nodes.size());
 
 		// System.out.println("cols length " + cols_list.size());
 		String filename = RESOURCES_BASE + "/panther_csv/" + familyId + ".csv";
@@ -1137,7 +1287,7 @@ public class PhylogenesServerWrapper {
 				csvAppender.appendField(cols.get(i));
 			}
 			csvAppender.endLine();
-
+			System.out.println("total leaf nodes: " + leaf_nodes.size());
 			for (int i = 0; i < leaf_nodes.size(); i++) {
 				Annotation node = leaf_nodes.get(i);
 				if (node.getGene_symbol() == null) {
@@ -1157,7 +1307,10 @@ public class PhylogenesServerWrapper {
 				if (node.getGene_symbol() != null) {
 					gene = node.getGene_symbol();
 				}
-				// System.out.println("uniprot "+ node.get_uniprotId());
+				// if (!node.get_uniprotId().equals("O17828")) {
+				// continue;
+				// }
+				// System.out.println(i + " :uniprot " + node.get_uniprotId());
 				csvAppender.appendField(node.get_uniprotId());
 
 				csvAppender.appendField(gene);
@@ -1171,7 +1324,7 @@ public class PhylogenesServerWrapper {
 				} else {
 					// System.out.println("No mapping found " + node.get_uniprotId());
 				}
-				// System.out.println("matching annoes done");
+				// System.out.println("matching annoes done1");
 				for (int j = 6; j < cols.size(); j++) {
 					String anno_present = "0";
 					String col_name = cols.get(j);
@@ -1179,6 +1332,10 @@ public class PhylogenesServerWrapper {
 					col_name = col_name.trim();
 					for (int k = 0; k < matchingAnnos.size(); k++) {
 						GOAnno_new anno = matchingAnnos.get(k);
+						// System.out.println(anno.getGoName());
+						if (anno.getGoName() == null) {
+							continue;
+						}
 						if (anno.getGoName().equals(col_name)) {
 							if (anno.getEvidenceCode().contains("IBA")) {
 								if (anno_present != "EXP") {
@@ -1192,16 +1349,17 @@ public class PhylogenesServerWrapper {
 					csvAppender.appendField(anno_present);
 				}
 				csvAppender.endLine();
+				// System.out.println("matching annoes done");
 			}
 			// System.out.println(root.get_uniprotId() + root.getGene_id());
-			//
 		} catch (Exception e) {
 			System.out.println("Excepion " + e.getMessage());
 		}
 	}
 
 	public Annotation getPantherTreeRootById(String familyId) throws Exception {
-		System.out.println("BUCKET NAME " + PG_TREE_BUCKET_NAME + " familyId:" + familyId);
+		// System.out.println("BUCKET NAME " + PG_TREE_BUCKET_NAME + " familyId:" +
+		// familyId);
 		try {
 			S3Object fullObject = s3_server.getObject(new GetObjectRequest(PG_TREE_BUCKET_NAME, familyId + ".json"));
 			S3ObjectInputStream s3is = fullObject.getObjectContent();
