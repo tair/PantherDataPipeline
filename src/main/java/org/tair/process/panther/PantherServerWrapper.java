@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
 
 // Class contains all calls to the Panther server
 public class PantherServerWrapper {
-    private String PANTHER_ROOT = "http://pantherdb.org/services/oai/pantherdb/";
+    private String PANTHER_ROOT = "https://pantherdb.org/services/oai/pantherdb/";
     private String PANTHER_FL_URL = PANTHER_ROOT + "supportedpantherfamilies";
     private String PANTHER_BASE_URL = PANTHER_ROOT + "treeinfo";
     private String BASE_MSA_URL = PANTHER_ROOT + "familymsa";
