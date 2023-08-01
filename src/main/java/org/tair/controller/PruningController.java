@@ -31,7 +31,7 @@ public class PruningController {
     PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
     PantherServerWrapper pantherServer = new PantherServerWrapper();
     PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
-    private String BASE_URL = "http://pantherdb.org";
+    private String BASE_URL = "https://pantherdb.org";
     // private String BASE_URL = "http://panthertest9.med.usc.edu:8089";
     private String BOOK_INFO_URL = BASE_URL + "?type=book_info";
     private String GRAFT_URL = BASE_URL + "/services/oai/pantherdb/graftsequence";
