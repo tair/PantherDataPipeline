@@ -113,7 +113,7 @@ public class GO_PAINT_Pipeline {
             return;
         }
 
-        // get tsv file
+        // get json file
         files = new File(GO_PAINT_RESOURCES_DIR).listFiles(file -> file.toString().endsWith(".json"));
         File jsonFile = null;
         if (files.length == 1) {
@@ -135,7 +135,8 @@ public class GO_PAINT_Pipeline {
     public static void main(String args[]) throws Exception {
         long startTime = System.nanoTime();
         GO_PAINT_Pipeline paintPipeline = new GO_PAINT_Pipeline();
-        // paintPipeline.loadIBAAnnotations();
+        // paintPipeline.downloadPAINTFilesLocally();
+        paintPipeline.updatePAINTGOFromLocalToSolr(false);
 
         long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;

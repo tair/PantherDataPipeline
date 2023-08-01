@@ -8,6 +8,8 @@ import com.opencsv.CSVWriter;
 import com.opencsv.CSVReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
+import org.json.simple.parser.JSONParser;
 import org.tair.module.Children;
 import org.tair.module.FamilyNode;
 import org.tair.module.PantherData;
@@ -36,11 +38,13 @@ public class PantherLocalWrapper {
     private String PATH_EMPTY_LIST = RESOURCES_BASE + "/familyEmptyWhileIndexingList.csv";
     private String PATH_LOCUSID_TAIR_MAPPING = "/AGI_locusId_mapping_20200410.csv";
     private String NAME_TAIRID_UNIPROTS_MAPPING = "/tairid2uniprots.csv";
+    private String ORGANISMS_MAPPING = "/organisms_for_homologs.csv";
     private String PATH_ORG_MAPPING = "/organism_to_display.csv";
     // log family that has large msa data
     private String PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
     // log family that has invalid msa data
     private String PATH_INVALID_MSA_LIST = RESOURCES_BASE + "/invalidMsaFamilyList.csv";
+    private String PATH_NAME_AGI_SYMBOL_MAPPING = "/symbols.json";
 
     ObjectMapper mapper;
     File csvFile_noplants;
@@ -144,11 +148,6 @@ public class PantherLocalWrapper {
         }
     }
 
-    private void process_tairId2uniprot_mapping() {
-        tairId2uniprotId_mapping = new HashMap<String, String>();
-
-    }
-
     public String getLocalFamiliListPath() {
         return PATH_FAMILY_LIST;
     }
@@ -199,6 +198,12 @@ public class PantherLocalWrapper {
 
     public boolean doesPantherTreeExist(String familyId) {
         String filePath = PATH_LOCAL_PRUNED_TREES + familyId + ".json";
+        File tempFile = new File(filePath);
+        return tempFile.exists();
+    }
+
+    public boolean isPantherTreeDeleted(String familyId) {
+        String filePath = PATH_LOCAL_PRUNED_TREES + "Deleted/" + familyId + ".json";
         File tempFile = new File(filePath);
         return tempFile.exists();
     }
@@ -254,6 +259,7 @@ public class PantherLocalWrapper {
     public void saveSolrIndexedTreeAsFile(String familyId, String solrTree) throws Exception {
         String fileName = familyId + ".json";
         String json_filepath = PATH_LOCAL_SOLRTREE_JSON + "/" + fileName;
+        // System.out.println("json_filepath " + json_filepath);
         try {
             Util.saveJsonStringAsFile(solrTree, json_filepath);
         } catch (IOException e) {
@@ -348,7 +354,6 @@ public class PantherLocalWrapper {
                     added_nodes = iterate_getAllLeafNodes(child_node, added_nodes);
                 }
             }
-
         }
         return added_nodes;
     }
@@ -471,10 +476,10 @@ public class PantherLocalWrapper {
         }
     }
 
-    // "tairid2uniprots.csv" : eg. AT2G40450 -> O22890
+    // "tairid2uniprots.csv" : eg. AT2G40450 -> O22890f
     public HashMap<String, String> load_tairid2uniprots_csv() {
         String csv_path = RESOURCES_BASE + NAME_TAIRID_UNIPROTS_MAPPING;
-        // System.out.println(csv_path);
+        System.out.println("load_tairid2uniprots_csv => " + csv_path);
         HashMap<String, String> tairid2uniprots_mapping = new HashMap<String, String>();
         String[] record = null;
         try {
@@ -484,6 +489,77 @@ public class PantherLocalWrapper {
                 tairid2uniprots_mapping.put(record[0], record[1]);
             }
             return tairid2uniprots_mapping;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public List<String> getAllLocalPrunedTreeIds() {
+        File folder = new File(PATH_LOCAL_PRUNED_TREES);
+        File[] listOfFiles = folder.listFiles();
+        List<String> panther_ids = new ArrayList<>();
+        for (File file : listOfFiles) {
+            if (file.isFile()) {
+                // System.out.println(file.getName());
+                if (file.getName().contains(".json")) {
+                    // System.out.println(file.getName().split(".json")[0]);
+                    String id = file.getName().split(".json")[0];
+                    // System.out.println(id);s
+                    if (id.equals("PTHR45637")) {
+                        System.out.println("Found " + id);
+                    }
+                    panther_ids.add(id);
+                }
+            }
+        }
+        return panther_ids;
+    }
+
+    // "organisms_for_homologs.csv" :
+    // eg. JUGRE (organism) -> Juglans regia (full name), walnut
+    // (common name),
+    // eudicotyledons (group name)
+    public HashMap<String, List<String>> load_organisms_csv() {
+        String csv_path = RESOURCES_BASE + ORGANISMS_MAPPING;
+        System.out.println("load_organisms_csv => " + csv_path);
+        HashMap<String, List<String>> organisms_mapping = new HashMap<String, List<String>>();
+        String[] record = null;
+        try {
+            CSVReader reader = new CSVReader(new FileReader(csv_path), ',');
+            while ((record = reader.readNext()) != null) {
+                // System.out.println(record[3]);
+                organisms_mapping.put(record[3], Arrays.asList(record[0], record[2], record[6]));
+            }
+            // Logs
+            // Iterator it = organisms_mapping.entrySet().iterator();
+            // while (it.hasNext()) {
+            // Map.Entry pair = (Map.Entry) it.next();
+            // System.out.println(pair.getKey() + " = " + pair.getValue());
+            // }
+
+            return organisms_mapping;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public HashMap<String, String> load_agi2symbol_json() {
+        String agi2symbol_path = RESOURCES_BASE + PATH_NAME_AGI_SYMBOL_MAPPING;
+        System.out.println(agi2symbol_path);
+        HashMap<String, String> agi2symbol_mapping = new HashMap<String, String>();
+        String[] record = null;
+        try {
+            JSONTokener tokener = new JSONTokener(new FileReader(agi2symbol_path));
+            JSONArray symbolJsonArray = new JSONArray(tokener);
+            Iterator<Object> iterator = symbolJsonArray.iterator();
+            while (iterator.hasNext()) {
+                JSONObject symbolJsonObj = (JSONObject) iterator.next();
+                agi2symbol_mapping.put(symbolJsonObj.get("locusName").toString(),
+                        symbolJsonObj.get("symbolName").toString());
+            }
+            return agi2symbol_mapping;
         } catch (Exception e) {
             System.out.println(e);
             return null;
