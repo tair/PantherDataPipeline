@@ -52,7 +52,7 @@ public class PhylogenesServerWrapper {
 	String PG_ORTHO_DL_BUCKET_NAME = "phg-orthologs-download-17";
 	String PG_PUBLICATIONS_URL = "https://rest.uniprot.org/uniprotkb/search?query=accession:%s&format=tsv&fields=accession,lit_pubmed_id";
 
-	private String URL_SOLR = "http://localhost:8983/solr/panther";
+	public String URL_SOLR = "http://localhost:8983/solr/panther";
 	// private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
 	// String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 
