@@ -3,7 +3,6 @@ package org.tair.process.panther;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
-import javafx.util.Pair;
 import org.json.JSONObject;
 
 import org.tair.module.*;

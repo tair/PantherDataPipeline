@@ -2,7 +2,6 @@ package org.tair.process.panther;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import javafx.util.Pair;
 import org.json.JSONObject;
 import org.tair.module.ortho.OrthoMapped;
 import org.tair.module.ortho.OrthoMapping;
