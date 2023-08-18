@@ -18,7 +18,7 @@ public class PantherBookXmlToJson {
 
 	public PantherData readPantherXmlToObject(String book_id) throws Exception {
 
-		String url = "http://pantherdb.org/tempFamilySearch?type=book_info&book=" + book_id;
+		String url = "https://pantherdb.org/tempFamilySearch?type=book_info&book=" + book_id;
 		String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, url);
 
 		// convert json string to Panther object
@@ -30,7 +30,7 @@ public class PantherBookXmlToJson {
 	}
 
 	public PantherData readPantherTreeById(String family_id) throws Exception {
-		String prunedTreeUrl = "http://pantherdb.org/tempFamilySearch?type=book_info&book=" + family_id
+		String prunedTreeUrl = "https://pantherdb.org/tempFamilySearch?type=book_info&book=" + family_id
 				+ "&taxonFltr=13333,3702,15368,51351,3055,2711,3659,4155,3847,3635,4232,112509,3880,214687,4097,39947,70448,42345,3218,3694,3760,3988,4555,4081,4558,3641,4565,29760,4577,29655,6239,7955,44689,7227,83333,9606,10090,10116,559292,284812";
 		String jsonString = Util.readContentFromWebUrlToJson(PantherData.class, prunedTreeUrl);
 		// convert json string to Panther object
