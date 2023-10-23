@@ -2,6 +2,8 @@ package org.tair.process;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.tair.module.PantherData;
 //import org.tair.module.pantherForPhylo.*;
 import org.tair.module.panther.*;
@@ -35,7 +37,8 @@ public class pantherToPhyloXmlPipeline {
     public static String RESOURCES_BASE = "panther_resources";
     public static String PHYLO_BUCKET_NAME = "";
 
-    PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
+    @Autowired
+    PhylogenesServerWrapper pgServer;
 
     public pantherToPhyloXmlPipeline() {
         loadProps();

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
 import javafx.util.Pair;
 import org.json.JSONObject;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.tair.module.*;
 import org.tair.module.panther.Annotation;
 import org.tair.process.PantherBookXmlToJson;
@@ -24,7 +24,9 @@ public class PantherETLPipeline {
 
 	PantherServerWrapper pantherServer = new PantherServerWrapper();
 	PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
-	PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
+
+	@Autowired
+	PhylogenesServerWrapper pgServer;
 	int batchLimit = 20001;
 
 	// ############################################## Panther 15

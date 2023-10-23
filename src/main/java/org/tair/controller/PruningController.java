@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.tair.module.PantherData;
 import org.tair.module.ortho.OrthoMapping;
@@ -28,7 +29,8 @@ import java.util.stream.IntStream;
 @CrossOrigin(origins = "*")
 @RestController
 public class PruningController {
-    PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
+    @Autowired
+    PhylogenesServerWrapper pgServer;
     PantherServerWrapper pantherServer = new PantherServerWrapper();
     PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
     private String BASE_URL = "https://pantherdb.org";

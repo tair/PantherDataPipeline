@@ -6,7 +6,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.json.simple.parser.JSONParser;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.tair.module.paint.flatfile.GoBasic;
 import org.tair.process.panther.PantherLocalWrapper;
 import org.xml.sax.InputSource;
