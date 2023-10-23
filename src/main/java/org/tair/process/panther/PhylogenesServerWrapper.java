@@ -26,6 +26,8 @@ import org.apache.solr.common.SolrInputDocument;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.tair.module.*;
 import org.tair.module.panther.Annotation;
 import org.tair.module.panther.MSASequenceInfo;
@@ -37,12 +39,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
 public class PhylogenesServerWrapper {
 	private String RESOURCES_DIR = "src/main/resources";
 	private String RESOURCES_BASE = "panther_resources";
 	// S3 Keys
-	String S3_ACCESS_KEY = "";
-	String S3_SECRET_KEY = "";
+	String AWS_ACCESS_KEY = "";
+	String AWS_SECRET_KEY = "";
 	String PG_TREE_BUCKET_NAME = "phg-panther-data-17";
 	String PG_MSA_BUCKET_NAME = "phg-panther-msa-data-17";
 	String PG_CSV_BUCKET_NAME = "";
@@ -52,7 +55,7 @@ public class PhylogenesServerWrapper {
 	String PG_ORTHO_DL_BUCKET_NAME = "phg-orthologs-download-17";
 	String PG_PUBLICATIONS_URL = "https://rest.uniprot.org/uniprotkb/search?query=accession:%s&format=tsv&fields=accession,lit_pubmed_id";
 
-	private String URL_SOLR = "http://localhost:8983/solr/panther";
+	String URL_SOLR = "http://localhost:8983/solr/panther";
 	// private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
 	// String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 
@@ -63,13 +66,16 @@ public class PhylogenesServerWrapper {
 	PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
 	PantherServerWrapper pantherServer = new PantherServerWrapper();
 
-	public PhylogenesServerWrapper() {
+	public PhylogenesServerWrapper(@Value("${aws.accessKey}") String awsAccessKey,
+	@Value("${aws.secretKey}") String awsSecretKey) {
 		loadProps();
 		System.out.println("URL_SOLR: " + URL_SOLR);
 		mysolr = new HttpSolrClient.Builder(URL_SOLR).build();
 		committedCount = 0;
+		AWS_ACCESS_KEY = awsAccessKey;
+		AWS_SECRET_KEY = awsSecretKey;
 
-		AWSCredentials credentials = new BasicAWSCredentials(S3_ACCESS_KEY, S3_SECRET_KEY);
+		AWSCredentials credentials = new BasicAWSCredentials(AWS_ACCESS_KEY, AWS_SECRET_KEY);
 		s3_server = AmazonS3ClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(credentials))
 				.withRegion(Regions.US_WEST_2)
@@ -89,21 +95,6 @@ public class PhylogenesServerWrapper {
 				RESOURCES_BASE = prop.getProperty("RESOURCES_BASE");
 				// makeDir(RESOURCES_BASE);
 			}
-			if (prop.containsKey("S3_ACCESS_KEY")) {
-				S3_ACCESS_KEY = prop.getProperty("S3_ACCESS_KEY");
-				System.out.println("S3_ACCESS_KEY =============> " + S3_ACCESS_KEY);
-			} else if (!System.getProperty("S3_ACCESS_KEY").isEmpty()) {
-				S3_ACCESS_KEY = System.getProperty("S3_ACCESS_KEY");
-			} else {
-				System.out.println("S3_ACCESS_KEY not set!");
-			}
-			if (prop.containsKey("S3_SECRET_KEY")) {
-				S3_SECRET_KEY = prop.getProperty("S3_SECRET_KEY");
-			} else if (!System.getProperty("S3_SECRET_KEY").isEmpty()) {
-				S3_SECRET_KEY = System.getProperty("S3_SECRET_KEY");
-			} else {
-				System.out.println("S3_SECRET_KEY not set!");
-			}
 			if (prop.containsKey("PG_TREE_BUCKET_NAME")) {
 				PG_TREE_BUCKET_NAME = prop.getProperty("PG_TREE_BUCKET_NAME");
 			}
@@ -121,8 +112,6 @@ public class PhylogenesServerWrapper {
 			}
 		} catch (Exception e) {
 			System.out.println("PhylogenesServerWrapper: Prop file not found!");
-			System.out.println("S3_ACCESS_KEY " + System.getenv("S3_ACCESS_KEY"));
-			System.out.println("S3_ACCESS_KEY prop " + System.getProperty("S3_ACCESS_KEY"));
 		}
 	}
 
@@ -1453,7 +1442,6 @@ public class PhylogenesServerWrapper {
 	}
 
 	public static void main(String args[]) {
-		PhylogenesServerWrapper pgServer = new PhylogenesServerWrapper();
 		try {
 			// pgServer.analyzePantherDump();
 			// pgServer.updateAllSolrTrees();
@@ -1462,7 +1450,7 @@ public class PhylogenesServerWrapper {
 			// pgServer.getFastaDocForPrunedTree("PTHR22166", taxon_array);
 			// pgServer.analyzePhyloXml15();
 			// pgServer.analyzePGCsv();
-			pgServer.save_tairid2uniprot_mapping();
+			// pgServer.save_tairid2uniprot_mapping();
 			// pgServer.save_geneid_arabidopsis();
 
 			// PTHR10037
