@@ -13,14 +13,20 @@ import org.tair.module.PantherFamilyList;
 import org.tair.module.panther.Annotation;
 import org.tair.util.Util;
 
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.PostConstruct;
+
+@Component
 public class PantherLocalWrapper {
     private String RESOURCES_DIR = "src/main/resources";
-    private String WEB_RESOURCES_DIR = "WEB-INF";
-    // Change resources base to your local resources panther folder
-    private String RESOURCES_BASE = "C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther_storage";
+
+    @Value("${storage.base}")
+    private String RESOURCES_BASE;
 
     // Change this to the location of where you have saved panther data
     String PATH_FAMILY_LIST = RESOURCES_BASE + "/familyList/";
@@ -54,15 +60,22 @@ public class PantherLocalWrapper {
     private HashMap<String, String> organism_mapping;
     private List<String> organism_names;
 
+    @PostConstruct
+    public void init() {
+        System.out.println("Resource Base: " + RESOURCES_BASE);
+        initPaths();
+    }
+
     public PantherLocalWrapper() {
-        loadProps();
+        
+        // loadProps();
         // System.out.println(PATH_NP_LIST);
         mapper = new ObjectMapper();
         csvFile_noplants = new File(PATH_NP_LIST);
         csvFile_empty = new File(PATH_EMPTY_LIST);
         csvFile_ht = new File(PATH_HT_LIST);
-        this.process_locus2tairId_mapping();
-        this.process_organism_mapping();
+        // this.process_locus2tairId_mapping();
+        // this.process_organism_mapping();
     }
 
     private void loadProps() {

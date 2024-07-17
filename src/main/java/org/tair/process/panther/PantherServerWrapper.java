@@ -49,7 +49,7 @@ public class PantherServerWrapper {
             10090, 10116, 559292, 284812 };
 
     public PantherServerWrapper() {
-        loadProps();
+        // loadProps();
     }
 
     private void loadProps() {
