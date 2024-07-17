@@ -16,10 +16,19 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
 public class PantherETLPipeline {
 
 	PantherServerWrapper pantherServer = new PantherServerWrapper();
-	PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
+	// PantherLocalWrapper pantherLocal = new PantherLocalWrapper();
+
+	@Autowired
+	PantherLocalWrapper pantherLocal;
 
 	@Autowired
 	PhylogenesServerWrapper pgServer;
@@ -39,6 +48,11 @@ public class PantherETLPipeline {
 		// deleteTreesWithoutPlantGenes();
 		// updateOrSaveMSAData();
 		// updateOrSaveGOAnnotations();
+	}
+
+	@PostConstruct
+	public void init() throws Exception{
+		storePantherFilesLocally();
 	}
 
 	public void uploadToServer() throws Exception {
@@ -753,9 +767,11 @@ public class PantherETLPipeline {
 	public static void main(String args[]) throws Exception {
 		long startTime = System.nanoTime();
 
-		PantherETLPipeline etl = new PantherETLPipeline();
+		SpringApplication.run(PantherETLPipeline.class, args);
 
-		etl.storePantherFilesLocally();
+		// PantherETLPipeline etl = new PantherETLPipeline();
+
+		// etl.storePantherFilesLocally();
 		// etl.uploadToServer();
 
 		// etl.updatePublicationsCount();

@@ -68,7 +68,7 @@ public class PhylogenesServerWrapper {
 
 	public PhylogenesServerWrapper(@Value("${aws.accessKey}") String awsAccessKey,
 	@Value("${aws.secretKey}") String awsSecretKey) {
-		loadProps();
+		// loadProps();
 		System.out.println("URL_SOLR: " + URL_SOLR);
 		mysolr = new HttpSolrClient.Builder(URL_SOLR).build();
 		committedCount = 0;
