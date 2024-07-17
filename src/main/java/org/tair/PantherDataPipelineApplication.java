@@ -25,14 +25,14 @@ public class PantherDataPipelineApplication extends SpringBootServletInitializer
 		sa.run(args);
 	}
 
-	@RestController
-	public static class MyController {
+	// @RestController
+	// public static class MyController {
 
-		@RequestMapping("/")
-		public String handler (Model model) {
-			model.addAttribute("msg",
-					"a spring-boot war example");
-			return "myPage";
-		}
-	}
+	// 	@RequestMapping("/")
+	// 	public String handler (Model model) {
+	// 		model.addAttribute("msg",
+	// 				"a spring-boot war example");
+	// 		return "myPage";
+	// 	}
+	// }
 }

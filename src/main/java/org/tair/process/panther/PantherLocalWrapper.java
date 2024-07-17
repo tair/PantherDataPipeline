@@ -1,7 +1,5 @@
 package org.tair.process.panther;
 
-import com.amazonaws.services.dynamodbv2.xspec.S;
-import com.amazonaws.services.snowball.model.Ec2RequestFailedException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
@@ -9,13 +7,10 @@ import com.opencsv.CSVReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.json.simple.parser.JSONParser;
-import org.tair.module.Children;
 import org.tair.module.FamilyNode;
 import org.tair.module.PantherData;
 import org.tair.module.PantherFamilyList;
 import org.tair.module.panther.Annotation;
-import org.tair.module.pantherForPhylo.Panther;
 import org.tair.util.Util;
 
 import java.io.*;
@@ -25,7 +20,7 @@ public class PantherLocalWrapper {
     private String RESOURCES_DIR = "src/main/resources";
     private String WEB_RESOURCES_DIR = "WEB-INF";
     // Change resources base to your local resources panther folder
-    private String RESOURCES_BASE = "panther_resources";
+    private String RESOURCES_BASE = "C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther_storage";
 
     // Change this to the location of where you have saved panther data
     String PATH_FAMILY_LIST = RESOURCES_BASE + "/familyList/";

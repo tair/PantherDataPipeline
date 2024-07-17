@@ -11,9 +11,6 @@ import org.tair.process.PantherBookXmlToJson;
 import org.tair.process.uniprotdb_iba.GO_IBA_Pipeline;
 import org.tair.process.uniprotdb_paint.GO_PAINT_Pipeline;
 import org.tair.process.pantherToPhyloXmlPipeline;
-import org.tair.util.Util;
-
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -37,7 +34,7 @@ public class PantherETLPipeline {
 		 * 3. Delete panther trees without plant genes.
 		 * 4. Download all MSA json files from panther server to local folder
 		 */
-		// updateOrSaveFamilyList_Json();
+		updateOrSaveFamilyList_Json();
 		// updateOrSavePantherTrees_Json();
 		// deleteTreesWithoutPlantGenes();
 		// updateOrSaveMSAData();
@@ -758,7 +755,7 @@ public class PantherETLPipeline {
 
 		PantherETLPipeline etl = new PantherETLPipeline();
 
-		// etl.storePantherFilesLocally();
+		etl.storePantherFilesLocally();
 		// etl.uploadToServer();
 
 		// etl.updatePublicationsCount();
@@ -777,7 +774,7 @@ public class PantherETLPipeline {
 		// TASK: PHG-326: https://jira.phoenixbioinformatics.org/browse/PHG-326
 		// etl.generate_analyze_dump();
 
-		etl.saveParalogS3_tairids();
+		// etl.saveParalogS3_tairids();
 		// etl.saveOrthologS3_tairids();
 
 		long endTime = System.nanoTime();
