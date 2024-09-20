@@ -32,6 +32,10 @@ public class PantherETLPipeline {
 
 	@Autowired
 	PhylogenesServerWrapper pgServer;
+
+	@Autowired
+	pantherToPhyloXmlPipeline pxml;
+
 	int batchLimit = 20001;
 
 	// ############################################## Panther 15
@@ -43,19 +47,47 @@ public class PantherETLPipeline {
 		 * 3. Delete panther trees without plant genes.
 		 * 4. Download all MSA json files from panther server to local folder
 		 */
-		updateOrSaveFamilyList_Json();
+		// updateOrSaveFamilyList_Json();
 		// updateOrSavePantherTrees_Json();
 		// deleteTreesWithoutPlantGenes();
 		// updateOrSaveMSAData();
 		// updateOrSaveGOAnnotations();
+
+		//Testing Single
+		// savePantherTreeLocallyById("PTHR10688", "TEST", 0);
+		// testSetup();
+	}
+
+	private void testSetup() {
+		String familyId = "PTHR10688";
+		PantherData treeData = pantherLocal.readPantherTreeById(familyId);
+		if(treeData != null && treeData.toString().length() > 0) {
+			System.out.println("treeData is not null");
+			boolean hasPlantGenome = pantherLocal.hasPlantGenome(familyId);
+			System.out.println("hasPlantGenome: " + familyId + "-" + hasPlantGenome);
+		} else {
+			System.out.println("treeData is null");
+		}
 	}
 
 	@PostConstruct
 	public void init() throws Exception{
-		storePantherFilesLocally();
+		// storePantherFilesLocally();
+		// uploadToServer();
+
+		// TASK: PHG-330: https://jira.phoenixbioinformatics.org/browse/PHG-330
+		generatePhyloXML();
+
+		// uploadSingleTreeToS3("PTHR10556", "TEST");
+		// savePantherTreeLocallyById("PTHR10556", "TEST", 0);
 	}
 
 	public void uploadToServer() throws Exception {
+
+		/**
+		 * 5. Upload Modified Phylogenes Trees to S3 bucket.
+		 */
+		// uploadTreesToS3();
 
 		/**
 		 * 6. Reindex Solr DB based on local panther files and change in solr schema.
@@ -81,7 +113,7 @@ public class PantherETLPipeline {
 		/**
 		 * 9. Update Publication Counts on Solr: PHG-329
 		 */
-		pgServer.updateAllSolrTreePubCounts();
+		// pgServer.updateAllSolrTreePubCounts();
 
 		/**
 		 * 10. Set uniprotIds and GoAnnotations Count on solr for each tree
@@ -141,6 +173,9 @@ public class PantherETLPipeline {
 		pantherLocal.initLogWriter(1);
 		while (si < batchLimit) {
 			List<FamilyNode> familyListBatch = pantherLocal.getLocalPantherFamilyList(si);
+			if(familyListBatch == null || familyListBatch.size() == 0) {
+				break;
+			}
 			int ei = familyListBatch.size();
 			for (int i = nested_si; i < ei; i++) {
 				String familyId = familyListBatch.get(i).getFamily_id();
@@ -149,7 +184,7 @@ public class PantherETLPipeline {
 					savePantherTreeLocallyById(familyId, familyName, i);
 				}
 				if (!forced && !pantherLocal.doesPantherTreeExist(familyId)) {
-					System.out.println("Not Exists " + familyId);
+					// System.out.println("Not Exists " + familyId);
 					savePantherTreeLocallyById(familyId, familyName, i);
 				}
 				// for (int j = 0; j < sel_ids.length; j++) {
@@ -197,14 +232,14 @@ public class PantherETLPipeline {
 						System.out.println("MSA Data is empty " + familyId);
 						continue;
 					}
-					// // Save json string as local file
-					// String msaJson = pantherLocal.saveMSADataAsJsonFile(familyId, msaData);
+					// Save json string as local file
+					String msaJson = pantherLocal.saveMSADataAsJsonFile(familyId, msaData);
 					// String fileName = familyId + ".json";
 					// pgServer.uploadJsonToPGMsaBucket(fileName, msaJson);
 				}
 
 				if (i % 20 == 0) {
-					// System.out.println("MSA saved " + i);
+					System.out.println("MSA saved " + i);
 				}
 			}
 			si = si + 1000;
@@ -265,7 +300,7 @@ public class PantherETLPipeline {
 		// 1. Download GO IBA Annotation files
 		downloadIbaAnnotations();
 		// 2. Download GO PAINT Annotation files
-		downloadPaintAnnotations();
+		// downloadPaintAnnotations();
 	}
 
 	// Latest Download: 03.15.2022 from
@@ -289,7 +324,7 @@ public class PantherETLPipeline {
 		try {
 			paint_pipe.downloadPAINTFilesLocally();
 		} catch (Exception e) {
-			System.out.println("Error while downloading IBA files locally!");
+			System.out.println("Error while downloading PAINT files locally!");
 			e.printStackTrace();
 		}
 	}
@@ -347,20 +382,16 @@ public class PantherETLPipeline {
 		int si = 1;
 		pantherLocal.initLogWriter(0);
 		while (si < 20000) {
-			System.out.println("index " + si);
 			List<FamilyNode> familyListBatch = pantherLocal.getLocalPantherFamilyList(si);
+			if(familyListBatch == null || familyListBatch.size() == 0) {
+				break;
+			}
 			for (int i = 0; i < familyListBatch.size(); i++) {
 				String id = familyListBatch.get(i).getFamily_id();
-				PantherData origPantherData = pantherLocal.readPantherTreeById(id);
-				if (origPantherData != null) {
-					// Has plant genome
-					boolean hasPlantGenome = new PantherBookXmlToJson().hasPlantGenome(origPantherData);
-					if (!hasPlantGenome) {
-						pantherLocal.deleteFile(id);
-						System.out.println("No plants deleted " + id);
-						pantherLocal.logDeletedId(id);
-					}
-				} else {
+				boolean hasPlantGenome = pantherLocal.hasPlantGenome(id);
+				if (!hasPlantGenome) {
+					pantherLocal.deleteFile(id);
+					System.out.println("No plants deleted " + id);
 					pantherLocal.logDeletedId(id);
 				}
 			}
@@ -507,8 +538,9 @@ public class PantherETLPipeline {
 	}
 
 	public void generatePhyloXML() {
-		pantherToPhyloXmlPipeline pxml = new pantherToPhyloXmlPipeline();
+		System.out.println("Generating PhyloXML from panther pruned trees");
 		pxml.convertAllInDirectory();
+		System.out.println("Uploading PhyloXML files to S3");
 		pxml.uploadAlltoS3();
 	}
 
@@ -523,6 +555,30 @@ public class PantherETLPipeline {
 		// pgServer.analyzePantherDump(filename);
 		filename = "panther17_annos_apr182022.csv";
 		pgServer.analyzePantherAnnotations2(filename);
+	}
+
+	public void uploadTreesToS3() throws Exception {
+		int si = 1;
+		while (si < 18001) {
+			List<FamilyNode> pantherFamilyList = pantherLocal.getLocalPantherFamilyList(si);
+			for (int i = 0; i < pantherFamilyList.size(); i++) {
+				String id = pantherFamilyList.get(i).getFamily_id();
+				uploadSingleTreeToS3(id);
+				if(i % 100 == 0) {
+					System.out.println("Uploading " + id + " idx: " + (si + i));
+				}
+			}
+			si = si + 1000;
+		}
+	}
+
+	public void uploadSingleTreeToS3(String id) throws Exception {
+		PantherData origPantherData = pantherLocal.readPantherTreeById(id);
+		if (origPantherData != null) {
+			// System.out.println("Uploading " + id);
+			String filename = id + ".json";
+			pgServer.uploadJsonToPGTreeBucket(filename, origPantherData.getJsonString());
+		}
 	}
 
 	public void indexSingleIdOnSolr(String id) throws Exception {
@@ -566,13 +622,14 @@ public class PantherETLPipeline {
 		pgServer.clearSolr();
 
 		System.out.println("START IDX " + si);
-		while (si < 16001) {
+		while (si < 20001) {
 			List<FamilyNode> pantherFamilyList = pantherLocal.getLocalPantherFamilyList(si);
 			List<PantherData> pantherList = new ArrayList<>();
 			for (int i = 0; i < pantherFamilyList.size(); i++) {
 				String id = pantherFamilyList.get(i).getFamily_id();
 				PantherData origPantherData = pantherLocal.readPantherTreeById(id);
 				if (origPantherData != null) {
+					origPantherData.setId(id);
 					String familyName = pantherFamilyList.get(i).getFamily_name();
 					PantherData modiPantherData = new PantherBookXmlToJson().convertJsonToSolrDocument(origPantherData,
 							familyName);
@@ -587,20 +644,15 @@ public class PantherETLPipeline {
 						pantherLocal.logEmptyId(id);
 						continue;
 					}
-					System.out.println(modiPantherData.getId() + " idx: " + i + " size: "
-							+ modiPantherData.getJsonString().length());
-					pgServer.saveAndCommitToSolr(pantherList);
-					pantherList.clear();
-
-					String jsonStr = modiPantherData.getJsonString();
-					pantherLocal.saveSolrIndexedTreeAsFile(id, jsonStr);
-					// Save json string as local file
-					if (saveToS3) {
-						String filename = id + ".json";
-						pgServer.uploadJsonToPGTreeBucket(filename, jsonStr);
+					// System.out.println(modiPantherData.getId() + " idx: " + i + " size: "
+					// 		+ modiPantherData.getJsonString().length());
+					if(i % 100 == 0) {
+						System.out.println("Processed " + id + " idx: " + (si + i));
+						pgServer.saveAndCommitToSolr(pantherList);							
+						pantherList.clear();
 					}
 				} else {
-					System.out.println("File not found (Deleted)" + id);
+					// System.out.println("File not found (Deleted)" + id);
 					// pantherLocal.logEmptyId(id);
 					continue;
 				}
@@ -780,9 +832,6 @@ public class PantherETLPipeline {
 		// etl.updateLocusGeneNames();
 		// etl.updateLocusGeneNameById("PTHR20835");
 		// etl.analyzePantherFamilies();
-
-		// TASK: PHG-330: https://jira.phoenixbioinformatics.org/browse/PHG-330
-		// etl.generatePhyloXML();
 
 		// TASK: PHHG-331: https://jira.phoenixbioinformatics.org/browse/PHG-308
 		// etl.generateCsvs();

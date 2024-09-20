@@ -38,7 +38,7 @@ public class GO_IBA_Pipeline {
     public GO_IBA_Pipeline() {
         loadProps();
         solrClient = new HttpSolrClient.Builder(BASE_SOLR_URL).build();
-        GO_IBA_RESOURCES_DIR = RESOURCES_BASE + "/iba/";
+        GO_IBA_RESOURCES_DIR = RESOURCES_BASE + "/iba";
         makeDir(GO_IBA_RESOURCES_DIR);
         GO_IBA_LOGS_DIR = GO_IBA_RESOURCES_DIR + "/logs/";
         makeDir(GO_IBA_LOGS_DIR);

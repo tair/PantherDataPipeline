@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.tair.module.PantherData;
 //import org.tair.module.pantherForPhylo.*;
 import org.tair.module.panther.*;
@@ -11,6 +13,7 @@ import org.tair.module.pantherForPhylo.Accession;
 import org.tair.module.pantherForPhylo.familyList;
 import org.tair.module.pantherForPhylo.FamilyNames;
 import org.tair.module.phyloxml.*;
+import org.tair.process.panther.PantherLocalWrapper;
 import org.tair.process.panther.PhylogenesServerWrapper;
 
 import java.io.File;
@@ -29,37 +32,20 @@ import javax.xml.transform.stream.StreamResult;
     Purpose:
         Input: place Panther Json Files in main/resources/panther/pruned_panther_files directory
         Output: receive Json files in xml format in main/resources/phyloxml directory
-
-        There are some sample panther json files in there currently.
 */
+@Component
 public class pantherToPhyloXmlPipeline {
-    private String RESOURCES_DIR = "src/main/resources";
-    public static String RESOURCES_BASE = "panther_resources";
-    public static String PHYLO_BUCKET_NAME = "";
+
+    @Value("${phyloxml_s3_bucket}")
+    public String PHYLO_BUCKET_NAME = "";
 
     @Autowired
     PhylogenesServerWrapper pgServer;
 
-    public pantherToPhyloXmlPipeline() {
-        loadProps();
-    }
+    @Autowired
+    PantherLocalWrapper pantherLocalWrapper;
 
-    private void loadProps() {
-        try {
-            InputStream input = new FileInputStream(RESOURCES_DIR + "/application.properties");
-            // load props
-            Properties prop = new Properties();
-            prop.load(input);
-            // System.out.println(prop);
-            if (prop.containsKey("RESOURCES_BASE")) {
-                RESOURCES_BASE = prop.getProperty("RESOURCES_BASE");
-            }
-            if (prop.containsKey("PHYLO_BUCKET_NAME")) {
-                PHYLO_BUCKET_NAME = prop.getProperty("PHYLO_BUCKET_NAME");
-            }
-        } catch (Exception e) {
-            // System.out.println("Prop file not found!");
-        }
+    public pantherToPhyloXmlPipeline() {
     }
 
     public static void main(String args[]) {
@@ -80,16 +66,20 @@ public class pantherToPhyloXmlPipeline {
     // specifically converts all pruned pantherForPhylo files from resource
     // directory
     // and places them into phyloxml directory
-    public static void convertAllInDirectory() {
-        String src_dir = RESOURCES_BASE + "/pruned_panther_files";
-        String target_dir = RESOURCES_BASE + "/phyloXml";
-        File dir = new File(src_dir);
+    public void convertAllInDirectory() {
+        if(pantherLocalWrapper == null) {
+            System.out.println("pantherLocalWrapper is null");
+            return;
+        }
+        System.out.println(pantherLocalWrapper.getResourceBasePath());
+        String target_dir = pantherLocalWrapper.getResourceBasePath() + "/phyloXml";
         File targetdir_file = new File(target_dir);
         if (!targetdir_file.isDirectory()) {
             targetdir_file.mkdir();
-            System.out.println("Making dir " + target_dir);
+            System.out.println("Making target dir " + target_dir);
         }
-        File[] directoryListing = dir.listFiles();
+        File[] directoryListing = pantherLocalWrapper.getPrunedPantherFiles();
+        System.out.println("Converting " + directoryListing.length + " files to phyloxml");
         if (directoryListing != null) {
             int fileCount = 0;
             for (File child : directoryListing) {
@@ -101,8 +91,9 @@ public class pantherToPhyloXmlPipeline {
         }
     }
 
+
     public void uploadAlltoS3() {
-        File dir = new File(RESOURCES_BASE + "/phyloXml");
+        File dir = new File(pantherLocalWrapper.getResourceBasePath() + "/phyloXml");
         if (PHYLO_BUCKET_NAME.isEmpty()) {
             System.out.println("add PHYLO_BUCKET_NAME to application.properties");
             return;
@@ -113,18 +104,16 @@ public class pantherToPhyloXmlPipeline {
             int fileCount = 0;
             for (File child : directoryListing) {
                 if (child.getName().charAt(0) != '.') {// to ignore files such as .gitignore and .ds_store
-                    if (child.getName().equals("PTHR16124.xml")) {
-                        fileCount++;
-                        pgServer.uploadObjectToBucket(bucketName, child.getName(), child);
-                        System.out.println("Saved S3: " + fileCount + " " + child.getName());
-                    }
+                    fileCount++;
+                    pgServer.uploadObjectToBucket(bucketName, child.getName(), child);
+                    System.out.println("Saved S3: " + fileCount + " " + child.getName());
                 }
             }
         }
     }
 
     void uploadSelectedToS3() {
-        File dir = new File(RESOURCES_BASE + "/phyloXml");
+        File dir = new File(pantherLocalWrapper.getResourceBasePath() + "/phyloXml");
         String bucketName = "phyloxml-15";
         File[] directoryListing = dir.listFiles();
         String[] sel_ids = { "PTHR10177" };
@@ -147,13 +136,13 @@ public class pantherToPhyloXmlPipeline {
     // only input file name without file extension
     // files r normally located in main/resources/pruned_panther_files, however
     // u can change path if json files placed elsewhere
-    static void PantherJsonToPhyloXml(String fileName) {
+    void PantherJsonToPhyloXml(String fileName) {
         // declarations for mapping pantherForPhylo json objects to java objects
         ObjectMapper objectMapper = new ObjectMapper();
         PantherData panther = new PantherData();
         try {
             // mapping pantherForPhylo json file to pantherj java object
-            panther = objectMapper.readValue(new File(RESOURCES_BASE + "/pruned_panther_files/" + fileName + ".json"),
+            panther = objectMapper.readValue(new File(pantherLocalWrapper.getResourceBasePath() + "/pruned_panther_files/" + fileName + ".json"),
                     PantherData.class);
             panther = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(panther.getJsonString(),
                     PantherData.class);
@@ -170,7 +159,7 @@ public class pantherToPhyloXmlPipeline {
             // while level order traversal
             constructPhyloTreeWithAnnoTree(panther.getSearch().getAnnotation_node(), phylo.getPhylogeny().getClade());
             // transform phlyo java object to xml local file
-            String xmlLocalFile_fullPath = RESOURCES_BASE + "/phyloXml/" + fileName + ".xml";
+            String xmlLocalFile_fullPath = pantherLocalWrapper.getResourceBasePath() + "/phyloXml/" + fileName + ".xml";
             // System.out.println(xmlLocalFile_fullPath);
             phyloObjToXML(phylo, xmlLocalFile_fullPath);
         }

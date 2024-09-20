@@ -1,5 +1,6 @@
 package org.tair.process.panther;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.opencsv.CSVWriter;
@@ -26,7 +27,7 @@ public class PantherLocalWrapper {
     private String RESOURCES_DIR = "src/main/resources";
 
     @Value("${storage.base}")
-    private String RESOURCES_BASE;
+    public String RESOURCES_BASE;
 
     // Change this to the location of where you have saved panther data
     String PATH_FAMILY_LIST = RESOURCES_BASE + "/familyList/";
@@ -59,23 +60,17 @@ public class PantherLocalWrapper {
     private HashMap<String, String> tairId2uniprotId_mapping;
     private HashMap<String, String> organism_mapping;
     private List<String> organism_names;
+    private List<String> plant_organism_names;
 
     @PostConstruct
-    public void init() {
+    public void init() throws Exception{
         System.out.println("Resource Base: " + RESOURCES_BASE);
         initPaths();
+        plant_organism_names = Util.getPlantOrganisms();
     }
 
     public PantherLocalWrapper() {
-        
-        // loadProps();
-        // System.out.println(PATH_NP_LIST);
-        mapper = new ObjectMapper();
-        csvFile_noplants = new File(PATH_NP_LIST);
-        csvFile_empty = new File(PATH_EMPTY_LIST);
-        csvFile_ht = new File(PATH_HT_LIST);
-        // this.process_locus2tairId_mapping();
-        // this.process_organism_mapping();
+
     }
 
     private void loadProps() {
@@ -97,7 +92,7 @@ public class PantherLocalWrapper {
     }
 
     private void initPaths() {
-        PATH_FAMILY_LIST = RESOURCES_BASE + "/familyList/";
+        PATH_FAMILY_LIST = RESOURCES_BASE + "\\familyList\\";
         PATH_LOCAL_PRUNED_TREES = RESOURCES_BASE + "/pruned_panther_files/";
         PATH_LOCAL_MSA_DATA = RESOURCES_BASE + "/msa_jsons/";
         PATH_LOCAL_SOLRTREE_JSON = RESOURCES_BASE + "/solr_trees_files/";
@@ -109,6 +104,10 @@ public class PantherLocalWrapper {
         PATH_LARGE_MSA_LIST = RESOURCES_BASE + "/largeMsaFamilyList.csv";
         // log family that has invalid msa data
         PATH_INVALID_MSA_LIST = RESOURCES_BASE + "/invalidMsaFamilyList.csv";
+
+        csvFile_noplants = new File(PATH_NP_LIST);
+        csvFile_empty = new File(PATH_EMPTY_LIST);
+        csvFile_ht = new File(PATH_HT_LIST);
     }
 
     private void process_locus2tairId_mapping() {
@@ -156,6 +155,15 @@ public class PantherLocalWrapper {
         }
     }
 
+    public File[] getPrunedPantherFiles() {
+        File folder = new File(PATH_LOCAL_PRUNED_TREES);
+        return folder.listFiles();
+    }
+
+    public String getResourceBasePath() {
+        return RESOURCES_BASE;
+    }
+    
     public String getLocalFamiliListPath() {
         return PATH_FAMILY_LIST;
     }
@@ -192,16 +200,22 @@ public class PantherLocalWrapper {
     public List<FamilyNode> getLocalPantherFamilyList(int start_index) throws Exception {
         String filename = "familyList_" + start_index + ".json";
         String filepath = PATH_FAMILY_LIST + filename;
-        InputStream input = new FileInputStream(filepath);
+        System.out.println("Reading family list from " + filepath);
+        try {
+            InputStream input = new FileInputStream(filepath);
+            ObjectMapper mapper = new ObjectMapper();
+            String data = mapper.readValue(input, String.class);
 
-        String data = mapper.readValue(input, String.class);
+            PantherFamilyList flJson = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(data,
+                    PantherFamilyList.class);
 
-        PantherFamilyList flJson = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(data,
-                PantherFamilyList.class);
-
-        List<FamilyNode> allFamilies = flJson.getFamilyNodes();
-        System.out.format("Found %d families from %s \n", allFamilies.size(), filename);
-        return allFamilies;
+            List<FamilyNode> allFamilies = flJson.getFamilyNodes();
+            System.out.format("Found %d families from %s \n", allFamilies.size(), filename);
+            return allFamilies;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
     }
 
     public boolean doesPantherTreeExist(String familyId) {
@@ -278,16 +292,12 @@ public class PantherLocalWrapper {
 
     public Annotation getPantherTreeRootById(String familyId) {
         String filePath = PATH_LOCAL_PRUNED_TREES + familyId + ".json";
-        // System.out.println(filePath);
-        InputStream input = null;
-        try {
-            input = new FileInputStream(filePath);
-            PantherData data = mapper.readValue(input, PantherData.class);
-            // Converts json string to a PantherData SearchResult object.
-            PantherData pantherStructureData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(
-                    data.getJsonString(),
-                    PantherData.class);
-            return pantherStructureData.getSearch().getAnnotation_node();
+        ObjectMapper objectMapper = new ObjectMapper();
+        try (FileInputStream input = new FileInputStream(new File(filePath))) {
+            JsonNode rootNode = objectMapper.readTree(input);
+            String jsonString = rootNode.path("jsonString").asText();
+            PantherData pantherData = objectMapper.readValue(jsonString, PantherData.class);
+            return pantherData.getSearch().getAnnotation_node();
         } catch (Exception e) {
             System.out.println("File reading failed! " + e);
             return null;
@@ -343,7 +353,7 @@ public class PantherLocalWrapper {
         try {
             organism_count = iterate_node(root, organism_count);
         } catch (Exception e) {
-            System.out.println("getAllOrganismsFromTree except");
+            System.out.println("getAllOrganismsFromTree: "+ e.getMessage());
         }
         return organism_count;
     }
@@ -380,16 +390,32 @@ public class PantherLocalWrapper {
 
     public PantherData readPantherTreeById(String familyId) {
         String filePath = PATH_LOCAL_PRUNED_TREES + familyId + ".json";
-        InputStream input = null;
-        try {
-            input = new FileInputStream(filePath);
-            return mapper.readValue(input, PantherData.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try (FileInputStream input = new FileInputStream(new File(filePath))) {
+            JsonNode rootNode = objectMapper.readTree(input);
+            String jsonString = rootNode.path("jsonString").asText();
+            // System.out.println(jsonString);
+
+            PantherData pantherData = objectMapper.readValue(jsonString, PantherData.class);
+            pantherData.setJsonString(jsonString);
+            // System.out.println(pantherData.toString());
+            return pantherData;
         } catch (Exception e) {
             // System.out.println("File reading failed! " + e);
             return null;
         }
     }
 
+    public boolean hasPlantGenome(String familyId) {
+        Annotation root = getPantherTreeRootById(familyId);
+        HashMap<String, Integer> organiHashMap = getAllOrganismsFromTree(root);
+        for (String organism : organiHashMap.keySet()) {
+            if(plant_organism_names.contains(organism)) {
+                return true;
+            }
+        }
+        return false;
+    }
     public void deleteFile(String id) {
         makeDir(PATH_LOCAL_PRUNED_TREES + "Deleted/");
         String filePath = PATH_LOCAL_PRUNED_TREES + id + ".json";

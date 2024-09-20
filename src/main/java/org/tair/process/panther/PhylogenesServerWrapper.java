@@ -46,8 +46,8 @@ public class PhylogenesServerWrapper {
 	// S3 Keys
 	String AWS_ACCESS_KEY = "";
 	String AWS_SECRET_KEY = "";
-	String PG_TREE_BUCKET_NAME = "phg-panther-data-17";
-	String PG_MSA_BUCKET_NAME = "phg-panther-msa-data-17";
+	String PG_TREE_BUCKET_NAME = "phg-panther-data-19";
+	String PG_MSA_BUCKET_NAME = "phg-panther-msa-data-19";
 	String PG_CSV_BUCKET_NAME = "";
 	String PG_PARALOG_BUCKET_NAME = "phg-paralogs-17";
 	String PG_ORTHO_BUCKET_NAME = "phg-orthologs-17";
@@ -56,8 +56,6 @@ public class PhylogenesServerWrapper {
 	String PG_PUBLICATIONS_URL = "https://rest.uniprot.org/uniprotkb/search?query=accession:%s&format=tsv&fields=accession,lit_pubmed_id";
 
 	String URL_SOLR = "http://localhost:8983/solr/panther";
-	// private String URL_SOLR = "http://52.37.99.223:8983/solr/panther";
-	// String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
 
 	SolrClient mysolr = null;
 	AmazonS3 s3_server = null;
@@ -976,7 +974,7 @@ public class PhylogenesServerWrapper {
 
 	public void uploadJsonToPGTreeBucket(String filename, String jsonStr) {
 		try {
-			System.out.println("PG_TREE_BUCKET_NAME " + PG_TREE_BUCKET_NAME);
+			// System.out.println("PG_TREE_BUCKET_NAME " + PG_TREE_BUCKET_NAME);
 			uploadJsonToS3(PG_TREE_BUCKET_NAME, filename, jsonStr);
 		} catch (Exception e) {
 			System.out.println("Failed to save to S3 " + e);

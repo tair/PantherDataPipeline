@@ -14,10 +14,19 @@ public class GOAnnotationGafUtils {
     // download gaf files and obo files
     public void loadGoIbaAnnotationsResources(String goIbaResourcesDir, String goIbaGafFtpUrl, String goBasicOboUrl)
             throws Exception {
-        ProcessBuilder pb = new ProcessBuilder("./resources.sh",
-                goIbaResourcesDir,
-                goIbaGafFtpUrl,
-                goBasicOboUrl);
+        String osName = System.getProperty("os.name").toLowerCase();
+        ProcessBuilder pb;
+        if (osName.contains("win")) {
+            pb = new ProcessBuilder("cmd", "/c", "resources.bat",
+            goIbaResourcesDir,
+            goIbaGafFtpUrl,
+            goBasicOboUrl);
+        } else {
+            pb = new ProcessBuilder("./resources.sh",
+                    goIbaResourcesDir,
+                    goIbaGafFtpUrl,
+                    goBasicOboUrl);
+        }
         pb.directory(new File(GO_IBA_SCRIPTS_PATH));
         pb.inheritIO(); // print script output to console
         Process p = pb.start();
