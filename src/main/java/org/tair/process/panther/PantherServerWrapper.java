@@ -24,24 +24,7 @@ public class PantherServerWrapper {
     private String PANTHER_BASE_URL = PANTHER_ROOT + "treeinfo";
     private String BASE_MSA_URL = PANTHER_ROOT + "familymsa";
     private String PANTHER_ORTHO_URL = PANTHER_ROOT + "ortholog";
-
-    private String RESOURCES_DIR = "src/main/resources";
-
-    // Panther 15.0 -
-    // private int[] taxon_filters_arr = { 13333, 3702, 15368, 51351, 3055, 2711,
-    // 3659, 4155, 3847, 3635, 4232, 112509,
-    // 3880, 214687, 4097, 39947,
-    // 70448, 42345, 3218, 3694, 3760, 3988, 4555, 4081, 4558, 3641, 4565, 29760,
-    // 4577, 29655, 6239, 7955, 44689,
-    // 7227, 83333, 9606, 10090, 10116,
-    // 559292, 284812, 3708, 4072, 71139, 51240, 4236, 3983, 4432, 88036, 4113, 3562
-    // };
-
-    // Panther 17.0 -
-    private int[] taxon_filters_arr = { 13333, 3702, 15368, 51351, 3055, 2711, 3659, 4155, 3847, 3635, 4232, 112509,
-            3880, 214687, 4097, 39947, 105231, 3197, 3218, 3694, 3760, 3988, 4555, 4081, 4558, 3641, 4565, 29760, 4577,
-            29655, 3708, 4072, 71139, 51240, 4236, 3983, 4432, 88036, 4113, 3562, 6239, 7955, 44689, 7227, 83333, 9606,
-            10090, 10116, 559292, 284812 };
+    
 
     private int[] taxon_filters_arr_ortho = { 13333, 15368, 51351, 3055, 2711, 3659, 4155, 3847, 3635, 4232, 112509,
             3880, 214687, 4097, 39947, 105231, 3197, 3218, 3694, 3760, 3988, 4555, 4081, 4558, 3641, 4565, 29760, 4577,
@@ -49,28 +32,6 @@ public class PantherServerWrapper {
             10090, 10116, 559292, 284812 };
 
     public PantherServerWrapper() {
-        // loadProps();
-    }
-
-    private void loadProps() {
-        try {
-            InputStream input = new FileInputStream(RESOURCES_DIR + "/application.properties");
-            // load props
-            Properties prop = new Properties();
-            prop.load(input);
-            // System.out.println(prop);
-            if (prop.containsKey("PANTHER_FL_URL")) {
-                PANTHER_FL_URL = prop.getProperty("PANTHER_FL_URL");
-            }
-            if (prop.containsKey("PANTHER_BASE_URL")) {
-                PANTHER_BASE_URL = prop.getProperty("PANTHER_BASE_URL");
-            }
-            if (prop.containsKey("BASE_MSA_URL")) {
-                BASE_MSA_URL = prop.getProperty("BASE_MSA_URL");
-            }
-        } catch (Exception e) {
-            System.out.println("PantherServerWrapper: Prop file not found!");
-        }
     }
 
     public int getCount_allFamilies() throws Exception {
@@ -91,10 +52,12 @@ public class PantherServerWrapper {
     // Get Panther Book Info for given id using id and taxon filters (to get pruned
     // trees)
     public String readPantherTreeById(String family_id) throws Exception {
+        int[] taxon_filters_arr = Util.getTaxonFilters();
         String taxonFiltersParam = IntStream.of(taxon_filters_arr)
                 .mapToObj(Integer::toString)
                 .collect(Collectors.joining(","));
         String prunedTreeUrl = PANTHER_BASE_URL + "?family=" + family_id + "&taxonFltr=" + taxonFiltersParam;
+        System.out.println("prunedTreeUrl " + prunedTreeUrl);
         String jsonString = Util.readJsonFromUrl(prunedTreeUrl);
         return jsonString;
     }
@@ -111,10 +74,12 @@ public class PantherServerWrapper {
     }
 
     public String readMsaByIdFromServer(String family_id) throws Exception {
+        int[] taxon_filters_arr = Util.getTaxonFilters();
         String taxonFiltersParam = IntStream.of(taxon_filters_arr)
                 .mapToObj(Integer::toString)
                 .collect(Collectors.joining(","));
         String msaTreeUrl = BASE_MSA_URL + "?family=" + family_id + "&taxonFltr=" + taxonFiltersParam;
+        // System.out.println("msaTreeUrl " + msaTreeUrl);
         return Util.readJsonFromUrl(msaTreeUrl);
     }
 

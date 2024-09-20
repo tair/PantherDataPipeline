@@ -180,14 +180,9 @@ public class PantherBookXmlToJson {
 	}
 
 	public PantherData convertJsonToSolrDocument(PantherData orig, String familyName) throws Exception {
+		// System.out.println("Converting json to solr document " + orig.getId());
 		this.annotations = new ArrayList<Annotation>();
-		String jsonString = orig.getJsonString();
-
-		// convert json string to Panther object
-		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
-				PantherData.class);
-		this.pantherData.setId(orig.getId());
-		this.pantherData.setJsonString(jsonString);
+		this.pantherData = orig;
 		this.pantherData.setFamily_name(familyName);
 		try {
 			if (this.pantherData.getSearch() == null) {
@@ -252,14 +247,13 @@ public class PantherBookXmlToJson {
 		return false;
 	}
 
-	public boolean hasPlantGenome(PantherData orig) throws Exception {
+	public boolean hasPlantGenome(PantherData original) throws Exception {
 		this.annotations = new ArrayList<Annotation>();
-		String jsonString = orig.getJsonString();
+		// String jsonString = original.getJsonString();
 
 		// convert json string to Panther object
-		this.pantherData = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).readValue(jsonString,
-				PantherData.class);
-		this.pantherData.setId(orig.getId());
+		this.pantherData = original;
+		this.pantherData.setId(original.getId());
 		if (this.pantherData.getSearch() != null) {
 			if (this.pantherData.getSearch().getAnnotation_node() != null) {
 				Annotation rootNodeAnnotation = this.pantherData.getSearch().getAnnotation_node();
