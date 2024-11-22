@@ -75,8 +75,11 @@ public class PantherETLPipeline {
 		// storePantherFilesLocally();
 		// uploadToServer();
 
-		// TASK: PHG-330: https://jira.phoenixbioinformatics.org/browse/PHG-330
-		generatePhyloXML();
+		// TASK: PHG-330 - https://jira.phoenixbioinformatics.org/browse/PHG-330
+		// generatePhyloXML();
+
+		// TASK: PHG-365 - https://jira.phoenixbioinformatics.org/browse/PHG-365
+		updatePublicationsCount();
 
 		// uploadSingleTreeToS3("PTHR10556", "TEST");
 		// savePantherTreeLocallyById("PTHR10556", "TEST", 0);
@@ -126,8 +129,7 @@ public class PantherETLPipeline {
 	}
 
 	public void updatePublicationsCount() throws Exception {
-		// pgServer.updateAllSolrTreePubCounts();
-		pgServer.Temp_updateAllSolrTreePubCounts();
+		pgServer.updateAllSolrTreePubCounts();
 	}
 
 	public void updateSolr_selected() throws Exception {

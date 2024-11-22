@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class PhylogenesServerWrapper {
-	private String RESOURCES_DIR = "src/main/resources";
+	@Value("${storage.base}")
 	private String RESOURCES_BASE = "panther_resources";
 	// S3 Keys
 	String AWS_ACCESS_KEY = "";
@@ -53,7 +53,9 @@ public class PhylogenesServerWrapper {
 	String PG_ORTHO_BUCKET_NAME = "phg-orthologs-17";
 	String PG_PARALOG_DL_BUCKET_NAME = "phg-paralogs-download-17";
 	String PG_ORTHO_DL_BUCKET_NAME = "phg-orthologs-download-17";
-	String PG_PUBLICATIONS_URL = "https://rest.uniprot.org/uniprotkb/search?query=accession:%s&format=tsv&fields=accession,lit_pubmed_id";
+
+	@Value("${uniprot_pub_url}")
+	String PG_PUBLICATIONS_URL = "https://rest.uniprot.org/uniprotkb/stream?fields=lit_pubmed_id&format=tsv&query=accession:";
 
 	String URL_SOLR = "http://localhost:8983/solr/panther";
 
@@ -78,39 +80,6 @@ public class PhylogenesServerWrapper {
 				.withCredentials(new AWSStaticCredentialsProvider(credentials))
 				.withRegion(Regions.US_WEST_2)
 				.build();
-	}
-
-	private void loadProps() {
-		try {
-			String propPath = RESOURCES_DIR + "/application.properties";
-			InputStream input = new FileInputStream(propPath);
-			System.out.println("Prop path " + propPath);
-			// load props
-			Properties prop = new Properties();
-			prop.load(input);
-
-			if (prop.containsKey("RESOURCES_BASE")) {
-				RESOURCES_BASE = prop.getProperty("RESOURCES_BASE");
-				// makeDir(RESOURCES_BASE);
-			}
-			if (prop.containsKey("PG_TREE_BUCKET_NAME")) {
-				PG_TREE_BUCKET_NAME = prop.getProperty("PG_TREE_BUCKET_NAME");
-			}
-			if (prop.containsKey("PG_MSA_BUCKET_NAME")) {
-				PG_MSA_BUCKET_NAME = prop.getProperty("PG_MSA_BUCKET_NAME");
-			}
-			if (prop.containsKey("PG_CSV_BUCKET_NAME")) {
-				PG_CSV_BUCKET_NAME = prop.getProperty("PG_CSV_BUCKET_NAME");
-			}
-			if (prop.containsKey("URL_SOLR")) {
-				URL_SOLR = prop.getProperty("URL_SOLR");
-			}
-			if (prop.containsKey("PG_PUBLICATIONS_URL")) {
-				PG_PUBLICATIONS_URL = prop.getProperty("PG_PUBLICATIONS_URL");
-			}
-		} catch (Exception e) {
-			System.out.println("PhylogenesServerWrapper: Prop file not found!");
-		}
 	}
 
 	public void makeDir(String dirPath) {
@@ -210,26 +179,21 @@ public class PhylogenesServerWrapper {
 			Object[] uniprot_ids = treeIdResponse.getResults().get(i).getFieldValues("uniprot_ids").toArray();
 
 			List<String> publicationCountList = new ArrayList<String>();
-			// 7589
-			// if (i < 7589) {
-			// // System.out.println("break ...");
-			// continue;
-			// }
-			// System.out.println(i + " -updating treeId " + treeId + " ... uniprots:" +
-			// uniprot_ids.length);
 			for (int j = 0; j < uniprot_ids.length; j++) {
 				String uniprot_id = uniprot_ids[j].toString();
 				// System.out.println("uni " + uniprot_id);
 				Uniprot2PubMapping uni2pub = new Uniprot2PubMapping();
-				if (uniprot_id.equals("Q9SLA2")) {
-					List<String> pubs = psw.getPublicationsByUniprotId(uniprot_id);
-					uni2pub.setPub_count(pubs.size());
-					uni2pub.setUniprot_id(uniprot_id.toLowerCase());
-					ObjectWriter ow = new ObjectMapper().writer();
-					String goAnnotationDataStr = ow.writeValueAsString(uni2pub);
-					System.out.println(goAnnotationDataStr);
-					publicationCountList.add(goAnnotationDataStr);
+				List<String> pubs = psw.getPublicationsByUniprotId(uniprot_id);
+				if(pubs == null) {
+					System.out.println(String.format("Error in getting publications for %s", uniprot_id));
+					break;
 				}
+				uni2pub.setPub_count(pubs.size());
+				uni2pub.setUniprot_id(uniprot_id.toLowerCase());
+				ObjectWriter ow = new ObjectMapper().writer();
+				String goAnnotationDataStr = ow.writeValueAsString(uni2pub);
+				System.out.println(String.format("%s: %s", treeId, goAnnotationDataStr));
+				publicationCountList.add(goAnnotationDataStr);
 			}
 			// atomicUpdateSolr(treeId, "publications_count", publicationCountList);
 		}

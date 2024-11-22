@@ -14,14 +14,16 @@ public class PublicationsServerWrapper {
     }
 
     public List<String> getPublicationsByUniprotId(String uniprot_id) throws Exception {
-        // https://rest.uniprot.org/uniprotkb/search?query=accession:Q9SLA2&format=tsv&fields=accession,lit_pubmed_id
+        // https://rest.uniprot.org/uniprotkb/stream?fields=lit_pubmed_id&format=tsv&query=accession:%s
         String url = String.format(
                 publications_url,
                 uniprot_id);
-        // System.out.println("url " + url);
         String tabbedString = Util.readContentFromWebJsonToJson(url);
         String[] lines = tabbedString.split("\n");
-        // System.out.println(lines[1]);
+        if(lines.length < 2) {
+            System.out.println(lines[0]);
+            return null;
+        }
         String[] pubmed_ids_str = lines[1].split("\t");
         List<String> pubmed_ids = new ArrayList<>();
         for (int i = 0; i < pubmed_ids_str.length; i++) {

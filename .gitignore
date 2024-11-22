@@ -33,3 +33,17 @@ mvnw.cmd
 /src/main/logs/
 !/src/main/logs/uniprot_db/.keep
 src/main/resources/application.properties
+solr-8.11.2/bin/
+solr-8.11.2/contrib/
+solr-8.11.2/dist/
+solr-8.11.2/example/
+solr-8.11.2/licenses/
+solr-8.11.2/server/lib/
+solr-8.11.2/server/logs/
+solr-8.11.2/server/resources/
+solr-8.11.2/server/solr/__MACOSX/
+solr-8.11.2/server/solr/paint_db/data/
+solr-8.11.2/server/solr/panther/data/
+solr-8.11.2/server/solr/uniprot_db/data/
+solr-8.11.2/server/solr-webapp/webapp/WEB-INF/
+solr-8.11.2/server/tmp/
