@@ -181,21 +181,29 @@ public class PhylogenesServerWrapper {
 			List<String> publicationCountList = new ArrayList<String>();
 			for (int j = 0; j < uniprot_ids.length; j++) {
 				String uniprot_id = uniprot_ids[j].toString();
-				// System.out.println("uni " + uniprot_id);
+				// if(uniprot_id != "Q9SLA2") {
+				// 	break;
+				// }
 				Uniprot2PubMapping uni2pub = new Uniprot2PubMapping();
 				List<String> pubs = psw.getPublicationsByUniprotId(uniprot_id);
 				if(pubs == null) {
-					System.out.println(String.format("Error in getting publications for %s", uniprot_id));
-					break;
+					// System.out.println(String.format("Error in getting publications for %s", uniprot_id));
+					// break;
+				} else {
+					uni2pub.setPub_count(pubs.size());
+					uni2pub.setUniprot_id(uniprot_id.toLowerCase());
+					ObjectWriter ow = new ObjectMapper().writer();
+					String goAnnotationDataStr = ow.writeValueAsString(uni2pub);
+					// System.out.println(String.format("%s: %s", treeId, goAnnotationDataStr));
+					publicationCountList.add(goAnnotationDataStr);
 				}
-				uni2pub.setPub_count(pubs.size());
-				uni2pub.setUniprot_id(uniprot_id.toLowerCase());
-				ObjectWriter ow = new ObjectMapper().writer();
-				String goAnnotationDataStr = ow.writeValueAsString(uni2pub);
-				System.out.println(String.format("%s: %s", treeId, goAnnotationDataStr));
-				publicationCountList.add(goAnnotationDataStr);
+				// Log inner loop progress
+				int innerProgressPercentage = (j + 1) * 100 / uniprot_ids.length;
+				System.out.print(String.format("		\r%s Progress: %d%% (%d/%d)", treeId, innerProgressPercentage, j + 1, uniprot_ids.length));	
 			}
-			// atomicUpdateSolr(treeId, "publications_count", publicationCountList);
+			atomicUpdateSolr(treeId, "publications_count", publicationCountList);
+			int progressPercentage = (i + 1) * 100 / totalDocsFound;
+    		System.out.println(String.format("\rProgress: %d%% (%d/%d)", progressPercentage, i + 1, totalDocsFound));
 		}
 	}
 
