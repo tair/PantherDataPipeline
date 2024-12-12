@@ -21,7 +21,7 @@ public class PublicationsServerWrapper {
         String tabbedString = Util.readContentFromWebJsonToJson(url);
         String[] lines = tabbedString.split("\n");
         if(lines.length < 2) {
-            System.out.println(lines[0]);
+            // System.out.println(lines[0]);
             return null;
         }
         String[] pubmed_ids_str = lines[1].split("\t");
@@ -36,7 +36,7 @@ public class PublicationsServerWrapper {
                 }
             }
         }
-        System.out.format("%s: Added %d\n", uniprot_id, pubmed_ids.size());
+        // System.out.format("%s: Added %d\n", uniprot_id, pubmed_ids.size());
         return pubmed_ids;
     }
 
