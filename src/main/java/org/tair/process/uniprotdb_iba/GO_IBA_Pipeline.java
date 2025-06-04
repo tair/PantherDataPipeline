@@ -22,7 +22,7 @@ public class GO_IBA_Pipeline {
     // application.properties file.
     private String RESOURCES_BASE = "panther_resources";
 
-    private String BASE_SOLR_URL = "http://localhost:8983/solr";
+    private String BASE_SOLR_URL = "http://54.68.67.235:8983/solr";
     // Solr Collection (Make sure this collection is added to your solr database)
     private String solr_collection = "uniprot_db";
     private SolrClient solrClient = null;
@@ -32,7 +32,7 @@ public class GO_IBA_Pipeline {
     private static String GO_IBA_LOGS_DIR = "";
 
     // External URLs to download
-    private String GO_IBA_GAF_FTP_URL = "ftp://ftp.pantherdb.org/downloads/paint/presubmission";
+    private String GO_IBA_GAF_FTP_URL = "ftp://ftp.pantherdb.org/downloads/paint/19.0/2024-09-23/presubmission";
     private String GO_OBO_URL = "http://current.geneontology.org/ontology/go-basic.obo";
 
     public GO_IBA_Pipeline() {

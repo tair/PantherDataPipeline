@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class PantherUpdateGOAnnotations {
 	private String RESOURCES_DIR = "src/main/resources";
-	private String BASE_SOLR_URL = "http://localhost:8983/solr";
+	private String BASE_SOLR_URL = "http://54.68.67.235:8983/solr";
 	public SolrClient solrClient = null;
 	int uniprot_rows;
 
@@ -114,49 +114,51 @@ public class PantherUpdateGOAnnotations {
 		}
 	}
 
-	public void updateGOAnnotations() throws SolrServerException, IOException, InterruptedException {
-		SolrQuery query = new SolrQuery("*:*");
-		query.setFields("id", "uniprot_ids", "go_annotations");
-		query.setSort("id", ORDER.asc);
+	public void updateGOAnnotations() {
+		try {
+			// SolrQuery query = new SolrQuery("*:*");
+			SolrQuery query = new SolrQuery("id:PTHR47947");
+			query.setFields("id", "uniprot_ids", "go_annotations");
+			query.setSort("id", ORDER.asc);
 
-		QueryResponse tempResponse = solrClient.query("panther", query);
-		int total = (int) tempResponse.getResults().getNumFound();
-		query.setRows(total);
-		QueryResponse response = solrClient.query("panther", query);
+			QueryResponse tempResponse = solrClient.query("panther", query);
+			int total = (int) tempResponse.getResults().getNumFound();
+			query.setRows(total);
+			QueryResponse response = solrClient.query("panther", query);
 
-		// using facet to get uniprot_db's max length result, and set the number to
-		// uniprot_db's rows.
-		SolrQuery uniprotFacetQuery = new SolrQuery("*:*");
-		uniprotFacetQuery.setRows(0);
-		uniprotFacetQuery.setFacet(true);
-		uniprotFacetQuery.addFacetField("uniprot_id");
-		uniprotFacetQuery.setFacetLimit(-1); // -1 means unlimited
-		uniprotFacetQuery.setFacetSort(FacetParams.FACET_SORT_COUNT);
+			// using facet to get uniprot_db's max length result, and set the number to
+			// uniprot_db's rows.
+			SolrQuery uniprotFacetQuery = new SolrQuery("*:*");
+			uniprotFacetQuery.setRows(0);
+			uniprotFacetQuery.setFacet(true);
+			uniprotFacetQuery.addFacetField("uniprot_id");
+			uniprotFacetQuery.setFacetLimit(-1); // -1 means unlimited
+			uniprotFacetQuery.setFacetSort(FacetParams.FACET_SORT_COUNT);
 
-		QueryResponse uniprotFacetResponse = solrClient.query("paint_db", uniprotFacetQuery);
-		FacetField uniprotIdFacets = uniprotFacetResponse.getFacetField("uniprot_id");
-		uniprot_rows = (int) uniprotIdFacets.getValues().get(0).getCount();
-		System.out.println("Uniprot DB result rows set to: " + uniprot_rows);
+			QueryResponse uniprotFacetResponse = solrClient.query("paint_db", uniprotFacetQuery);
+			FacetField uniprotIdFacets = uniprotFacetResponse.getFacetField("uniprot_id");
+			uniprot_rows = (int) uniprotIdFacets.getValues().get(0).getCount();
+			System.out.println("Uniprot DB result rows set to: " + uniprot_rows);
 
-		for (int i = 0; i < response.getResults().size(); i++) {
-			SolrDocument result = response.getResults().get(i);
-			Collection<Object> uniprotIds = result.getFieldValues("uniprot_ids");
-			String id = (String) result.getFieldValue("id");
-			System.out.println("Processing: " + id + " idx: " + i);
-			Collection<Object> go_annos = result.getFieldValues("go_annotations");
-			// if(go_annos == null) {
-			List<String> goAnnotationDataList = getGOAnnotationsForTree(uniprotIds);
-			SolrInputDocument doc = new SolrInputDocument();
-			doc.addField("id", id);
-			Map<String, List<String>> partialUpdate = new HashMap<>();
-			partialUpdate.put("set", goAnnotationDataList);
-			doc.addField("go_annotations", partialUpdate);
-			solrClient.add("panther", doc);
-			solrClient.commit("panther");
-			System.out.println("commited: " + id);
-			// } else {
-			// System.out.println("Go annotations already added");
-			// }
+			for (int i = 0; i < response.getResults().size(); i++) {
+				SolrDocument result = response.getResults().get(i);
+				Collection<Object> uniprotIds = result.getFieldValues("uniprot_ids");
+				String id = (String) result.getFieldValue("id");
+				System.out.println("Processing: " + id + " idx: " + i);
+				Collection<Object> go_annos = result.getFieldValues("go_annotations");
+				List<String> goAnnotationDataList = getGOAnnotationsForTree(uniprotIds);
+				SolrInputDocument doc = new SolrInputDocument();
+				doc.addField("id", id);
+				Map<String, List<String>> partialUpdate = new HashMap<>();
+				partialUpdate.put("set", goAnnotationDataList);
+				doc.addField("go_annotations", partialUpdate);
+				solrClient.add("panther", doc);
+				solrClient.commit("panther");
+				System.out.println("commited: " + id);
+			}
+		} catch (Exception e) {
+			System.err.println("Error updating GO annotations: " + e.getMessage());
+			// e.printStackTrace();
 		}
 	}
 
@@ -168,6 +170,7 @@ public class PantherUpdateGOAnnotations {
 		// System.out.println("uniprotIds " + uniprotIds.size());
 		for (Object uniprotId : uniprotIds) {
 			// System.out.println("uniprotId: " + uniprotId.toString().toUpperCase());
+			
 			query.setQuery("uniprot_id:" + uniprotId.toString().toUpperCase());
 			query.setRows(uniprot_rows);
 			QueryResponse response1 = solrClient.query("paint_db", query);
@@ -183,9 +186,10 @@ public class PantherUpdateGOAnnotations {
 				goAnnotations.add((String) result.getFieldValue("go_annotations"));
 			}
 			if (goAnnotations.size() > 0) {
-				// System.out.println(uniprotId.toString().toLowerCase() + " results1: "
-				// + response1.getResults().getNumFound() + ", " +
-				// response2.getResults().getNumFound());
+				if(uniprotId.toString().toLowerCase().equals("a0a0k9pu70")) {
+					System.out.println("uniprotId: " + uniprotId.toString().toLowerCase());
+					System.out.println("goAnnotations: " + goAnnotations.toString());
+				}
 				GOAnnotationData goAnnotationData = new GOAnnotationData();
 				goAnnotationData.setGo_annotations(goAnnotations.toString());
 				goAnnotationData.setUniprot_id(uniprotId.toString().toLowerCase());

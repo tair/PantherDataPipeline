@@ -99,7 +99,7 @@ public class PaintServerWrapper {
 
         String[] evidence_codes = new String[] { "EXP", "IDA", "IEP", "IGI", "IMP", "IPI" };
 
-        int last_processed = 956000;
+        int last_processed = 0;
         try (BufferedReader br = new BufferedReader(new FileReader(csv_path))) {
             String line;
             int count = 0;
@@ -134,7 +134,7 @@ public class PaintServerWrapper {
                 if (count % 1000 == 0) {
                     System.out.println("Processed " + count);
                     System.out.println("Not added " + notAdded_count);
-                    solrClient.commit(solr_collection);
+                    // solrClient.commit(solr_collection);
                 }
                 count = count + 1;
             }
