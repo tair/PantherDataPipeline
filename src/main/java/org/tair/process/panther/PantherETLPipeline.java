@@ -79,7 +79,10 @@ public class PantherETLPipeline {
 		// generatePhyloXML();
 
 		// TASK: PHG-365 - https://jira.phoenixbioinformatics.org/browse/PHG-365
-		updatePublicationsCount();
+		// updatePublicationsCount();
+
+		//TASK: PHG-359 - https://jira.phoenixbioinformatics.org/browse/PHG-359
+		updateGoAnnotations();
 
 		// uploadSingleTreeToS3("PTHR10556", "TEST");
 		// savePantherTreeLocallyById("PTHR10556", "TEST", 0);
@@ -105,13 +108,7 @@ public class PantherETLPipeline {
 		 */
 		// updateSolrAnnotations();
 
-		/**
-		 * 8. update/add go annotations field for panther trees loaded using the
-		 * "uniprot" core on solr.
-		 */
-		// PantherUpdateGOAnnotations PantherUpdateGOAnnotations = new
-		// PantherUpdateGOAnnotations();
-		// PantherUpdateGOAnnotations.updateGOAnnotations();
+		
 
 		/**
 		 * 9. Update Publication Counts on Solr: PHG-329
@@ -298,16 +295,33 @@ public class PantherETLPipeline {
 	}
 
 	// Locally Save Go Annotation Files
-	public void updateOrSaveGOAnnotations() {
+	public void updateGoAnnotations() throws Exception {
 		// 1. Download GO IBA Annotation files
-		downloadIbaAnnotations();
+		// downloadIbaAnnotations();
 		// 2. Download GO PAINT Annotation files
 		// downloadPaintAnnotations();
+
+		// 1. Update IBA Solr
+		// updateIbaSolr();
+
+		// 2. Update PAINT Solr
+		// updatePaintSolr();
+
+		/**
+		 * 8. update/add go annotations field for panther trees loaded using the
+		 * "uniprot" core on solr.
+		 */
+		PantherUpdateGOAnnotations PantherUpdateGOAnnotations = new
+		PantherUpdateGOAnnotations();
+		PantherUpdateGOAnnotations.updateGOAnnotations();
 	}
 
-	// Latest Download: 03.15.2022 from
+	// Last Download: 03.15.2022 from
 	// ftp://ftp.pantherdb.org/downloads/paint/presubmission
 	// (Panther 17)
+	// Latest Download: 04.18.2025 from
+	// http://data.pantherdb.org/ftp/downloads/paint/19.0/2024-09-23/presubmission/
+	// (Panther 19)
 	private void downloadIbaAnnotations() {
 		GO_IBA_Pipeline iba_pipeline = new GO_IBA_Pipeline();
 		try {
@@ -318,9 +332,12 @@ public class PantherETLPipeline {
 		}
 	}
 
-	// Latest Download: 03.15.2022 from
+	// Last Download: 03.15.2022 from
 	// ftp://ftp.pantherdb.org/downloads/paint/17.0/2022-03-10/Pthr_GO_17.0.tsv.tar.gz
 	// (Panther 17)
+	// Latest Download: 04.18.2025 from
+	// http://data.pantherdb.org/ftp/downloads/paint/19.0/2024-09-23/Pthr_GO_19.0.tsv.tar.gz
+	// (Panther 19)
 	private void downloadPaintAnnotations() {
 		GO_PAINT_Pipeline paint_pipe = new GO_PAINT_Pipeline();
 		try {

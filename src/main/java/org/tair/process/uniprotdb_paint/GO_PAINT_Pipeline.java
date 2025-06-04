@@ -19,7 +19,7 @@ public class GO_PAINT_Pipeline {
     // application.properties file.
     private String RESOURCES_BASE = "panther_resources";
 
-    private String BASE_SOLR_URL = "http://localhost:8983/solr";
+    private String BASE_SOLR_URL = "http://54.68.67.235:8983/solr";
     // Solr Collection (Make sure this collection is added to your solr database)
     private String solr_collection = "paint_db";
 
@@ -93,8 +93,8 @@ public class GO_PAINT_Pipeline {
     public void updatePAINTGOFromLocalToSolr(Boolean clearSolr) throws Exception {
         if (clearSolr) {
             // WARNING: remove all data from this collection, make sure you have backup
-            solrClient.deleteByQuery(solr_collection, "*:*");
-            solrClient.commit(solr_collection);
+            // solrClient.deleteByQuery(solr_collection, "*:*");
+            // solrClient.commit(solr_collection);
             System.out.println("cleared all solr data from " + solr_collection);
         }
 
@@ -106,7 +106,7 @@ public class GO_PAINT_Pipeline {
             System.out.println("Found TSV File: " + tsvFile.getName());
         } else {
             if (files.length == 0) {
-                System.out.println("No PAINT TSV file found at the GO_PAINT_RESOURCES_DIR");
+                System.out.println("No PAINT TSV file found at the GO_PAINT_RESOURCES_DIR: " + GO_PAINT_RESOURCES_DIR);
             } else {
                 System.out.println("Only one TSV file must be present at the GO_PAINT_RESOURCES_DIR");
             }
