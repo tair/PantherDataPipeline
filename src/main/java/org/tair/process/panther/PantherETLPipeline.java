@@ -82,7 +82,7 @@ public class PantherETLPipeline {
 		// updatePublicationsCount();
 
 		//TASK: PHG-359 - https://jira.phoenixbioinformatics.org/browse/PHG-359
-		updateGoAnnotations();
+		// updateGoAnnotations();
 
 		// uploadSingleTreeToS3("PTHR10556", "TEST");
 		// savePantherTreeLocallyById("PTHR10556", "TEST", 0);
@@ -460,6 +460,7 @@ public class PantherETLPipeline {
 	}
 
 	private void updateLocusGeneNameById(String pantherId) throws Exception {
+		System.out.println("updateLocusGeneNameById "+ pantherId);
 		HashMap<String, String> mapping = pantherLocal.read_locus2tair_mapping_csv();
 		PantherData origPantherData = pantherLocal.readPantherTreeById(pantherId);
 		if (origPantherData != null) {

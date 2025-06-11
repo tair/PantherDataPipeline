@@ -75,6 +75,8 @@ public class PhylogenesServerWrapper {
 		AWS_ACCESS_KEY = awsAccessKey;
 		AWS_SECRET_KEY = awsSecretKey;
 
+		System.out.println("AWS_ACCESS_KEY: " + AWS_ACCESS_KEY);
+
 		AWSCredentials credentials = new BasicAWSCredentials(AWS_ACCESS_KEY, AWS_SECRET_KEY);
 		s3_server = AmazonS3ClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(credentials))
