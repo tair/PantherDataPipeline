@@ -66,7 +66,7 @@ public class PantherLocalWrapper {
     public void init() throws Exception{
         System.out.println("Resource Base: " + RESOURCES_BASE);
         initPaths();
-        plant_organism_names = Util.getPlantOrganisms();
+        // plant_organism_names = Util.getPlantOrganisms();
     }
 
     public PantherLocalWrapper() {
