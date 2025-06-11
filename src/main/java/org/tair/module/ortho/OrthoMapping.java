@@ -28,51 +28,74 @@ public class OrthoMapping {
     public ArrayList getAllMapped(HashMap<String, String> locus_mapping, HashMap<String, String> org_mapping)
             throws Exception {
         ArrayList listOfmapping = new ArrayList();
-        if (this.getSearch().getMapping() == null) {
-            System.out.println("mapping is null");
+        if (this.getSearch() == null || this.getSearch().getMapping() == null) {
+            System.out.println("search or mapping is null");
             return listOfmapping;
         }
-        // if (this.getSearch().getMapping().getMapped() == null) {
-        // System.out.println(this.getSearch().getMapping());
-        // System.out.println("mapped is null");
-        // return listOfmapping;
-        // }
-        for (int i = 0; i < this.getSearch().getMapping().getMappedList().size(); i++) {
-            // System.out.println(this.getSearch().getMapping());
-            OrthoMapped m = this.getSearch().getMapping().getMappedList().get(i);
+
+        List<OrthoMapped> mappedList = this.getSearch().getMapping().getMappedList();
+        if (mappedList == null || mappedList.isEmpty()) {
+            System.out.println("No mapped results found");
+            return listOfmapping;
+        }
+
+        for (OrthoMapped m : mappedList) {
             HashMap mMap = new HashMap();
-            // https://conf.arabidopsis.org/display/PHYL/New+PantherDB+API (Sec4: Orthologs)
             String gene_id = m.getTarget_gene();
-            // System.out.println(gene_id);
-            String organism_code = gene_id.split("\\|")[0];
+            if (gene_id == null) {
+                continue;
+            }
+
+            String[] parts = gene_id.split("\\|");
+            if (parts.length < 2) {
+                continue;
+            }
+
+            String organism_code = parts[0];
             String organism_name = organism_code;
-            if (org_mapping.get(organism_code) != null) {
+            if (org_mapping != null && org_mapping.get(organism_code) != null) {
                 organism_name = org_mapping.get(organism_code);
             }
-            // System.out.println(organism_name);
-            String extracted_gene_id = gene_id.split("\\|")[1];
-            String code = extracted_gene_id.split("=", 2)[0];
-            if (code.equals("TAIR")) {
-                String val = extracted_gene_id.split("=", 2)[1];
-                val = val.split("=", 2)[1];
-                String updatedGeneId = locus_mapping.get(val);
-                extracted_gene_id = updatedGeneId;
-            } else {
-                extracted_gene_id = extracted_gene_id.split("=", 2)[1];
+
+            String extracted_gene_id = parts[1];
+            String[] gene_parts = extracted_gene_id.split("=", 2);
+            if (gene_parts.length < 2) {
+                continue;
             }
-            String uniprot_id = gene_id.split("UniProtKB=")[1];
+
+            String code = gene_parts[0];
+            if (code.equals("TAIR") && locus_mapping != null) {
+                String val = gene_parts[1];
+                if (val.contains("=")) {
+                    val = val.split("=", 2)[1];
+                }
+                String updatedGeneId = locus_mapping.get(val);
+                if (updatedGeneId != null) {
+                    extracted_gene_id = updatedGeneId;
+                }
+            } else {
+                extracted_gene_id = gene_parts[1];
+            }
+
+            String uniprot_id = "";
+            if (gene_id.contains("UniProtKB=")) {
+                uniprot_id = gene_id.split("UniProtKB=")[1];
+            }
+
             mMap.put("gene_id", extracted_gene_id);
             mMap.put("organism", organism_name);
             mMap.put("uniprot_id", uniprot_id);
             mMap.put("ortholog", m.getOrtholog());
             listOfmapping.add(mMap);
         }
+
         System.out.println("listOfmapping size: " + listOfmapping.size());
         return listOfmapping;
     }
 
     public List<OrthoMapped> getAllMappedOrtho() {
-        return this.search.mapping.getMappedList();
+        return this.search != null && this.search.mapping != null ? 
+               this.search.mapping.getMappedList() : new ArrayList<>();
     }
 
 }
@@ -98,12 +121,14 @@ class Product {
 class Mapping {
     @JsonProperty("mapped")
     private JsonNode mapped;
-    private List<OrthoMapped> mappedList;
+    private List<OrthoMapped> mappedList = new ArrayList<>();
     private OrthoMapped singleMapped;
+    @JsonProperty("unmapped_ids")
+    private JsonNode unmappedIds;
 
     @JsonSetter("mapped")
     public void setMapped(JsonNode mapped) {
-        if (mapped instanceof ArrayNode) {
+        if (mapped != null && mapped instanceof ArrayNode) {
             ObjectMapper mapper = new ObjectMapper();
             // acquire reader for the right type
             ObjectReader reader = mapper.readerFor(new TypeReference<List<OrthoMapped>>() {
@@ -111,25 +136,16 @@ class Mapping {
             try {
                 this.mappedList = reader.readValue(mapped);
             } catch (Exception e) {
-                System.out.println(e);
+                System.out.println("Error parsing mapped data: " + e.getMessage());
+                this.mappedList = new ArrayList<>();
             }
         } else {
             this.mappedList = new ArrayList<>();
-            // ObjectMapper mapper = new ObjectMapper();
-            // // acquire reader for the right type
-            // ObjectReader reader = mapper.readerFor(new TypeReference<Mapped>() {});
-            // try {
-            // Mapped single_mapped = reader.readValue(mapped);
-            // this.mappedList = new ArrayList<>();
-            // this.mappedList.add(single_mapped);
-            // } catch (Exception e) {
-            // System.out.println(e);
-            // }
         }
     }
 
     public List<OrthoMapped> getMappedList() {
-        return mappedList;
+        return mappedList != null ? mappedList : new ArrayList<>();
     }
 
     public OrthoMapped getSingleMapped() {
