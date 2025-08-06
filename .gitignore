@@ -47,3 +47,7 @@ solr-8.11.2/server/solr/panther/data/
 solr-8.11.2/server/solr/uniprot_db/data/
 solr-8.11.2/server/solr-webapp/webapp/WEB-INF/
 solr-8.11.2/server/tmp/
+python_scripts/data/
+notes.txt
+solr-8.11.2.zip
+solr-8.11.2/server/solr/panther.zip

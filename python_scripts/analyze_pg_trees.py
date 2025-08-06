@@ -14,7 +14,7 @@ def generate_pg5_stats():
     """
     
     # Configuration from environment variables
-    SOLR_HOST = os.getenv('SOLR_HOST', 'http://54.68.67.235:8983')
+    SOLR_HOST = os.getenv('SOLR_HOST', 'http://52.37.99.223:8983')
     PANTHER_COLLECTION = os.getenv('PANTHER_COLLECTION', 'panther')
     PANTHER_SOLR_URL = f"{SOLR_HOST}/solr/{PANTHER_COLLECTION}"
     

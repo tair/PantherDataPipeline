@@ -47,7 +47,7 @@ public class PantherETLPipeline {
 		 * 3. Delete panther trees without plant genes.
 		 * 4. Download all MSA json files from panther server to local folder
 		 */
-		// updateOrSaveFamilyList_Json();
+		updateOrSaveFamilyList_Json();
 		// updateOrSavePantherTrees_Json();
 		// deleteTreesWithoutPlantGenes();
 		// updateOrSaveMSAData();
@@ -73,7 +73,7 @@ public class PantherETLPipeline {
 	@PostConstruct
 	public void init() throws Exception{
 		// storePantherFilesLocally();
-		// uploadToServer();
+		uploadToServer();
 
 		// TASK: PHG-330 - https://jira.phoenixbioinformatics.org/browse/PHG-330
 		// generatePhyloXML();
@@ -98,7 +98,7 @@ public class PantherETLPipeline {
 		/**
 		 * 6. Reindex Solr DB based on local panther files and change in solr schema.
 		 */
-		// indexSolrDB(false);
+		indexSolrDB(false);
 
 		// saveLocalMsaToS3();
 
@@ -639,7 +639,7 @@ public class PantherETLPipeline {
 			System.out.println("S3 BUCKET NAME: " + pgServer.PG_TREE_BUCKET_NAME);
 		}
 		System.out.println("~~~~~~~~~~~~~~ Update Solr DB ~~~~~~~~~~~~~~~~");
-		pgServer.clearSolr();
+		// pgServer.clearSolr();
 
 		System.out.println("START IDX " + si);
 		while (si < 20001) {
@@ -668,7 +668,7 @@ public class PantherETLPipeline {
 					// 		+ modiPantherData.getJsonString().length());
 					if(i % 100 == 0) {
 						System.out.println("Processed " + id + " idx: " + (si + i));
-						pgServer.saveAndCommitToSolr(pantherList);							
+						// pgServer.saveAndCommitToSolr(pantherList);							
 						pantherList.clear();
 					}
 				} else {
@@ -837,36 +837,6 @@ public class PantherETLPipeline {
 	}
 
 	public static void main(String args[]) throws Exception {
-		long startTime = System.nanoTime();
-
 		SpringApplication.run(PantherETLPipeline.class, args);
-
-		// PantherETLPipeline etl = new PantherETLPipeline();
-
-		// etl.storePantherFilesLocally();
-		// etl.uploadToServer();
-
-		// etl.updatePublicationsCount();
-
-		// TASK: PHG-337: https://jira.phoenixbioinformatics.org/browse/PHG-327
-		// etl.updateLocusGeneNames();
-		// etl.updateLocusGeneNameById("PTHR20835");
-		// etl.analyzePantherFamilies();
-
-		// TASK: PHHG-331: https://jira.phoenixbioinformatics.org/browse/PHG-308
-		// etl.generateCsvs();
-
-		// TASK: PHG-326: https://jira.phoenixbioinformatics.org/browse/PHG-326
-		// etl.generate_analyze_dump();
-
-		// etl.saveParalogS3_tairids();
-		// etl.saveOrthologS3_tairids();
-
-		long endTime = System.nanoTime();
-		long timeElapsed = endTime - startTime;
-		System.out.println("Execution time in milliseconds : " +
-				timeElapsed / 1000000);
-
-		// etl.updateSolr_selected();
 	}
 }
