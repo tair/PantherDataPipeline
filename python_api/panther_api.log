@@ -1,0 +1,317 @@
+2025-08-06 12:55:52,414 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 12:55:52,422 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 12:55:52,434 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 12:56:12,583 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\fasta_service.py', reloading
+2025-08-06 12:56:12,891 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 12:56:12,900 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 12:56:12,912 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 12:56:34,066 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\__init__.py', reloading
+2025-08-06 12:56:34,400 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 12:56:34,409 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 12:56:34,421 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 12:56:40,496 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\panther_api.py', reloading
+2025-08-06 12:56:40,791 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 12:56:40,800 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 12:56:40,812 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 12:57:02,162 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 12:57:02] "GET /health HTTP/1.1" 200 -
+2025-08-06 12:57:12,977 - __main__ - INFO - FASTA download request for tree: PTHR12345:SF123
+2025-08-06 12:57:14,506 - services.fasta_service - INFO - Generating FASTA for tree PTHR12345:SF123
+2025-08-06 12:57:14,506 - services.tree_service - INFO - Getting tree root annotation for PTHR12345:SF123
+2025-08-06 12:57:14,506 - services.tree_service - INFO - Mapped 3 persistent IDs
+2025-08-06 12:57:14,506 - services.fasta_service - INFO - Processed 3 sequences into FASTA format
+2025-08-06 12:57:14,507 - services.fasta_service - INFO - Generated FASTA with 3 sequences
+2025-08-06 12:57:14,507 - __main__ - INFO - Generated FASTA: 3 sequences, 483 residues
+2025-08-06 12:57:14,507 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 12:57:14] "POST /panther/fastadoc/PTHR12345:SF123 HTTP/1.1" 200 -
+2025-08-06 12:59:23,830 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\tree_service.py', reloading
+2025-08-06 12:59:24,767 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 12:59:24,771 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 12:59:24,778 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 12:59:24,788 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 12:59:25,812 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\s3_service.py', reloading
+2025-08-06 12:59:26,503 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 12:59:26,507 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 12:59:26,515 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 12:59:26,524 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:00:01,787 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\fasta_service.py', reloading
+2025-08-06 13:00:02,475 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:00:02,479 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:00:02,483 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:00:02,491 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:00:02,500 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:00:17,624 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\panther_api.py', reloading
+2025-08-06 13:00:18,343 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:00:18,347 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:00:18,355 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:00:18,364 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:00:41,543 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\panther_api.py', reloading
+2025-08-06 13:00:42,219 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:00:42,224 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:00:42,232 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:00:42,241 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:01:43,693 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\panther_api.py', reloading
+2025-08-06 13:01:44,402 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:01:44,409 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:01:44,417 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:01:44,426 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:02:19,373 - __main__ - INFO - FASTA download request for tree: PTHR12345
+2025-08-06 13:02:21,050 - services.fasta_service - INFO - Generating FASTA for tree PTHR12345
+2025-08-06 13:02:21,050 - services.tree_service - INFO - Getting tree root annotation for PTHR12345
+2025-08-06 13:02:21,050 - services.tree_service - INFO - Mapped 3 persistent IDs
+2025-08-06 13:02:21,050 - services.fasta_service - INFO - Processed 3 sequences into FASTA format
+2025-08-06 13:02:21,051 - services.fasta_service - INFO - Generated FASTA with 3 sequences
+2025-08-06 13:02:21,051 - __main__ - INFO - Generated FASTA: 3 sequences, 483 residues
+2025-08-06 13:02:21,052 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:02:21] "POST /panther/fastadoc/PTHR12345 HTTP/1.1" 200 -
+2025-08-06 13:02:35,970 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:02:35,975 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:02:35,990 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.152:8080
+2025-08-06 13:02:35,990 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-06 13:02:35,991 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:02:36,595 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:02:36,600 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:02:36,607 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:02:36,617 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:02:49,291 - __main__ - INFO - FASTA download request for tree: PTHR12345
+2025-08-06 13:02:49,292 - services.fasta_service - INFO - Generating FASTA for tree PTHR12345
+2025-08-06 13:02:49,292 - services.tree_service - INFO - Getting tree root annotation for PTHR12345
+2025-08-06 13:02:49,292 - services.s3_service - INFO - Fetching tree data from S3: phg-panther-data-19/PTHR12345.json
+2025-08-06 13:02:49,848 - services.s3_service - ERROR - S3 ClientError getting tree data: An error occurred (InvalidAccessKeyId) when calling the GetObject operation: The AWS Access Key Id you provided does not exist in our records.
+2025-08-06 13:02:49,848 - services.tree_service - WARNING - Tree data not found in S3, falling back to mock data for PTHR12345
+2025-08-06 13:02:49,848 - services.tree_service - INFO - Mapped 3 persistent IDs
+2025-08-06 13:02:49,849 - services.s3_service - INFO - Fetching MSA data from S3: phg-panther-msa-data-19/PTHR12345.json
+2025-08-06 13:02:50,363 - services.s3_service - ERROR - S3 ClientError getting MSA data: An error occurred (InvalidAccessKeyId) when calling the GetObject operation: The AWS Access Key Id you provided does not exist in our records.
+2025-08-06 13:02:50,363 - services.fasta_service - WARNING - MSA data not found in S3, falling back to mock data for PTHR12345
+2025-08-06 13:02:50,363 - services.fasta_service - INFO - Processed 3 sequences into FASTA format
+2025-08-06 13:02:50,364 - services.fasta_service - INFO - Generated FASTA with 3 sequences
+2025-08-06 13:02:50,364 - __main__ - INFO - Generated FASTA: 3 sequences, 483 residues
+2025-08-06 13:02:50,364 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:02:50] "POST /panther/fastadoc/PTHR12345 HTTP/1.1" 200 -
+2025-08-06 13:04:07,104 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:04:07,109 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:04:07,127 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.152:8080
+2025-08-06 13:04:07,128 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-06 13:04:07,129 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:04:07,749 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:04:07,753 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:04:07,761 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:04:07,770 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:04:16,918 - __main__ - INFO - FASTA download request for tree: PTHR12345
+2025-08-06 13:04:16,919 - services.fasta_service - INFO - Generating FASTA for tree PTHR12345
+2025-08-06 13:04:16,919 - services.tree_service - INFO - Getting tree root annotation for PTHR12345
+2025-08-06 13:04:16,919 - services.s3_service - INFO - Fetching tree data from S3: phg-panther-data-19/PTHR12345.json
+2025-08-06 13:04:17,464 - services.s3_service - ERROR - S3 ClientError getting tree data: An error occurred (InvalidAccessKeyId) when calling the GetObject operation: The AWS Access Key Id you provided does not exist in our records.
+2025-08-06 13:04:17,465 - services.tree_service - WARNING - Tree data not found in S3, falling back to mock data for PTHR12345
+2025-08-06 13:04:17,465 - services.tree_service - INFO - Mapped 3 persistent IDs
+2025-08-06 13:04:17,465 - services.s3_service - INFO - Fetching MSA data from S3: phg-panther-msa-data-19/PTHR12345.json
+2025-08-06 13:04:17,981 - services.s3_service - ERROR - S3 ClientError getting MSA data: An error occurred (InvalidAccessKeyId) when calling the GetObject operation: The AWS Access Key Id you provided does not exist in our records.
+2025-08-06 13:04:17,981 - services.fasta_service - WARNING - MSA data not found in S3, falling back to mock data for PTHR12345
+2025-08-06 13:04:17,982 - services.fasta_service - INFO - Processed 3 sequences into FASTA format
+2025-08-06 13:04:17,982 - services.fasta_service - INFO - Generated FASTA with 3 sequences
+2025-08-06 13:04:17,982 - __main__ - INFO - Generated FASTA: 3 sequences, 483 residues
+2025-08-06 13:04:17,983 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:04:17] "POST /panther/fastadoc/PTHR12345 HTTP/1.1" 200 -
+2025-08-06 13:05:29,348 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\tree_service.py', reloading
+2025-08-06 13:05:29,429 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:05:30,076 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:05:30,080 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:05:30,087 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:05:30,096 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:05:41,191 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\fasta_service.py', reloading
+2025-08-06 13:05:41,255 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:05:41,881 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:05:41,885 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:05:41,892 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:05:41,901 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:06:11,122 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\panther_api.py', reloading
+2025-08-06 13:06:11,190 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:06:11,803 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:06:11,808 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:06:11,815 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:06:11,824 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:06:19,896 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\panther_api.py', reloading
+2025-08-06 13:06:19,965 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:06:20,586 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:06:20,591 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:06:20,599 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:06:20,608 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:06:28,680 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\panther_api.py', reloading
+2025-08-06 13:06:28,744 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:06:29,365 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:06:29,369 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:06:29,377 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:06:29,386 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:06:41,487 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\panther_api.py', reloading
+2025-08-06 13:06:41,555 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:06:42,169 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:06:42,174 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:06:42,181 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:06:42,190 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:06:55,301 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\tree_service.py', reloading
+2025-08-06 13:06:55,378 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:06:56,042 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:06:56,047 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:06:56,054 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:06:56,063 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:08:13,578 - __main__ - INFO - FASTA download request for tree: PTHR12345
+2025-08-06 13:08:13,579 - services.fasta_service - INFO - Generating FASTA for tree PTHR12345
+2025-08-06 13:08:13,579 - services.tree_service - INFO - Getting tree root annotation for PTHR12345
+2025-08-06 13:08:13,579 - services.s3_service - INFO - Fetching tree data from S3: phg-panther-data-19/PTHR12345.json
+2025-08-06 13:08:14,114 - services.s3_service - ERROR - S3 ClientError getting tree data: An error occurred (InvalidAccessKeyId) when calling the GetObject operation: The AWS Access Key Id you provided does not exist in our records.
+2025-08-06 13:08:14,115 - services.tree_service - ERROR - Error getting tree root annotation for PTHR12345: Tree data not found in S3 for tree ID: PTHR12345
+2025-08-06 13:08:14,115 - services.fasta_service - ERROR - Error generating FASTA for tree PTHR12345: Tree data not found in S3 for tree ID: PTHR12345
+2025-08-06 13:08:14,115 - __main__ - ERROR - Service error generating FASTA for PTHR12345: Tree data not found in S3 for tree ID: PTHR12345
+2025-08-06 13:08:14,116 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:08:14] "[33mPOST /panther/fastadoc/PTHR12345 HTTP/1.1[0m" 404 -
+2025-08-06 13:09:09,391 - __main__ - INFO - FASTA download request for tree: PTHR10492
+2025-08-06 13:09:09,392 - services.fasta_service - INFO - Generating FASTA for tree PTHR10492
+2025-08-06 13:09:09,392 - services.tree_service - INFO - Getting tree root annotation for PTHR10492
+2025-08-06 13:09:09,392 - services.s3_service - INFO - Fetching tree data from S3: phg-panther-data-19/PTHR10492.json
+2025-08-06 13:09:09,926 - services.s3_service - ERROR - S3 ClientError getting tree data: An error occurred (InvalidAccessKeyId) when calling the GetObject operation: The AWS Access Key Id you provided does not exist in our records.
+2025-08-06 13:09:09,926 - services.tree_service - ERROR - Error getting tree root annotation for PTHR10492: Tree data not found in S3 for tree ID: PTHR10492
+2025-08-06 13:09:09,926 - services.fasta_service - ERROR - Error generating FASTA for tree PTHR10492: Tree data not found in S3 for tree ID: PTHR10492
+2025-08-06 13:09:09,927 - __main__ - ERROR - Service error generating FASTA for PTHR10492: Tree data not found in S3 for tree ID: PTHR10492
+2025-08-06 13:09:09,927 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:09:09] "[33mPOST /panther/fastadoc/PTHR10492 HTTP/1.1[0m" 404 -
+2025-08-06 13:10:39,211 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:10:39,215 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:10:39,230 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.152:8080
+2025-08-06 13:10:39,231 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-06 13:10:39,232 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:10:39,838 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:10:39,842 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:10:39,849 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:10:39,859 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:10:47,667 - __main__ - INFO - FASTA download request for tree: PTHR10492
+2025-08-06 13:10:47,667 - services.fasta_service - INFO - Generating FASTA for tree PTHR10492
+2025-08-06 13:10:47,667 - services.tree_service - INFO - Getting tree root annotation for PTHR10492
+2025-08-06 13:10:47,667 - services.s3_service - INFO - Fetching tree data from S3: phg-panther-data-19/PTHR10492.json
+2025-08-06 13:10:48,540 - services.s3_service - WARNING - Unexpected JSON structure in PTHR10492.json
+2025-08-06 13:10:48,541 - services.tree_service - ERROR - Error getting tree root annotation for PTHR10492: Tree data not found in S3 for tree ID: PTHR10492
+2025-08-06 13:10:48,541 - services.fasta_service - ERROR - Error generating FASTA for tree PTHR10492: Tree data not found in S3 for tree ID: PTHR10492
+2025-08-06 13:10:48,541 - __main__ - ERROR - Service error generating FASTA for PTHR10492: Tree data not found in S3 for tree ID: PTHR10492
+2025-08-06 13:10:48,542 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:10:48] "[33mPOST /panther/fastadoc/PTHR10492 HTTP/1.1[0m" 404 -
+2025-08-06 13:12:08,477 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\s3_service.py', reloading
+2025-08-06 13:12:08,541 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:12:09,160 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:12:09,164 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:12:09,172 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:12:09,181 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:12:43,432 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\s3_service.py', reloading
+2025-08-06 13:12:43,496 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:12:44,120 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:12:44,124 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:12:44,131 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:12:44,142 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:13:02,285 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\tree_service.py', reloading
+2025-08-06 13:13:02,351 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:13:02,971 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:13:02,975 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:13:02,982 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:13:02,991 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:13:09,049 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\s3_service.py', reloading
+2025-08-06 13:13:09,113 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:19:57,946 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:19:57,950 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:19:57,969 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.152:8080
+2025-08-06 13:19:57,969 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-06 13:19:57,971 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:19:58,625 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:19:58,629 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:19:58,638 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:19:58,648 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:20:07,600 - __main__ - INFO - FASTA download request for tree: PTHR10492
+2025-08-06 13:20:07,600 - services.fasta_service - INFO - Generating FASTA for tree PTHR10492
+2025-08-06 13:20:07,601 - services.tree_service - INFO - Getting tree root annotation for PTHR10492
+2025-08-06 13:20:07,601 - services.s3_service - INFO - Fetching tree data from S3: phg-panther-data-19/PTHR10492.json
+2025-08-06 13:20:08,462 - services.s3_service - WARNING - No 'jsonString' or 'search' key found in PTHR10492.json. Available keys: ['search']
+2025-08-06 13:20:08,463 - services.tree_service - ERROR - Error getting tree root annotation for PTHR10492: Tree data not found in S3 for tree ID: PTHR10492
+2025-08-06 13:20:08,463 - services.fasta_service - ERROR - Error generating FASTA for tree PTHR10492: Tree data not found in S3 for tree ID: PTHR10492
+2025-08-06 13:20:08,463 - __main__ - ERROR - Service error generating FASTA for PTHR10492: Tree data not found in S3 for tree ID: PTHR10492
+2025-08-06 13:20:08,464 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:20:08] "[33mPOST /panther/fastadoc/PTHR10492 HTTP/1.1[0m" 404 -
+2025-08-06 13:20:53,043 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\s3_service.py', reloading
+2025-08-06 13:20:53,109 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:20:53,736 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:20:53,741 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:20:53,749 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:20:53,758 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:21:11,903 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\s3_service.py', reloading
+2025-08-06 13:21:11,967 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:21:12,601 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:21:12,605 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:21:12,613 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:21:12,622 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:21:21,702 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\s3_service.py', reloading
+2025-08-06 13:21:21,772 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:21:22,477 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:21:22,482 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:21:22,490 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:21:22,500 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:21:24,014 - __main__ - INFO - FASTA download request for tree: PTHR10492
+2025-08-06 13:21:24,014 - services.fasta_service - INFO - Generating FASTA for tree PTHR10492
+2025-08-06 13:21:24,015 - services.tree_service - INFO - Getting tree root annotation for PTHR10492
+2025-08-06 13:21:24,015 - services.s3_service - INFO - Fetching tree data from S3: phg-panther-data-19/PTHR10492.json
+2025-08-06 13:21:24,886 - services.tree_service - INFO - Mapped 703 persistent IDs
+2025-08-06 13:21:24,887 - services.s3_service - INFO - Fetching MSA data from S3: phg-panther-msa-data-19/PTHR10492.json
+2025-08-06 13:21:30,755 - services.fasta_service - INFO - Processed 703 sequences into FASTA format
+2025-08-06 13:21:30,761 - services.fasta_service - INFO - Generated FASTA with 703 sequences
+2025-08-06 13:21:31,075 - __main__ - INFO - Generated FASTA: 703 sequences, 488417 residues
+2025-08-06 13:21:31,078 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:21:31] "POST /panther/fastadoc/PTHR10492 HTTP/1.1" 200 -
+2025-08-06 13:22:19,109 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:22:19] "OPTIONS /panther/fastadoc/PTHR11913 HTTP/1.1" 200 -
+2025-08-06 13:22:19,426 - __main__ - INFO - FASTA download request for tree: PTHR11913
+2025-08-06 13:22:19,426 - services.fasta_service - INFO - Generating FASTA for tree PTHR11913
+2025-08-06 13:22:19,426 - services.tree_service - INFO - Getting tree root annotation for PTHR11913
+2025-08-06 13:22:19,426 - services.s3_service - INFO - Fetching tree data from S3: phg-panther-data-19/PTHR11913.json
+2025-08-06 13:22:21,130 - services.tree_service - INFO - Mapped 479 persistent IDs
+2025-08-06 13:22:21,131 - services.s3_service - INFO - Fetching MSA data from S3: phg-panther-msa-data-19/PTHR11913.json
+2025-08-06 13:22:22,443 - services.fasta_service - INFO - Processed 474 sequences into FASTA format
+2025-08-06 13:22:22,443 - services.fasta_service - INFO - Generated FASTA with 474 sequences
+2025-08-06 13:22:22,465 - __main__ - INFO - Generated FASTA: 474 sequences, 70221 residues
+2025-08-06 13:22:22,466 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:22:22] "POST /panther/fastadoc/PTHR11913 HTTP/1.1" 200 -
+2025-08-06 13:25:20,700 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\s3_service.py', reloading
+2025-08-06 13:25:20,767 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:25:21,394 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:25:21,399 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:25:21,406 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:25:21,415 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:26:37,964 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\tree_service.py', reloading
+2025-08-06 13:26:38,028 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:26:38,677 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:26:38,682 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:26:38,690 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:26:38,699 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:27:11,949 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\fasta_service.py', reloading
+2025-08-06 13:27:12,028 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:27:12,652 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:27:12,656 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:27:12,663 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:27:12,672 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:27:22,760 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\fasta_service.py', reloading
+2025-08-06 13:27:22,825 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:27:23,452 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:27:23,456 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:27:23,464 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:27:23,473 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:27:42,622 - werkzeug - INFO -  * Detected change in 'C:\\Users\\swapp\\Documents\\MyProjects\\Work\\panther-pipeline\\python_api\\services\\tree_service.py', reloading
+2025-08-06 13:27:42,715 - werkzeug - INFO -  * Restarting with stat
+2025-08-06 13:27:43,403 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-06 13:27:43,408 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-06 13:27:43,415 - werkzeug - WARNING -  * Debugger is active!
+2025-08-06 13:27:43,424 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-06 13:31:47,566 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:31:47] "OPTIONS /panther/fastadoc/PTHR11913 HTTP/1.1" 200 -
+2025-08-06 13:31:47,877 - __main__ - INFO - FASTA download request for tree: PTHR11913
+2025-08-06 13:31:47,877 - services.fasta_service - INFO - Generating FASTA for tree PTHR11913
+2025-08-06 13:31:47,877 - services.tree_service - INFO - Getting tree root annotation for PTHR11913
+2025-08-06 13:31:47,878 - services.s3_service - INFO - Fetching tree data from S3: phg-panther-data-19/PTHR11913.json
+2025-08-06 13:31:49,515 - services.tree_service - INFO - Mapped 479 persistent IDs
+2025-08-06 13:31:49,515 - services.s3_service - INFO - Fetching MSA data from S3: phg-panther-msa-data-19/PTHR11913.json
+2025-08-06 13:31:50,789 - services.fasta_service - INFO - Processed 474 sequences into FASTA format
+2025-08-06 13:31:50,790 - services.fasta_service - INFO - Generated FASTA with 474 sequences
+2025-08-06 13:31:50,813 - __main__ - INFO - Generated FASTA: 474 sequences, 70221 residues
+2025-08-06 13:31:50,814 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:31:50] "POST /panther/fastadoc/PTHR11913 HTTP/1.1" 200 -

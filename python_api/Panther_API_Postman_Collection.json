@@ -1,0 +1,712 @@
+{
+  "info": {
+    "name": "Panther API Collection",
+    "description": "Complete collection for testing the Panther Python API with mock data and realistic test scenarios",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "sample_sequence",
+      "value": "MKVLWAALLVTFLAGCQAKVEQAVETEPEPELRQQTEWQSGQRWQRLASLIANTI",
+      "type": "string"
+    },
+    {
+      "key": "sample_tree_id",
+      "value": "PTHR12345:SF123",
+      "type": "string"
+    },
+    {
+      "key": "sample_uniprot_id",
+      "value": "P12345",
+      "type": "string"
+    },
+    {
+      "key": "human_taxon_id",
+      "value": "9606",
+      "type": "string"
+    },
+    {
+      "key": "mouse_taxon_id",
+      "value": "10090",
+      "type": "string"
+    },
+    {
+      "key": "long_sequence",
+      "value": "MKVLWAALLVTFLAGCQAKVEQAVETEPEPELRQQTEWQSGQRWQRLASLIANTIPVSLEEFGVYPFNPFFPEESLLLEPTLGKLKHRGFPNLGEKGFGLYLTRSSQLFPSDNSNGGTLSFMKFMNCNLRPLDEGVPFIHTKDSDDVDVYSNLNLGKRQDY",
+      "type": "string"
+    },
+    {
+      "key": "invalid_sequence",
+      "value": "ABCDEFG",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Utility",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Check if the API service is running and healthy"
+          },
+          "response": []
+        },
+        {
+          "name": "List All Endpoints",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/debug/endpoints",
+              "host": ["{{base_url}}"],
+              "path": ["debug", "endpoints"]
+            },
+            "description": "Development endpoint to list all available API endpoints"
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Sequence - Valid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sequence\": \"{{sample_sequence}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/validate/sequence",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "validate", "sequence"]
+            },
+            "description": "Validate a protein sequence format"
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Sequence - Invalid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sequence\": \"{{invalid_sequence}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/validate/sequence",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "validate", "sequence"]
+            },
+            "description": "Test sequence validation with invalid sequence"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Trees",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/panther/trees/search?q=kinase&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "trees", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "kinase"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Search for phylogenetic trees by keyword"
+          },
+          "response": []
+        }
+      ],
+      "description": "Health checks and utility endpoints"
+    },
+    {
+      "name": "Tree Operations",
+      "item": [
+        {
+          "name": "Graft Tree - Success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sequence\": \"{{long_sequence}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/grafting",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "grafting"]
+            },
+            "description": "Graft a protein sequence onto a phylogenetic tree"
+          },
+          "response": []
+        },
+        {
+          "name": "Graft Tree - Invalid Sequence",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sequence\": \"ABCD\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/grafting",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "grafting"]
+            },
+            "description": "Test tree grafting with invalid/short sequence"
+          },
+          "response": []
+        },
+        {
+          "name": "Graft Tree - Empty Sequence",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sequence\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/grafting",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "grafting"]
+            },
+            "description": "Test tree grafting with empty sequence"
+          },
+          "response": []
+        },
+        {
+          "name": "Prune Tree - Multiple Taxa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxonIdsToShow\": [\"{{human_taxon_id}}\", \"{{mouse_taxon_id}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/pruning/{{sample_tree_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "pruning", "{{sample_tree_id}}"]
+            },
+            "description": "Prune tree to show only specific taxa"
+          },
+          "response": []
+        },
+        {
+          "name": "Prune Tree - Single Taxon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxonIdsToShow\": [\"{{human_taxon_id}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/pruning/{{sample_tree_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "pruning", "{{sample_tree_id}}"]
+            },
+            "description": "Prune tree to show only human sequences"
+          },
+          "response": []
+        },
+        {
+          "name": "Prune Tree - Invalid Tree ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxonIdsToShow\": [\"{{human_taxon_id}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/pruning/INVALID123",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "pruning", "INVALID123"]
+            },
+            "description": "Test tree pruning with invalid tree ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Prune Grafted Tree",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sequence\": \"{{long_sequence}}\",\n  \"taxonIdsToShow\": [\"{{human_taxon_id}}\", \"{{mouse_taxon_id}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/grafting/prune",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "grafting", "prune"]
+            },
+            "description": "Prune a previously grafted tree"
+          },
+          "response": []
+        },
+        {
+          "name": "Prune Grafted Tree - No Taxa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sequence\": \"{{long_sequence}}\",\n  \"taxonIdsToShow\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/grafting/prune",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "grafting", "prune"]
+            },
+            "description": "Prune grafted tree with no specific taxa (show all)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Tree grafting and pruning operations"
+    },
+    {
+      "name": "FASTA Downloads",
+      "item": [
+        {
+          "name": "Download FASTA - Full Tree",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxonIdsToShow\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/fastadoc/{{sample_tree_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "fastadoc", "{{sample_tree_id}}"]
+            },
+            "description": "Download FASTA sequences for entire tree"
+          },
+          "response": []
+        },
+        {
+          "name": "Download FASTA - Pruned Tree",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxonIdsToShow\": [\"{{human_taxon_id}}\", \"{{mouse_taxon_id}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/pruning/fastadoc/{{sample_tree_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "pruning", "fastadoc", "{{sample_tree_id}}"]
+            },
+            "description": "Download FASTA sequences for specific taxa only"
+          },
+          "response": []
+        },
+        {
+          "name": "Download FASTA - Single Organism",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxonIdsToShow\": [\"{{human_taxon_id}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/pruning/fastadoc/{{sample_tree_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "pruning", "fastadoc", "{{sample_tree_id}}"]
+            },
+            "description": "Download FASTA sequences for human only"
+          },
+          "response": []
+        },
+        {
+          "name": "Download FASTA - Invalid Tree",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxonIdsToShow\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/fastadoc/INVALID123",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "fastadoc", "INVALID123"]
+            },
+            "description": "Test FASTA download with invalid tree ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "FASTA sequence download endpoints"
+    },
+    {
+      "name": "Ortholog Mapping",
+      "item": [
+        {
+          "name": "Get Ortholog Mapping - Success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uniprotId\": \"{{sample_uniprot_id}}\",\n  \"queryOrganismId\": \"{{human_taxon_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/orthomapping",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "orthomapping"]
+            },
+            "description": "Get ortholog mapping for a specific gene"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ortholog Mapping - Different Organism",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uniprotId\": \"Q67890\",\n  \"queryOrganismId\": \"{{mouse_taxon_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/orthomapping",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "orthomapping"]
+            },
+            "description": "Get ortholog mapping for mouse gene"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ortholog Mapping - Missing UniProt ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uniprotId\": \"\",\n  \"queryOrganismId\": \"{{human_taxon_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/orthomapping",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "orthomapping"]
+            },
+            "description": "Test ortholog mapping with missing UniProt ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ortholog Mapping - Missing Organism",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uniprotId\": \"{{sample_uniprot_id}}\",\n  \"queryOrganismId\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/orthomapping",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "orthomapping"]
+            },
+            "description": "Test ortholog mapping with missing organism ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Ortholog mapping and analysis endpoints"
+    },
+    {
+      "name": "Error Testing",
+      "item": [
+        {
+          "name": "404 - Endpoint Not Found",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/nonexistent/endpoint",
+              "host": ["{{base_url}}"],
+              "path": ["nonexistent", "endpoint"]
+            },
+            "description": "Test 404 error handling"
+          },
+          "response": []
+        },
+        {
+          "name": "405 - Method Not Allowed",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Test 405 error by using wrong HTTP method"
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid JSON Body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{invalid json"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/grafting",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "grafting"]
+            },
+            "description": "Test handling of malformed JSON"
+          },
+          "response": []
+        }
+      ],
+      "description": "Error handling and edge case testing"
+    },
+    {
+      "name": "Performance Testing",
+      "item": [
+        {
+          "name": "Load Test - Multiple Requests",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sequence\": \"{{long_sequence}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/grafting",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "grafting"]
+            },
+            "description": "Use this request for load testing by running multiple times"
+          },
+          "response": []
+        },
+        {
+          "name": "Timeout Test - Large Sequence",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sequence\": \"MKVLWAALLVTFLAGCQAKVEQAVETEPEPELRQQTEWQSGQRWQRLASLIANTI\" \n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/grafting",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "grafting"]
+            },
+            "description": "Test with sequences that might cause timeouts (10% chance)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Performance and load testing endpoints"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set up any global pre-request logic here",
+          "console.log('Making request to:', pm.request.url);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test scripts",
+          "pm.test('Response time is reasonable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(30000);",
+          "});",
+          "",
+          "pm.test('Response has correct content-type', function () {",
+          "    const contentType = pm.response.headers.get('Content-Type');",
+          "    pm.expect(contentType).to.include('application/json');",
+          "});",
+          "",
+          "if (pm.response.code === 200) {",
+          "    pm.test('Successful response structure', function () {",
+          "        const responseJson = pm.response.json();",
+          "        pm.expect(responseJson).to.be.an('object');",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

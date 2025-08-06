@@ -51,3 +51,5 @@ python_scripts/data/
 notes.txt
 solr-8.11.2.zip
 solr-8.11.2/server/solr/panther.zip
+python_api/config.env
+python_api/services/__pycache__/
