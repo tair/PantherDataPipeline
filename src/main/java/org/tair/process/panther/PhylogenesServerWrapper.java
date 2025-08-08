@@ -57,7 +57,7 @@ public class PhylogenesServerWrapper {
 	@Value("${uniprot_pub_url}")
 	String PG_PUBLICATIONS_URL = "https://rest.uniprot.org/uniprotkb/stream?fields=lit_pubmed_id&format=tsv&query=accession:";
 
-	String URL_SOLR = "http://54.68.67.235:8983/solr/panther";
+	String URL_SOLR = "http://localhost:8983/solr/panther";
 
 	SolrClient mysolr = null;
 	AmazonS3 s3_server = null;
