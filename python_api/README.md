@@ -69,6 +69,24 @@ The FASTA generation closely mirrors the Java implementation:
 - `POST /panther/fastadoc/{tree_id}` - Full tree FASTA
 - `POST /panther/pruning/fastadoc/{tree_id}` - Filtered FASTA by taxon IDs
 
+## 🧬 Ortholog Mapping
+
+Real-time ortholog mapping using external Panther API:
+
+- **Endpoint**: `POST /panther/orthomapping`
+- **External API**: Calls `https://pantherdb.org/services/oai/pantherdb/ortholog/matchortho`
+- **Mapping Files**: Uses AGI locus and organism display name mappings
+- **Response**: JSON array string (matches Java API exactly)
+
+## 🌳 Tree Pruning
+
+Real-time tree pruning using external Panther API:
+
+- **Endpoint**: `POST /panther/pruning/{tree_id}`
+- **External API**: Calls `https://pantherdb.org/services/oai/pantherdb/treeinfo`
+- **Post-Processing**: Applies TAIR gene ID mappings to tree nodes
+- **Response**: Complete phylogenetic tree JSON (filtered by taxon IDs)
+
 ## 📊 Logging
 
 Logs are written to both console and file (`panther_api.log`):

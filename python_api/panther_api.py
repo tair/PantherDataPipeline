@@ -15,6 +15,8 @@ from dotenv import load_dotenv
 from services.tree_service import TreeService
 from services.fasta_service import FastaService
 from services.s3_service import S3Service
+from services.ortholog_service import OrthologService
+from services.pruning_service import PruningService
 
 # Load environment variables
 load_dotenv('config.env')
@@ -44,6 +46,8 @@ CORS(app,
 s3_service = S3Service()
 tree_service = TreeService(s3_service)
 fasta_service = FastaService(tree_service, s3_service)
+ortholog_service = OrthologService()
+pruning_service = PruningService()
 
 # Mock data constants
 MOCK_TREE_DATA = {
@@ -160,13 +164,6 @@ def create_error_response(error_type, status_code=400):
     error_data["timestamp"] = datetime.now().isoformat()
     return jsonify(error_data), status_code
 
-def simulate_processing_delay():
-    """Simulate realistic API processing time"""
-    if os.getenv('USE_MOCK_DATA', 'true').lower() == 'true':
-        delay = random.uniform(0.5, 2.0)
-        logger.debug(f"Simulating processing delay: {delay:.2f}s")
-        time.sleep(delay)
-
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
@@ -208,8 +205,7 @@ def graft_tree():
         if len(sequence) < 10:
             return create_error_response("invalid_sequence", 400)
         
-        # Simulate processing
-        simulate_processing_delay()
+
         
         # Simulate occasional errors for testing
         if random.random() < 0.1:  # 10% chance of error
@@ -230,36 +226,48 @@ def graft_tree():
 def prune_tree(tree_id):
     """
     Regular tree pruning - Remove taxa from tree
+    Based on PruningController.getPrunedTree() logic
     """
     try:
+        logger.info(f"Tree pruning request for tree: {tree_id}")
+        
         data = request.get_json()
         taxon_ids_to_show = data.get('taxonIdsToShow', [])
         
-        # Validate tree ID
-        if not tree_id or not tree_id.startswith('PTHR'):
+        logger.info(f"Tree pruning: treeId={tree_id}, taxonIds={taxon_ids_to_show}")
+        
+        # Validate request
+        validation = pruning_service.validate_pruning_request(tree_id, taxon_ids_to_show)
+        if not validation['is_valid']:
+            logger.warning(f"Invalid pruning request: {validation['errors']}")
             return create_error_response("tree_not_found", 404)
         
-        # Simulate processing
-        simulate_processing_delay()
-        
-        # Filter sequences based on taxon IDs
-        filtered_sequences = []
-        if taxon_ids_to_show:
-            for seq in MOCK_TREE_DATA["search"]["sequences"]:
-                if seq["taxonId"] in taxon_ids_to_show:
-                    filtered_sequences.append(seq)
-        else:
-            filtered_sequences = MOCK_TREE_DATA["search"]["sequences"]
-        
-        response_data = MOCK_TREE_DATA.copy()
-        response_data["search"]["sequences"] = filtered_sequences
-        response_data["search"]["treeId"] = tree_id
-        response_data["search"]["prunedTaxonIds"] = taxon_ids_to_show
-        
-        return jsonify(response_data)
+        try:
+            # Call pruning service (calls external Panther API)
+            result = pruning_service.get_pruned_tree(tree_id, taxon_ids_to_show)
+            
+            # Parse result to return as JSON object (not string)
+            tree_data = json.loads(result)
+            
+            # Log statistics
+            logger.info(f"Successfully pruned tree {tree_id} for {len(taxon_ids_to_show)} taxa")
+            
+            return jsonify(tree_data)
+            
+        except Exception as service_error:
+            error_msg = str(service_error)
+            logger.error(f"Service error pruning tree {tree_id}: {error_msg}")
+            
+            # Return specific error responses based on error type
+            if "Panther API call failed" in error_msg:
+                return create_error_response("s3_unavailable", 503)  # External API unavailable
+            elif "not found" in error_msg.lower():
+                return create_error_response("tree_not_found", 404)
+            else:
+                return create_error_response("unknown", 500)
         
     except Exception as e:
-        app.logger.error(f"Error in prune_tree: {str(e)}")
+        logger.error(f"Error in prune_tree: {str(e)}")
         return create_error_response("unknown", 500)
 
 @app.route('/panther/grafting/prune', methods=['POST'])
@@ -276,8 +284,7 @@ def prune_grafted_tree():
         if not sequence:
             return create_error_response("invalid_sequence", 400)
         
-        # Simulate processing
-        simulate_processing_delay()
+
         
         # Filter sequences based on taxon IDs
         filtered_sequences = []
@@ -317,10 +324,7 @@ def download_fasta(tree_id):
         if not validation['is_valid']:
             logger.warning(f"Invalid FASTA request: {validation['errors']}")
             return create_error_response("tree_not_found", 404)
-        
-        # Simulate processing delay
-        simulate_processing_delay()
-        
+
         # Generate FASTA using service (mimics Java logic)
         # If taxon_array is null or empty -> full tree, else -> pruned tree
         taxon_filter = taxon_ids_to_show if taxon_ids_to_show else None
@@ -357,33 +361,42 @@ def download_fasta(tree_id):
 def get_ortholog_mapping():
     """
     Get ortholog mapping for a gene
+    Based on PruningController.callOrthologApi() logic
     """
     try:
+        logger.info("Ortholog mapping request received")
+        
         data = request.get_json()
         uniprot_id = data.get('uniprotId', '').strip()
         query_organism_id = data.get('queryOrganismId', '').strip()
         
-        # Validate input
-        if not uniprot_id or not query_organism_id:
-            return jsonify([]), 200
+        logger.info(f"Ortholog mapping: uniprotId={uniprot_id}, queryOrganismId={query_organism_id}")
         
-        # Simulate processing
-        simulate_processing_delay()
+        # Handle null queryOrganismId like Java
+        if not query_organism_id:
+            return "", 200, {'Content-Type': 'text/plain'}
         
-        # Simulate occasional empty results
-        if random.random() < 0.2:  # 20% chance of no results
-            return jsonify([])
+        # Validate request
+        validation = ortholog_service.validate_ortholog_request(uniprot_id, query_organism_id)
+        if not validation['is_valid']:
+            logger.warning(f"Invalid ortholog request: {validation['errors']}")
+            return "{}", 200, {'Content-Type': 'text/plain'}
         
-        # Return mock ortholog data
-        ortholog_data = MOCK_ORTHOLOG_DATA.copy()
-        ortholog_data[0]["uniprotId"] = uniprot_id
-        ortholog_data[0]["queryOrganismId"] = query_organism_id
+        # Convert to integer
+        try:
+            query_id = int(query_organism_id)
+        except ValueError:
+            return "{}", 200, {'Content-Type': 'text/plain'}
         
-        return jsonify(ortholog_data)
+        # Call ortholog service
+        result = ortholog_service.get_ortholog_mapping(uniprot_id, query_id)
+        
+        # Return as plain text JSON string like Java
+        return result, 200, {'Content-Type': 'text/plain'}
         
     except Exception as e:
-        app.logger.error(f"Error in get_ortholog_mapping: {str(e)}")
-        return create_error_response("unknown", 500)
+        logger.error(f"Error in get_ortholog_mapping: {str(e)}")
+        return "{}", 200, {'Content-Type': 'text/plain'}
 
 # =============================================================================
 # UTILITY ENDPOINTS

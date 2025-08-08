@@ -281,7 +281,53 @@
               "host": ["{{base_url}}"],
               "path": ["panther", "pruning", "{{sample_tree_id}}"]
             },
-            "description": "Prune tree to show only human sequences"
+            "description": "Prune tree to show only human sequences (real Panther API call)"
+          },
+          "response": []
+        },
+        {
+          "name": "Prune Tree - Multiple Taxa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxonIdsToShow\": [\"9606\", \"10090\", \"7227\", \"3702\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/pruning/PTHR10492",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "pruning", "PTHR10492"]
+            },
+            "description": "Prune tree for multiple organisms (real tree ID)"
+          },
+          "response": []
+        },
+        {
+          "name": "Prune Tree - Real Tree with Plants",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxonIdsToShow\": [\"3702\", \"3880\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/pruning/PTHR10492",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "pruning", "PTHR10492"]
+            },
+            "description": "Test TAIR gene ID mapping with Arabidopsis (3702) and Brassica (3880)"
           },
           "response": []
         },
@@ -477,7 +523,7 @@
               "host": ["{{base_url}}"],
               "path": ["panther", "orthomapping"]
             },
-            "description": "Get ortholog mapping for a specific gene"
+            "description": "Get ortholog mapping for human gene (real Panther API call)"
           },
           "response": []
         },
@@ -547,6 +593,52 @@
               "path": ["panther", "orthomapping"]
             },
             "description": "Test ortholog mapping with missing organism ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ortholog Mapping - Real UniProt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uniprotId\": \"Q9Y6R7\",\n  \"queryOrganismId\": \"9606\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/orthomapping",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "orthomapping"]
+            },
+            "description": "Test with real human protein UniProt ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ortholog Mapping - Arabidopsis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uniprotId\": \"Q9LV28\",\n  \"queryOrganismId\": \"3702\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/panther/orthomapping",
+              "host": ["{{base_url}}"],
+              "path": ["panther", "orthomapping"]
+            },
+            "description": "Test with Arabidopsis protein (tests TAIR mapping logic)"
           },
           "response": []
         }
