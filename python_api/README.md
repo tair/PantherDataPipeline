@@ -75,7 +75,7 @@ docker-compose --profile prod up --build -d
 docker-compose down
 
 # View logs
-docker-compose logs -f
+docker-compose --profile dev logs -f
 
 # Rebuild and restart
 docker-compose --profile prod up --build -d --force-recreate

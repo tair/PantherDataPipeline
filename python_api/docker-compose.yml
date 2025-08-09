@@ -15,15 +15,11 @@ services:
       - .:/app
       - /app/__pycache__
       - /app/services/__pycache__
-      # Mount logs for persistence
-      - ./logs:/app/logs
     environment:
       - FLASK_ENV=development
       - DEBUG=true
       - PORT=8080
-
       - LOG_LEVEL=INFO
-      - LOG_FILE=logs/panther_api.log
       - ALLOWED_ORIGINS=http://localhost:8081,http://localhost:3000,http://localhost:8080
     env_file:
       - .env
@@ -42,15 +38,11 @@ services:
     container_name: panther-api-prod
     ports:
       - "8080:8080"
-    volumes:
-      # Only mount logs for persistence in production
-      - ./logs:/app/logs
     environment:
       - FLASK_ENV=production
       - DEBUG=false
       - PORT=8080
       - LOG_LEVEL=INFO
-      - LOG_FILE=logs/panther_api.log
     env_file:
       - .env
     networks:
@@ -62,24 +54,6 @@ services:
       timeout: 30s
       retries: 3
       start_period: 40s
-    profiles:
-      - prod
-
-  # Nginx reverse proxy for production
-  nginx:
-    image: nginx:alpine
-    container_name: panther-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - panther-api
-    networks:
-      - panther-network
-    restart: unless-stopped
     profiles:
       - prod
 

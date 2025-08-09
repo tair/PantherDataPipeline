@@ -23,23 +23,11 @@ load_dotenv('config.env')
 
 app = Flask(__name__)
 
-# Configure logging
-log_handlers = [logging.StreamHandler()]
-
-# Try to add file handler, fall back to console only if permission denied
-try:
-    log_file = os.getenv('LOG_FILE', 'panther_api.log')
-    # Ensure logs directory exists
-    log_dir = os.path.dirname(log_file) if os.path.dirname(log_file) else '.'
-    os.makedirs(log_dir, exist_ok=True)
-    log_handlers.append(logging.FileHandler(log_file))
-except (PermissionError, OSError) as e:
-    print(f"Warning: Could not create log file, logging to console only: {e}")
-
+# Configure logging - use console only (Docker will capture all logs)
 logging.basicConfig(
     level=getattr(logging, os.getenv('LOG_LEVEL', 'INFO')),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=log_handlers
+    handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
 
