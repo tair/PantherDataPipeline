@@ -34,6 +34,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Reduce AWS/boto3 logging verbosity
+logging.getLogger('botocore').setLevel(logging.WARNING)
+logging.getLogger('boto3').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
+
 # Enable CORS for all routes with credentials support
 allowed_origins = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8081').split(',')
 CORS(app, 
@@ -146,7 +151,7 @@ ERROR_RESPONSES = {
         "code": "TREE_NOT_FOUND"
     },
     "s3_unavailable": {
-        "error": "S3 service unavailable. Configure AWS credentials or set USE_MOCK_DATA=true",
+        "error": "S3 service unavailable. Please configure valid AWS credentials",
         "code": "S3_UNAVAILABLE"
     },
     "timeout": {
@@ -172,16 +177,13 @@ def health_check():
     # Test S3 connection
     s3_status = s3_service.test_connection()
     
-    use_mock = os.getenv('USE_MOCK_DATA', 'true').lower() == 'true'
-    
     return jsonify({
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "service": "Panther API",
         "version": "1.0.0",
         "environment": os.getenv('FLASK_ENV', 'production'),
-        "data_mode": "mock" if use_mock else "real_s3",
-        "use_mock_data": use_mock,
+        "data_mode": "real_s3",
         "s3_connection": s3_status
     })
 
@@ -521,7 +523,7 @@ def test_s3_connection():
         debug_info = {
             "connection_test": connection_test,
             "s3_available": s3_service.is_available(),
-            "use_mock_data": os.getenv('USE_MOCK_DATA', 'true'),
+            "data_mode": "real_s3",
             "tree_bucket": os.getenv('PG_TREE_BUCKET', 'phg-panther-data-19'),
             "msa_bucket": os.getenv('PG_MSA_BUCKET', 'phg-panther-msa-data-19'),
             "aws_region": os.getenv('AWS_REGION', 'us-west-2'),

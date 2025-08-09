@@ -127,14 +127,22 @@ class PruningService:
     def _load_locus_mapping(self) -> Optional[Dict[str, str]]:
         """Load AGI locus ID mapping from CSV file (same as OrthologService)"""
         try:
-            # Try to load from webapp resources first
-            mapping_file = "src/main/webapp/WEB-INF/AGI_locusId_mapping_20200410.csv"
-            if not os.path.exists(mapping_file):
-                # Fallback to python_api directory
-                mapping_file = "python_api/data/AGI_locusId_mapping_20200410.csv"
-                if not os.path.exists(mapping_file):
-                    self.logger.warning("Locus mapping file not found")
-                    return None
+            # Try different possible paths
+            possible_paths = [
+                "data/AGI_locusId_mapping_20200410.csv",  # Docker container path
+                "python_api/data/AGI_locusId_mapping_20200410.csv",  # Local development
+                "src/main/webapp/WEB-INF/AGI_locusId_mapping_20200410.csv"  # Java webapp
+            ]
+            
+            mapping_file = None
+            for path in possible_paths:
+                if os.path.exists(path):
+                    mapping_file = path
+                    break
+            
+            if not mapping_file:
+                self.logger.warning("Locus mapping file not found in any expected location")
+                return None
             
             locus_mapping = {}
             with open(mapping_file, 'r') as f:

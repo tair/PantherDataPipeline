@@ -55,3 +55,4 @@ python_api/config.env
 python_api/services/__pycache__/
 "python_scripts/.env.sandbox" 
 python_scripts/.env.sandbox
+python_api/.env

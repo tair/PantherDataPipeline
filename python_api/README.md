@@ -39,99 +39,55 @@ python panther_api.py
 
 The API will be available at `http://localhost:8080`
 
-## 📋 Architecture
+## 🐳 Docker Deployment
 
-### Services Layer
+### Quick Start with Docker Compose
 
-- **TreeService**: Handles phylogenetic tree operations and persistent ID mapping
-- **FastaService**: Generates FASTA sequences from tree and MSA data
-
-### Key Features
-
-- ✅ **Proper separation of concerns** - Services handle business logic
-- ✅ **Configuration via environment** - Easy deployment configuration
-- ✅ **Comprehensive logging** - Debug and monitor API operations
-- ✅ **Input validation** - Validate tree IDs and request parameters
-- ✅ **Error handling** - Graceful error responses with proper HTTP codes
-- ✅ **CORS support** - Ready for frontend integration
-
-## 🔧 FASTA Generation
-
-The FASTA generation closely mirrors the Java implementation:
-
-1. **Tree Structure**: Get phylogenetic tree annotation data
-2. **Persistent ID Mapping**: Map tree leaf nodes to FASTA headers (`UniProtID|Organism|GeneID`)
-3. **MSA Data**: Retrieve Multiple Sequence Alignment data
-4. **FASTA Assembly**: Combine headers and sequences with 60-character line wrapping
-
-### Endpoints
-
-- `POST /panther/fastadoc/{tree_id}` - Full tree FASTA
-- `POST /panther/pruning/fastadoc/{tree_id}` - Filtered FASTA by taxon IDs
-
-## 🧬 Ortholog Mapping
-
-Real-time ortholog mapping using external Panther API:
-
-- **Endpoint**: `POST /panther/orthomapping`
-- **External API**: Calls `https://pantherdb.org/services/oai/pantherdb/ortholog/matchortho`
-- **Mapping Files**: Uses AGI locus and organism display name mappings
-- **Response**: JSON array string (matches Java API exactly)
-
-## 🌳 Tree Pruning
-
-Real-time tree pruning using external Panther API:
-
-- **Endpoint**: `POST /panther/pruning/{tree_id}`
-- **External API**: Calls `https://pantherdb.org/services/oai/pantherdb/treeinfo`
-- **Post-Processing**: Applies TAIR gene ID mappings to tree nodes
-- **Response**: Complete phylogenetic tree JSON (filtered by taxon IDs)
-
-## 📊 Logging
-
-Logs are written to both console and file (`panther_api.log`):
-
-- Request/response information
-- Service operations
-- Error details
-- Performance metrics
-
-## 🔄 Mock vs Real S3 Data
-
-The API supports both mock data and real AWS S3 data:
-
-### Using Mock Data (Default)
-
-- Set `USE_MOCK_DATA=true` in config.env
-- No AWS credentials required
-- Uses realistic mock data that matches S3 structure
-
-### Using Real S3 Data
-
-1. **Configure AWS credentials** in config.env:
+1. **Copy environment template:**
 
    ```bash
-   AWS_ACCESS_KEY=your_actual_access_key
-   AWS_SECRET_KEY=your_actual_secret_key
-   AWS_REGION=us-west-2
-   USE_MOCK_DATA=false
+   cp .env.example .env
    ```
 
-2. **Ensure S3 bucket access** to:
+2. **Run in development mode:**
 
-   - `phg-panther-data-19` (tree data)
-   - `phg-panther-msa-data-19` (MSA sequence data)
-
-3. **Test connection**:
    ```bash
-   curl http://localhost:8080/debug/s3
+   docker-compose --profile dev up --build
    ```
 
-### Automatic Fallback
+3. **Run in production mode:**
+   ```bash
+   docker-compose --profile prod up --build -d
+   ```
 
-- If S3 is unavailable, the API automatically falls back to mock data
-- Errors are logged and gracefully handled
-- Health check endpoint shows S3 connection status
+The API will be available at `http://localhost:8080`
+
+### Available Docker Commands
+
+```bash
+# Development (with hot reload)
+docker-compose --profile dev up --build
+
+# Production (with nginx reverse proxy)
+docker-compose --profile prod up --build -d
+
+# Stop all containers
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Rebuild and restart
+docker-compose --profile prod up --build -d --force-recreate
+```
+
+### Environment Configuration
+
+Edit `.env` file for deployment:
+
+- **Required**: Configure AWS credentials for S3 data access
+- Update `ALLOWED_ORIGINS` with your frontend URLs
+- The API only uses real S3 data (no mock data mode)
 
 ## 🧪 Testing
 

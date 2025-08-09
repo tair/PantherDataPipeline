@@ -315,3 +315,525 @@
 2025-08-06 13:31:50,790 - services.fasta_service - INFO - Generated FASTA with 474 sequences
 2025-08-06 13:31:50,813 - __main__ - INFO - Generated FASTA: 474 sequences, 70221 residues
 2025-08-06 13:31:50,814 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2025 13:31:50] "POST /panther/fastadoc/PTHR11913 HTTP/1.1" 200 -
+2025-08-08 16:44:53,032 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-08 16:44:53,032 - services.ortholog_service - WARNING - Locus mapping file not found
+2025-08-08 16:44:53,032 - services.ortholog_service - WARNING - Organism mapping file not found
+2025-08-08 16:44:53,033 - services.pruning_service - WARNING - Locus mapping file not found
+2025-08-08 16:44:53,038 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-08 16:44:53,053 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.152:8080
+2025-08-08 16:44:53,053 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-08 16:44:53,055 - werkzeug - INFO -  * Restarting with stat
+2025-08-08 16:44:53,686 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-08 16:44:53,686 - services.ortholog_service - WARNING - Locus mapping file not found
+2025-08-08 16:44:53,687 - services.ortholog_service - WARNING - Organism mapping file not found
+2025-08-08 16:44:53,687 - services.pruning_service - WARNING - Locus mapping file not found
+2025-08-08 16:44:53,691 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-08 16:44:53,699 - werkzeug - WARNING -  * Debugger is active!
+2025-08-08 16:44:53,708 - werkzeug - INFO -  * Debugger PIN: 447-859-557
+2025-08-08 16:45:12,355 - werkzeug - INFO - 127.0.0.1 - - [08/Aug/2025 16:45:12] "GET /health HTTP/1.1" 200 -
+2025-08-08 16:45:16,682 - __main__ - INFO - FASTA download request for tree: PTHR11913
+2025-08-08 16:45:16,682 - services.fasta_service - INFO - Generating FASTA for tree PTHR11913
+2025-08-08 16:45:16,682 - services.tree_service - INFO - Getting tree root annotation for PTHR11913
+2025-08-08 16:45:16,683 - services.s3_service - INFO - Fetching tree data from S3: phg-panther-data-19/PTHR11913.json
+2025-08-08 16:45:18,015 - services.tree_service - INFO - Mapped 479 persistent IDs
+2025-08-08 16:45:18,015 - services.s3_service - INFO - Fetching MSA data from S3: phg-panther-msa-data-19/PTHR11913.json
+2025-08-08 16:45:18,808 - services.fasta_service - INFO - Processed 474 sequences into FASTA format
+2025-08-08 16:45:18,809 - services.fasta_service - INFO - Generated FASTA with 474 sequences
+2025-08-08 16:45:18,831 - __main__ - INFO - Generated FASTA: 474 sequences, 70221 residues
+2025-08-08 16:45:18,832 - werkzeug - INFO - 127.0.0.1 - - [08/Aug/2025 16:45:18] "POST /panther/fastadoc/PTHR11913 HTTP/1.1" 200 -
+2025-08-08 23:56:43,891 - botocore.hooks - DEBUG - Changing event name from creating-client-class.iot-data to creating-client-class.iot-data-plane
+2025-08-08 23:56:43,893 - botocore.hooks - DEBUG - Changing event name from before-call.apigateway to before-call.api-gateway
+2025-08-08 23:56:43,894 - botocore.hooks - DEBUG - Changing event name from request-created.machinelearning.Predict to request-created.machine-learning.Predict
+2025-08-08 23:56:43,895 - botocore.hooks - DEBUG - Changing event name from before-parameter-build.autoscaling.CreateLaunchConfiguration to before-parameter-build.auto-scaling.CreateLaunchConfiguration
+2025-08-08 23:56:43,895 - botocore.hooks - DEBUG - Changing event name from before-parameter-build.route53 to before-parameter-build.route-53
+2025-08-08 23:56:43,896 - botocore.hooks - DEBUG - Changing event name from request-created.cloudsearchdomain.Search to request-created.cloudsearch-domain.Search
+2025-08-08 23:56:43,897 - botocore.hooks - DEBUG - Changing event name from docs.*.autoscaling.CreateLaunchConfiguration.complete-section to docs.*.auto-scaling.CreateLaunchConfiguration.complete-section
+2025-08-08 23:56:43,898 - botocore.hooks - DEBUG - Changing event name from before-parameter-build.logs.CreateExportTask to before-parameter-build.cloudwatch-logs.CreateExportTask
+2025-08-08 23:56:43,899 - botocore.hooks - DEBUG - Changing event name from docs.*.logs.CreateExportTask.complete-section to docs.*.cloudwatch-logs.CreateExportTask.complete-section
+2025-08-08 23:56:43,899 - botocore.hooks - DEBUG - Changing event name from before-parameter-build.cloudsearchdomain.Search to before-parameter-build.cloudsearch-domain.Search
+2025-08-08 23:56:43,899 - botocore.hooks - DEBUG - Changing event name from docs.*.cloudsearchdomain.Search.complete-section to docs.*.cloudsearch-domain.Search.complete-section
+2025-08-08 23:56:43,904 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/endpoints.json
+2025-08-08 23:56:43,928 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/sdk-default-configuration.json
+2025-08-08 23:56:43,929 - botocore.hooks - DEBUG - Event choose-service-name: calling handler <function handle_service_name_alias at 0x7b636b87fce0>
+2025-08-08 23:56:43,950 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/s3/2006-03-01/service-2.json.gz
+2025-08-08 23:56:43,972 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/s3/2006-03-01/endpoint-rule-set-1.json.gz
+2025-08-08 23:56:43,975 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/partitions.json
+2025-08-08 23:56:43,976 - botocore.hooks - DEBUG - Event creating-client-class.s3: calling handler <function add_generate_presigned_post at 0x7b636bac9580>
+2025-08-08 23:56:43,977 - botocore.hooks - DEBUG - Event creating-client-class.s3: calling handler <function lazy_call.<locals>._handler at 0x7b636b6179c0>
+2025-08-08 23:56:44,030 - botocore.hooks - DEBUG - Event creating-client-class.s3: calling handler <function add_generate_presigned_url at 0x7b636bac9300>
+2025-08-08 23:56:44,031 - botocore.configprovider - DEBUG - Looking for endpoint for s3 via: environment_service
+2025-08-08 23:56:44,031 - botocore.configprovider - DEBUG - Looking for endpoint for s3 via: environment_global
+2025-08-08 23:56:44,031 - botocore.configprovider - DEBUG - Looking for endpoint for s3 via: config_service
+2025-08-08 23:56:44,032 - botocore.configprovider - DEBUG - Looking for endpoint for s3 via: config_global
+2025-08-08 23:56:44,032 - botocore.configprovider - DEBUG - No configured endpoint found.
+2025-08-08 23:56:44,034 - botocore.endpoint - DEBUG - Setting s3 timeout as (60, 60)
+2025-08-08 23:56:44,038 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/_retry.json
+2025-08-08 23:56:44,040 - botocore.client - DEBUG - Registering retry handlers for service: s3
+2025-08-08 23:56:44,041 - botocore.utils - DEBUG - Registering S3 region redirector handler
+2025-08-08 23:56:44,041 - botocore.utils - DEBUG - Registering S3Express Identity Resolver
+2025-08-08 23:56:44,042 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-08 23:56:44,043 - services.ortholog_service - WARNING - Locus mapping file not found
+2025-08-08 23:56:44,044 - services.ortholog_service - WARNING - Organism mapping file not found
+2025-08-08 23:56:44,044 - services.pruning_service - WARNING - Locus mapping file not found
+2025-08-08 23:56:44,049 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-08 23:56:44,074 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://172.20.0.2:8080
+2025-08-08 23:56:44,074 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-08 23:56:44,075 - werkzeug - INFO -  * Restarting with stat
+2025-08-08 23:56:44,657 - botocore.hooks - DEBUG - Changing event name from creating-client-class.iot-data to creating-client-class.iot-data-plane
+2025-08-08 23:56:44,658 - botocore.hooks - DEBUG - Changing event name from before-call.apigateway to before-call.api-gateway
+2025-08-08 23:56:44,658 - botocore.hooks - DEBUG - Changing event name from request-created.machinelearning.Predict to request-created.machine-learning.Predict
+2025-08-08 23:56:44,660 - botocore.hooks - DEBUG - Changing event name from before-parameter-build.autoscaling.CreateLaunchConfiguration to before-parameter-build.auto-scaling.CreateLaunchConfiguration
+2025-08-08 23:56:44,660 - botocore.hooks - DEBUG - Changing event name from before-parameter-build.route53 to before-parameter-build.route-53
+2025-08-08 23:56:44,660 - botocore.hooks - DEBUG - Changing event name from request-created.cloudsearchdomain.Search to request-created.cloudsearch-domain.Search
+2025-08-08 23:56:44,661 - botocore.hooks - DEBUG - Changing event name from docs.*.autoscaling.CreateLaunchConfiguration.complete-section to docs.*.auto-scaling.CreateLaunchConfiguration.complete-section
+2025-08-08 23:56:44,662 - botocore.hooks - DEBUG - Changing event name from before-parameter-build.logs.CreateExportTask to before-parameter-build.cloudwatch-logs.CreateExportTask
+2025-08-08 23:56:44,663 - botocore.hooks - DEBUG - Changing event name from docs.*.logs.CreateExportTask.complete-section to docs.*.cloudwatch-logs.CreateExportTask.complete-section
+2025-08-08 23:56:44,663 - botocore.hooks - DEBUG - Changing event name from before-parameter-build.cloudsearchdomain.Search to before-parameter-build.cloudsearch-domain.Search
+2025-08-08 23:56:44,663 - botocore.hooks - DEBUG - Changing event name from docs.*.cloudsearchdomain.Search.complete-section to docs.*.cloudsearch-domain.Search.complete-section
+2025-08-08 23:56:44,667 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/endpoints.json
+2025-08-08 23:56:44,691 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/sdk-default-configuration.json
+2025-08-08 23:56:44,691 - botocore.hooks - DEBUG - Event choose-service-name: calling handler <function handle_service_name_alias at 0x78d9c56c7ce0>
+2025-08-08 23:56:44,711 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/s3/2006-03-01/service-2.json.gz
+2025-08-08 23:56:44,728 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/s3/2006-03-01/endpoint-rule-set-1.json.gz
+2025-08-08 23:56:44,731 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/partitions.json
+2025-08-08 23:56:44,733 - botocore.hooks - DEBUG - Event creating-client-class.s3: calling handler <function add_generate_presigned_post at 0x78d9c590d580>
+2025-08-08 23:56:44,734 - botocore.hooks - DEBUG - Event creating-client-class.s3: calling handler <function lazy_call.<locals>._handler at 0x78d9c545f9c0>
+2025-08-08 23:56:44,777 - botocore.hooks - DEBUG - Event creating-client-class.s3: calling handler <function add_generate_presigned_url at 0x78d9c590d300>
+2025-08-08 23:56:44,778 - botocore.configprovider - DEBUG - Looking for endpoint for s3 via: environment_service
+2025-08-08 23:56:44,778 - botocore.configprovider - DEBUG - Looking for endpoint for s3 via: environment_global
+2025-08-08 23:56:44,778 - botocore.configprovider - DEBUG - Looking for endpoint for s3 via: config_service
+2025-08-08 23:56:44,779 - botocore.configprovider - DEBUG - Looking for endpoint for s3 via: config_global
+2025-08-08 23:56:44,779 - botocore.configprovider - DEBUG - No configured endpoint found.
+2025-08-08 23:56:44,780 - botocore.endpoint - DEBUG - Setting s3 timeout as (60, 60)
+2025-08-08 23:56:44,783 - botocore.loaders - DEBUG - Loading JSON file: /usr/local/lib/python3.11/site-packages/botocore/data/_retry.json
+2025-08-08 23:56:44,784 - botocore.client - DEBUG - Registering retry handlers for service: s3
+2025-08-08 23:56:44,786 - botocore.utils - DEBUG - Registering S3 region redirector handler
+2025-08-08 23:56:44,787 - botocore.utils - DEBUG - Registering S3Express Identity Resolver
+2025-08-08 23:56:44,788 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-08 23:56:44,790 - services.ortholog_service - WARNING - Locus mapping file not found
+2025-08-08 23:56:44,791 - services.ortholog_service - WARNING - Organism mapping file not found
+2025-08-08 23:56:44,791 - services.pruning_service - WARNING - Locus mapping file not found
+2025-08-08 23:56:44,795 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-08 23:56:44,814 - werkzeug - WARNING -  * Debugger is active!
+2025-08-08 23:56:44,815 - werkzeug - INFO -  * Debugger PIN: 825-045-492
+2025-08-08 23:56:48,388 - __main__ - DEBUG - Health check requested
+2025-08-08 23:56:48,389 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function validate_bucket_name at 0x78d9c56ad6c0>
+2025-08-08 23:56:48,389 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function remove_bucket_from_url_paths_from_model at 0x78d9c56af880>
+2025-08-08 23:56:48,389 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.annotate_request_context of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:56:48,389 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method ClientCreator._inject_s3_input_parameters of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:56:48,390 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function generate_idempotent_uuid at 0x78d9c56ad4e0>
+2025-08-08 23:56:48,390 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <function customize_endpoint_resolver_builtins at 0x78d9c56afa60>
+2025-08-08 23:56:48,390 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <bound method S3RegionRedirectorv2.redirect_from_cache of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:56:48,391 - botocore.regions - DEBUG - Calling endpoint provider with parameters: {'Bucket': 'phg-panther-data-19', 'Region': 'us-west-2', 'UseFIPS': False, 'UseDualStack': False, 'ForcePathStyle': False, 'Accelerate': False, 'UseGlobalEndpoint': False, 'DisableMultiRegionAccessPoints': False, 'UseArnRegion': True}
+2025-08-08 23:56:48,392 - botocore.regions - DEBUG - Endpoint provider result: https://phg-panther-data-19.s3.us-west-2.amazonaws.com
+2025-08-08 23:56:48,392 - botocore.regions - DEBUG - Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2025-08-08 23:56:48,392 - botocore.regions - DEBUG - Selected auth type "v4" as "v4" with signing context params: {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}
+2025-08-08 23:56:48,393 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_expect_header at 0x78d9c56ada80>
+2025-08-08 23:56:48,393 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.apply_signing_cache_key of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:56:48,393 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_recursion_detection_header at 0x78d9c5756c00>
+2025-08-08 23:56:48,393 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function inject_api_version_header_if_needed at 0x78d9c56aefc0>
+2025-08-08 23:56:48,394 - botocore.endpoint - DEBUG - Making request for OperationModel(name=HeadBucket) with params: {'url_path': '', 'query_string': {}, 'method': 'HEAD', 'headers': {'User-Agent': 'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162'}, 'body': b'', 'auth_path': '/phg-panther-data-19/', 'url': 'https://phg-panther-data-19.s3.us-west-2.amazonaws.com/', 'context': {'client_region': 'us-west-2', 'client_config': <botocore.config.Config object at 0x78d9c4c1d650>, 'has_streaming_input': False, 'auth_type': 'v4', 's3_redirect': {'redirected': False, 'bucket': 'phg-panther-data-19', 'params': {'Bucket': 'phg-panther-data-19'}}, 'input_params': {'Bucket': 'phg-panther-data-19'}, 'signing': {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}, 'endpoint_properties': {'authSchemes': [{'disableDoubleEncoding': True, 'name': 'sigv4', 'signingName': 's3', 'signingRegion': 'us-west-2'}]}}}
+2025-08-08 23:56:48,394 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x78d9c4c1d610>>
+2025-08-08 23:56:48,394 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <bound method ClientCreator._default_s3_presign_to_sigv2 of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:56:48,395 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <function set_operation_specific_signer at 0x78d9c56ad3a0>
+2025-08-08 23:56:48,395 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <function remove_arn_from_signing_path at 0x78d9c56af9c0>
+2025-08-08 23:56:48,395 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.resolve_s3express_identity of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:56:48,396 - botocore.auth - DEBUG - Calculating signature using v4 auth.
+2025-08-08 23:56:48,396 - botocore.auth - DEBUG - CanonicalRequest:
+HEAD
+/
+
+host:phg-panther-data-19.s3.us-west-2.amazonaws.com
+x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+x-amz-date:20250808T235648Z
+
+host;x-amz-content-sha256;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2025-08-08 23:56:48,396 - botocore.auth - DEBUG - StringToSign:
+AWS4-HMAC-SHA256
+20250808T235648Z
+20250808/us-west-2/s3/aws4_request
+31574b789b51773060b44c46e1aff1cf090a875b1662ca9891e3cb0ef7208ac1
+2025-08-08 23:56:48,396 - botocore.auth - DEBUG - Signature:
+f4604c40f13da08bd0ad14a339cb0e48b98f8d4dd5a0e9e2f71ac262f9026245
+2025-08-08 23:56:48,397 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <function add_retry_headers at 0x78d9c56af7e0>
+2025-08-08 23:56:48,397 - botocore.endpoint - DEBUG - Sending http request: <AWSPreparedRequest stream_output=False, method=HEAD, url=https://phg-panther-data-19.s3.us-west-2.amazonaws.com/, headers={'User-Agent': b'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162', 'X-Amz-Date': b'20250808T235648Z', 'X-Amz-Content-SHA256': b'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAT2DXR6T2A3QEJNXM/20250808/us-west-2/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=f4604c40f13da08bd0ad14a339cb0e48b98f8d4dd5a0e9e2f71ac262f9026245', 'amz-sdk-invocation-id': b'0d53a7b6-cc23-4538-b32d-bad6392edaca', 'amz-sdk-request': b'attempt=1'}>
+2025-08-08 23:56:48,398 - botocore.httpsession - DEBUG - Certificate path: /usr/local/lib/python3.11/site-packages/certifi/cacert.pem
+2025-08-08 23:56:48,398 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): phg-panther-data-19.s3.us-west-2.amazonaws.com:443
+2025-08-08 23:56:48,726 - urllib3.connectionpool - DEBUG - https://phg-panther-data-19.s3.us-west-2.amazonaws.com:443 "HEAD / HTTP/1.1" 200 0
+2025-08-08 23:56:48,726 - botocore.parsers - DEBUG - Response headers: {'x-amz-id-2': 'f03FMjPnDOzj3QGSNj1SIFMz1wWzdPaWSbM5T/lGZRE05ffeBoPF49GDgQz0oQffcaSWlmNezYP8GYwIDH4v4w==', 'x-amz-request-id': 'Z0J6AV3JZ7CWMW9X', 'Date': 'Fri, 08 Aug 2025 23:56:49 GMT', 'x-amz-bucket-region': 'us-west-2', 'x-amz-access-point-alias': 'false', 'Content-Type': 'application/xml', 'Transfer-Encoding': 'chunked', 'Server': 'AmazonS3'}
+2025-08-08 23:56:48,726 - botocore.parsers - DEBUG - Response body:
+b''
+2025-08-08 23:56:48,727 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <botocore.retryhandler.RetryHandler object at 0x78d9c4c3d0d0>
+2025-08-08 23:56:48,727 - botocore.retryhandler - DEBUG - No retry needed.
+2025-08-08 23:56:48,727 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.redirect_from_error of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:56:48,728 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function validate_bucket_name at 0x78d9c56ad6c0>
+2025-08-08 23:56:48,728 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function remove_bucket_from_url_paths_from_model at 0x78d9c56af880>
+2025-08-08 23:56:48,728 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.annotate_request_context of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:56:48,728 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method ClientCreator._inject_s3_input_parameters of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:56:48,729 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function generate_idempotent_uuid at 0x78d9c56ad4e0>
+2025-08-08 23:56:48,729 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <function customize_endpoint_resolver_builtins at 0x78d9c56afa60>
+2025-08-08 23:56:48,729 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <bound method S3RegionRedirectorv2.redirect_from_cache of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:56:48,729 - botocore.regions - DEBUG - Calling endpoint provider with parameters: {'Bucket': 'phg-panther-msa-data-19', 'Region': 'us-west-2', 'UseFIPS': False, 'UseDualStack': False, 'ForcePathStyle': False, 'Accelerate': False, 'UseGlobalEndpoint': False, 'DisableMultiRegionAccessPoints': False, 'UseArnRegion': True}
+2025-08-08 23:56:48,730 - botocore.regions - DEBUG - Endpoint provider result: https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com
+2025-08-08 23:56:48,730 - botocore.regions - DEBUG - Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2025-08-08 23:56:48,730 - botocore.regions - DEBUG - Selected auth type "v4" as "v4" with signing context params: {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}
+2025-08-08 23:56:48,731 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_expect_header at 0x78d9c56ada80>
+2025-08-08 23:56:48,731 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.apply_signing_cache_key of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:56:48,731 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_recursion_detection_header at 0x78d9c5756c00>
+2025-08-08 23:56:48,731 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function inject_api_version_header_if_needed at 0x78d9c56aefc0>
+2025-08-08 23:56:48,732 - botocore.endpoint - DEBUG - Making request for OperationModel(name=HeadBucket) with params: {'url_path': '', 'query_string': {}, 'method': 'HEAD', 'headers': {'User-Agent': 'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162'}, 'body': b'', 'auth_path': '/phg-panther-msa-data-19/', 'url': 'https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com/', 'context': {'client_region': 'us-west-2', 'client_config': <botocore.config.Config object at 0x78d9c4c1d650>, 'has_streaming_input': False, 'auth_type': 'v4', 's3_redirect': {'redirected': False, 'bucket': 'phg-panther-msa-data-19', 'params': {'Bucket': 'phg-panther-msa-data-19'}}, 'input_params': {'Bucket': 'phg-panther-msa-data-19'}, 'signing': {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}, 'endpoint_properties': {'authSchemes': [{'disableDoubleEncoding': True, 'name': 'sigv4', 'signingName': 's3', 'signingRegion': 'us-west-2'}]}}}
+2025-08-08 23:56:48,732 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x78d9c4c1d610>>
+2025-08-08 23:56:48,732 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <bound method ClientCreator._default_s3_presign_to_sigv2 of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:56:48,732 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <function set_operation_specific_signer at 0x78d9c56ad3a0>
+2025-08-08 23:56:48,733 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <function remove_arn_from_signing_path at 0x78d9c56af9c0>
+2025-08-08 23:56:48,733 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.resolve_s3express_identity of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:56:48,733 - botocore.auth - DEBUG - Calculating signature using v4 auth.
+2025-08-08 23:56:48,733 - botocore.auth - DEBUG - CanonicalRequest:
+HEAD
+/
+
+host:phg-panther-msa-data-19.s3.us-west-2.amazonaws.com
+x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+x-amz-date:20250808T235648Z
+
+host;x-amz-content-sha256;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2025-08-08 23:56:48,734 - botocore.auth - DEBUG - StringToSign:
+AWS4-HMAC-SHA256
+20250808T235648Z
+20250808/us-west-2/s3/aws4_request
+d3de10bea422bc76d93a67ebe6149b6c58cbce8305c931a3ce081098ca703b87
+2025-08-08 23:56:48,734 - botocore.auth - DEBUG - Signature:
+42a71dfdc395739986eecdee82814a26a2c9949b6091dc485060a490f2113785
+2025-08-08 23:56:48,734 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <function add_retry_headers at 0x78d9c56af7e0>
+2025-08-08 23:56:48,734 - botocore.endpoint - DEBUG - Sending http request: <AWSPreparedRequest stream_output=False, method=HEAD, url=https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com/, headers={'User-Agent': b'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162', 'X-Amz-Date': b'20250808T235648Z', 'X-Amz-Content-SHA256': b'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAT2DXR6T2A3QEJNXM/20250808/us-west-2/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=42a71dfdc395739986eecdee82814a26a2c9949b6091dc485060a490f2113785', 'amz-sdk-invocation-id': b'273ccc3c-28cd-4301-8712-1ac1d2e46e18', 'amz-sdk-request': b'attempt=1'}>
+2025-08-08 23:56:48,735 - botocore.httpsession - DEBUG - Certificate path: /usr/local/lib/python3.11/site-packages/certifi/cacert.pem
+2025-08-08 23:56:48,735 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): phg-panther-msa-data-19.s3.us-west-2.amazonaws.com:443
+2025-08-08 23:56:48,999 - urllib3.connectionpool - DEBUG - https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com:443 "HEAD / HTTP/1.1" 200 0
+2025-08-08 23:56:48,999 - botocore.parsers - DEBUG - Response headers: {'x-amz-id-2': '6llZTJGesVuXIOBh7Qk6xDib32YzzqN1H21r9t1ul/WnUSXzBWCM+SKnFh6MRx8cake01Wa9Glny4FdTGpmDgA==', 'x-amz-request-id': 'Z0J8DGM2XMFGJ6RN', 'Date': 'Fri, 08 Aug 2025 23:56:49 GMT', 'x-amz-bucket-region': 'us-west-2', 'x-amz-access-point-alias': 'false', 'Content-Type': 'application/xml', 'Transfer-Encoding': 'chunked', 'Server': 'AmazonS3'}
+2025-08-08 23:56:48,999 - botocore.parsers - DEBUG - Response body:
+b''
+2025-08-08 23:56:49,000 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <botocore.retryhandler.RetryHandler object at 0x78d9c4c3d0d0>
+2025-08-08 23:56:49,000 - botocore.retryhandler - DEBUG - No retry needed.
+2025-08-08 23:56:49,000 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.redirect_from_error of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:56:49,001 - werkzeug - INFO - 127.0.0.1 - - [08/Aug/2025 23:56:49] "GET /health HTTP/1.1" 200 -
+2025-08-08 23:57:19,157 - __main__ - DEBUG - Health check requested
+2025-08-08 23:57:19,157 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function validate_bucket_name at 0x78d9c56ad6c0>
+2025-08-08 23:57:19,158 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function remove_bucket_from_url_paths_from_model at 0x78d9c56af880>
+2025-08-08 23:57:19,158 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.annotate_request_context of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:19,158 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method ClientCreator._inject_s3_input_parameters of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:57:19,159 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function generate_idempotent_uuid at 0x78d9c56ad4e0>
+2025-08-08 23:57:19,159 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <function customize_endpoint_resolver_builtins at 0x78d9c56afa60>
+2025-08-08 23:57:19,159 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <bound method S3RegionRedirectorv2.redirect_from_cache of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:19,159 - botocore.regions - DEBUG - Calling endpoint provider with parameters: {'Bucket': 'phg-panther-data-19', 'Region': 'us-west-2', 'UseFIPS': False, 'UseDualStack': False, 'ForcePathStyle': False, 'Accelerate': False, 'UseGlobalEndpoint': False, 'DisableMultiRegionAccessPoints': False, 'UseArnRegion': True}
+2025-08-08 23:57:19,160 - botocore.regions - DEBUG - Endpoint provider result: https://phg-panther-data-19.s3.us-west-2.amazonaws.com
+2025-08-08 23:57:19,160 - botocore.regions - DEBUG - Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2025-08-08 23:57:19,160 - botocore.regions - DEBUG - Selected auth type "v4" as "v4" with signing context params: {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}
+2025-08-08 23:57:19,160 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_expect_header at 0x78d9c56ada80>
+2025-08-08 23:57:19,161 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.apply_signing_cache_key of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:57:19,161 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_recursion_detection_header at 0x78d9c5756c00>
+2025-08-08 23:57:19,161 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function inject_api_version_header_if_needed at 0x78d9c56aefc0>
+2025-08-08 23:57:19,161 - botocore.endpoint - DEBUG - Making request for OperationModel(name=HeadBucket) with params: {'url_path': '', 'query_string': {}, 'method': 'HEAD', 'headers': {'User-Agent': 'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162'}, 'body': b'', 'auth_path': '/phg-panther-data-19/', 'url': 'https://phg-panther-data-19.s3.us-west-2.amazonaws.com/', 'context': {'client_region': 'us-west-2', 'client_config': <botocore.config.Config object at 0x78d9c4c1d650>, 'has_streaming_input': False, 'auth_type': 'v4', 's3_redirect': {'redirected': False, 'bucket': 'phg-panther-data-19', 'params': {'Bucket': 'phg-panther-data-19'}}, 'input_params': {'Bucket': 'phg-panther-data-19'}, 'signing': {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}, 'endpoint_properties': {'authSchemes': [{'disableDoubleEncoding': True, 'name': 'sigv4', 'signingName': 's3', 'signingRegion': 'us-west-2'}]}}}
+2025-08-08 23:57:19,162 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x78d9c4c1d610>>
+2025-08-08 23:57:19,162 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <bound method ClientCreator._default_s3_presign_to_sigv2 of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:57:19,162 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <function set_operation_specific_signer at 0x78d9c56ad3a0>
+2025-08-08 23:57:19,162 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <function remove_arn_from_signing_path at 0x78d9c56af9c0>
+2025-08-08 23:57:19,163 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.resolve_s3express_identity of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:57:19,163 - botocore.auth - DEBUG - Calculating signature using v4 auth.
+2025-08-08 23:57:19,163 - botocore.auth - DEBUG - CanonicalRequest:
+HEAD
+/
+
+host:phg-panther-data-19.s3.us-west-2.amazonaws.com
+x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+x-amz-date:20250808T235719Z
+
+host;x-amz-content-sha256;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2025-08-08 23:57:19,163 - botocore.auth - DEBUG - StringToSign:
+AWS4-HMAC-SHA256
+20250808T235719Z
+20250808/us-west-2/s3/aws4_request
+65b07cce49dea7883e642b43e455e9f55c99a65015b9dea0eb266d9d27be38ad
+2025-08-08 23:57:19,164 - botocore.auth - DEBUG - Signature:
+9cbc830af38600d5b0dacf9b0ad2fa4745cb83309f992a20774fcda93b1b3258
+2025-08-08 23:57:19,164 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <function add_retry_headers at 0x78d9c56af7e0>
+2025-08-08 23:57:19,164 - botocore.endpoint - DEBUG - Sending http request: <AWSPreparedRequest stream_output=False, method=HEAD, url=https://phg-panther-data-19.s3.us-west-2.amazonaws.com/, headers={'User-Agent': b'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162', 'X-Amz-Date': b'20250808T235719Z', 'X-Amz-Content-SHA256': b'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAT2DXR6T2A3QEJNXM/20250808/us-west-2/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=9cbc830af38600d5b0dacf9b0ad2fa4745cb83309f992a20774fcda93b1b3258', 'amz-sdk-invocation-id': b'bd332162-5ba5-4856-b778-36bb63ecb229', 'amz-sdk-request': b'attempt=1'}>
+2025-08-08 23:57:19,164 - botocore.httpsession - DEBUG - Certificate path: /usr/local/lib/python3.11/site-packages/certifi/cacert.pem
+2025-08-08 23:57:19,165 - urllib3.connectionpool - DEBUG - Resetting dropped connection: phg-panther-data-19.s3.us-west-2.amazonaws.com
+2025-08-08 23:57:19,495 - urllib3.connectionpool - DEBUG - https://phg-panther-data-19.s3.us-west-2.amazonaws.com:443 "HEAD / HTTP/1.1" 200 0
+2025-08-08 23:57:19,495 - botocore.parsers - DEBUG - Response headers: {'x-amz-id-2': 'egZS0Yg0k1zhjqlL84mbKmlpe5nvJqboNpsSnOSL54WAGrlClRfkartcWY4o4SGcet2SQFI/0c4=', 'x-amz-request-id': 'KF7XEQ93WX8NW10Q', 'Date': 'Fri, 08 Aug 2025 23:57:20 GMT', 'x-amz-bucket-region': 'us-west-2', 'x-amz-access-point-alias': 'false', 'Content-Type': 'application/xml', 'Transfer-Encoding': 'chunked', 'Server': 'AmazonS3'}
+2025-08-08 23:57:19,495 - botocore.parsers - DEBUG - Response body:
+b''
+2025-08-08 23:57:19,496 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <botocore.retryhandler.RetryHandler object at 0x78d9c4c3d0d0>
+2025-08-08 23:57:19,496 - botocore.retryhandler - DEBUG - No retry needed.
+2025-08-08 23:57:19,496 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.redirect_from_error of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:19,497 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function validate_bucket_name at 0x78d9c56ad6c0>
+2025-08-08 23:57:19,497 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function remove_bucket_from_url_paths_from_model at 0x78d9c56af880>
+2025-08-08 23:57:19,497 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.annotate_request_context of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:19,497 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method ClientCreator._inject_s3_input_parameters of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:57:19,498 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function generate_idempotent_uuid at 0x78d9c56ad4e0>
+2025-08-08 23:57:19,498 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <function customize_endpoint_resolver_builtins at 0x78d9c56afa60>
+2025-08-08 23:57:19,498 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <bound method S3RegionRedirectorv2.redirect_from_cache of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:19,498 - botocore.regions - DEBUG - Calling endpoint provider with parameters: {'Bucket': 'phg-panther-msa-data-19', 'Region': 'us-west-2', 'UseFIPS': False, 'UseDualStack': False, 'ForcePathStyle': False, 'Accelerate': False, 'UseGlobalEndpoint': False, 'DisableMultiRegionAccessPoints': False, 'UseArnRegion': True}
+2025-08-08 23:57:19,499 - botocore.regions - DEBUG - Endpoint provider result: https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com
+2025-08-08 23:57:19,499 - botocore.regions - DEBUG - Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2025-08-08 23:57:19,499 - botocore.regions - DEBUG - Selected auth type "v4" as "v4" with signing context params: {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}
+2025-08-08 23:57:19,500 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_expect_header at 0x78d9c56ada80>
+2025-08-08 23:57:19,500 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.apply_signing_cache_key of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:57:19,500 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_recursion_detection_header at 0x78d9c5756c00>
+2025-08-08 23:57:19,500 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function inject_api_version_header_if_needed at 0x78d9c56aefc0>
+2025-08-08 23:57:19,501 - botocore.endpoint - DEBUG - Making request for OperationModel(name=HeadBucket) with params: {'url_path': '', 'query_string': {}, 'method': 'HEAD', 'headers': {'User-Agent': 'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162'}, 'body': b'', 'auth_path': '/phg-panther-msa-data-19/', 'url': 'https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com/', 'context': {'client_region': 'us-west-2', 'client_config': <botocore.config.Config object at 0x78d9c4c1d650>, 'has_streaming_input': False, 'auth_type': 'v4', 's3_redirect': {'redirected': False, 'bucket': 'phg-panther-msa-data-19', 'params': {'Bucket': 'phg-panther-msa-data-19'}}, 'input_params': {'Bucket': 'phg-panther-msa-data-19'}, 'signing': {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}, 'endpoint_properties': {'authSchemes': [{'disableDoubleEncoding': True, 'name': 'sigv4', 'signingName': 's3', 'signingRegion': 'us-west-2'}]}}}
+2025-08-08 23:57:19,501 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x78d9c4c1d610>>
+2025-08-08 23:57:19,501 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <bound method ClientCreator._default_s3_presign_to_sigv2 of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:57:19,501 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <function set_operation_specific_signer at 0x78d9c56ad3a0>
+2025-08-08 23:57:19,502 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <function remove_arn_from_signing_path at 0x78d9c56af9c0>
+2025-08-08 23:57:19,502 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.resolve_s3express_identity of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:57:19,502 - botocore.auth - DEBUG - Calculating signature using v4 auth.
+2025-08-08 23:57:19,502 - botocore.auth - DEBUG - CanonicalRequest:
+HEAD
+/
+
+host:phg-panther-msa-data-19.s3.us-west-2.amazonaws.com
+x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+x-amz-date:20250808T235719Z
+
+host;x-amz-content-sha256;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2025-08-08 23:57:19,503 - botocore.auth - DEBUG - StringToSign:
+AWS4-HMAC-SHA256
+20250808T235719Z
+20250808/us-west-2/s3/aws4_request
+8bf4d95574292bd3987636c79ecd041a0163bf2ea7829bff477654ef7c6f349e
+2025-08-08 23:57:19,503 - botocore.auth - DEBUG - Signature:
+5ef69fed554d18c2accda6a52157225ffd5a0aee4c6f7abe71ad5006afe93676
+2025-08-08 23:57:19,503 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <function add_retry_headers at 0x78d9c56af7e0>
+2025-08-08 23:57:19,503 - botocore.endpoint - DEBUG - Sending http request: <AWSPreparedRequest stream_output=False, method=HEAD, url=https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com/, headers={'User-Agent': b'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162', 'X-Amz-Date': b'20250808T235719Z', 'X-Amz-Content-SHA256': b'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAT2DXR6T2A3QEJNXM/20250808/us-west-2/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=5ef69fed554d18c2accda6a52157225ffd5a0aee4c6f7abe71ad5006afe93676', 'amz-sdk-invocation-id': b'fe8c8452-7a10-4cb7-8957-17cd147f0eda', 'amz-sdk-request': b'attempt=1'}>
+2025-08-08 23:57:19,504 - botocore.httpsession - DEBUG - Certificate path: /usr/local/lib/python3.11/site-packages/certifi/cacert.pem
+2025-08-08 23:57:19,504 - urllib3.connectionpool - DEBUG - Resetting dropped connection: phg-panther-msa-data-19.s3.us-west-2.amazonaws.com
+2025-08-08 23:57:19,728 - urllib3.connectionpool - DEBUG - https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com:443 "HEAD / HTTP/1.1" 200 0
+2025-08-08 23:57:19,729 - botocore.parsers - DEBUG - Response headers: {'x-amz-id-2': 'QUE56JQpSDfujRZOk+jx0/tFER6vvYEbIiGdx83WT7no4cv07aGD588RVhapM5vlTlAR9lLikZc=', 'x-amz-request-id': 'KF7JCH2XM7WKDCMR', 'Date': 'Fri, 08 Aug 2025 23:57:20 GMT', 'x-amz-bucket-region': 'us-west-2', 'x-amz-access-point-alias': 'false', 'Content-Type': 'application/xml', 'Transfer-Encoding': 'chunked', 'Server': 'AmazonS3'}
+2025-08-08 23:57:19,729 - botocore.parsers - DEBUG - Response body:
+b''
+2025-08-08 23:57:19,730 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <botocore.retryhandler.RetryHandler object at 0x78d9c4c3d0d0>
+2025-08-08 23:57:19,731 - botocore.retryhandler - DEBUG - No retry needed.
+2025-08-08 23:57:19,731 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.redirect_from_error of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:19,732 - werkzeug - INFO - 127.0.0.1 - - [08/Aug/2025 23:57:19] "GET /health HTTP/1.1" 200 -
+2025-08-08 23:57:49,813 - __main__ - DEBUG - Health check requested
+2025-08-08 23:57:49,814 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function validate_bucket_name at 0x78d9c56ad6c0>
+2025-08-08 23:57:49,814 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function remove_bucket_from_url_paths_from_model at 0x78d9c56af880>
+2025-08-08 23:57:49,814 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.annotate_request_context of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:49,815 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method ClientCreator._inject_s3_input_parameters of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:57:49,815 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function generate_idempotent_uuid at 0x78d9c56ad4e0>
+2025-08-08 23:57:49,815 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <function customize_endpoint_resolver_builtins at 0x78d9c56afa60>
+2025-08-08 23:57:49,816 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <bound method S3RegionRedirectorv2.redirect_from_cache of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:49,816 - botocore.regions - DEBUG - Calling endpoint provider with parameters: {'Bucket': 'phg-panther-data-19', 'Region': 'us-west-2', 'UseFIPS': False, 'UseDualStack': False, 'ForcePathStyle': False, 'Accelerate': False, 'UseGlobalEndpoint': False, 'DisableMultiRegionAccessPoints': False, 'UseArnRegion': True}
+2025-08-08 23:57:49,816 - botocore.regions - DEBUG - Endpoint provider result: https://phg-panther-data-19.s3.us-west-2.amazonaws.com
+2025-08-08 23:57:49,817 - botocore.regions - DEBUG - Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2025-08-08 23:57:49,817 - botocore.regions - DEBUG - Selected auth type "v4" as "v4" with signing context params: {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}
+2025-08-08 23:57:49,817 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_expect_header at 0x78d9c56ada80>
+2025-08-08 23:57:49,818 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.apply_signing_cache_key of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:57:49,818 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_recursion_detection_header at 0x78d9c5756c00>
+2025-08-08 23:57:49,818 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function inject_api_version_header_if_needed at 0x78d9c56aefc0>
+2025-08-08 23:57:49,818 - botocore.endpoint - DEBUG - Making request for OperationModel(name=HeadBucket) with params: {'url_path': '', 'query_string': {}, 'method': 'HEAD', 'headers': {'User-Agent': 'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162'}, 'body': b'', 'auth_path': '/phg-panther-data-19/', 'url': 'https://phg-panther-data-19.s3.us-west-2.amazonaws.com/', 'context': {'client_region': 'us-west-2', 'client_config': <botocore.config.Config object at 0x78d9c4c1d650>, 'has_streaming_input': False, 'auth_type': 'v4', 's3_redirect': {'redirected': False, 'bucket': 'phg-panther-data-19', 'params': {'Bucket': 'phg-panther-data-19'}}, 'input_params': {'Bucket': 'phg-panther-data-19'}, 'signing': {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}, 'endpoint_properties': {'authSchemes': [{'disableDoubleEncoding': True, 'name': 'sigv4', 'signingName': 's3', 'signingRegion': 'us-west-2'}]}}}
+2025-08-08 23:57:49,819 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x78d9c4c1d610>>
+2025-08-08 23:57:49,819 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <bound method ClientCreator._default_s3_presign_to_sigv2 of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:57:49,819 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <function set_operation_specific_signer at 0x78d9c56ad3a0>
+2025-08-08 23:57:49,819 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <function remove_arn_from_signing_path at 0x78d9c56af9c0>
+2025-08-08 23:57:49,820 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.resolve_s3express_identity of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:57:49,820 - botocore.auth - DEBUG - Calculating signature using v4 auth.
+2025-08-08 23:57:49,820 - botocore.auth - DEBUG - CanonicalRequest:
+HEAD
+/
+
+host:phg-panther-data-19.s3.us-west-2.amazonaws.com
+x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+x-amz-date:20250808T235749Z
+
+host;x-amz-content-sha256;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2025-08-08 23:57:49,821 - botocore.auth - DEBUG - StringToSign:
+AWS4-HMAC-SHA256
+20250808T235749Z
+20250808/us-west-2/s3/aws4_request
+7ed00dae7dd2452bd18023ea380983078641b828d5171cc9ce8cd1d57e6312d4
+2025-08-08 23:57:49,821 - botocore.auth - DEBUG - Signature:
+987be02db3ae9658581a77f8684116dff6b2ff26645eff7fe275ad35770579fa
+2025-08-08 23:57:49,821 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <function add_retry_headers at 0x78d9c56af7e0>
+2025-08-08 23:57:49,822 - botocore.endpoint - DEBUG - Sending http request: <AWSPreparedRequest stream_output=False, method=HEAD, url=https://phg-panther-data-19.s3.us-west-2.amazonaws.com/, headers={'User-Agent': b'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162', 'X-Amz-Date': b'20250808T235749Z', 'X-Amz-Content-SHA256': b'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAT2DXR6T2A3QEJNXM/20250808/us-west-2/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=987be02db3ae9658581a77f8684116dff6b2ff26645eff7fe275ad35770579fa', 'amz-sdk-invocation-id': b'689ae395-25e4-425c-a471-00fb0ce61b91', 'amz-sdk-request': b'attempt=1'}>
+2025-08-08 23:57:49,822 - botocore.httpsession - DEBUG - Certificate path: /usr/local/lib/python3.11/site-packages/certifi/cacert.pem
+2025-08-08 23:57:49,823 - urllib3.connectionpool - DEBUG - Resetting dropped connection: phg-panther-data-19.s3.us-west-2.amazonaws.com
+2025-08-08 23:57:50,141 - urllib3.connectionpool - DEBUG - https://phg-panther-data-19.s3.us-west-2.amazonaws.com:443 "HEAD / HTTP/1.1" 200 0
+2025-08-08 23:57:50,142 - botocore.parsers - DEBUG - Response headers: {'x-amz-id-2': 'k6kKPvYPrxYuBSMyYCv5zE1ixaypulkpk840TyW481CxjpDihgiIGGdV/LWyRPoVwgKRQudNJTc=', 'x-amz-request-id': '37R5Q5JZBZVHVB62', 'Date': 'Fri, 08 Aug 2025 23:57:50 GMT', 'x-amz-bucket-region': 'us-west-2', 'x-amz-access-point-alias': 'false', 'Content-Type': 'application/xml', 'Transfer-Encoding': 'chunked', 'Server': 'AmazonS3'}
+2025-08-08 23:57:50,142 - botocore.parsers - DEBUG - Response body:
+b''
+2025-08-08 23:57:50,142 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <botocore.retryhandler.RetryHandler object at 0x78d9c4c3d0d0>
+2025-08-08 23:57:50,143 - botocore.retryhandler - DEBUG - No retry needed.
+2025-08-08 23:57:50,143 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.redirect_from_error of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:50,143 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function validate_bucket_name at 0x78d9c56ad6c0>
+2025-08-08 23:57:50,143 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function remove_bucket_from_url_paths_from_model at 0x78d9c56af880>
+2025-08-08 23:57:50,144 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.annotate_request_context of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:50,144 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <bound method ClientCreator._inject_s3_input_parameters of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:57:50,144 - botocore.hooks - DEBUG - Event before-parameter-build.s3.HeadBucket: calling handler <function generate_idempotent_uuid at 0x78d9c56ad4e0>
+2025-08-08 23:57:50,145 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <function customize_endpoint_resolver_builtins at 0x78d9c56afa60>
+2025-08-08 23:57:50,145 - botocore.hooks - DEBUG - Event before-endpoint-resolution.s3: calling handler <bound method S3RegionRedirectorv2.redirect_from_cache of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:50,145 - botocore.regions - DEBUG - Calling endpoint provider with parameters: {'Bucket': 'phg-panther-msa-data-19', 'Region': 'us-west-2', 'UseFIPS': False, 'UseDualStack': False, 'ForcePathStyle': False, 'Accelerate': False, 'UseGlobalEndpoint': False, 'DisableMultiRegionAccessPoints': False, 'UseArnRegion': True}
+2025-08-08 23:57:50,146 - botocore.regions - DEBUG - Endpoint provider result: https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com
+2025-08-08 23:57:50,146 - botocore.regions - DEBUG - Selecting from endpoint provider's list of auth schemes: "sigv4". User selected auth scheme is: "None"
+2025-08-08 23:57:50,146 - botocore.regions - DEBUG - Selected auth type "v4" as "v4" with signing context params: {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}
+2025-08-08 23:57:50,146 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_expect_header at 0x78d9c56ada80>
+2025-08-08 23:57:50,147 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.apply_signing_cache_key of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:57:50,147 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function add_recursion_detection_header at 0x78d9c5756c00>
+2025-08-08 23:57:50,147 - botocore.hooks - DEBUG - Event before-call.s3.HeadBucket: calling handler <function inject_api_version_header_if_needed at 0x78d9c56aefc0>
+2025-08-08 23:57:50,147 - botocore.endpoint - DEBUG - Making request for OperationModel(name=HeadBucket) with params: {'url_path': '', 'query_string': {}, 'method': 'HEAD', 'headers': {'User-Agent': 'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162'}, 'body': b'', 'auth_path': '/phg-panther-msa-data-19/', 'url': 'https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com/', 'context': {'client_region': 'us-west-2', 'client_config': <botocore.config.Config object at 0x78d9c4c1d650>, 'has_streaming_input': False, 'auth_type': 'v4', 's3_redirect': {'redirected': False, 'bucket': 'phg-panther-msa-data-19', 'params': {'Bucket': 'phg-panther-msa-data-19'}}, 'input_params': {'Bucket': 'phg-panther-msa-data-19'}, 'signing': {'region': 'us-west-2', 'signing_name': 's3', 'disableDoubleEncoding': True}, 'endpoint_properties': {'authSchemes': [{'disableDoubleEncoding': True, 'name': 'sigv4', 'signingName': 's3', 'signingRegion': 'us-west-2'}]}}}
+2025-08-08 23:57:50,148 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <bound method RequestSigner.handler of <botocore.signers.RequestSigner object at 0x78d9c4c1d610>>
+2025-08-08 23:57:50,148 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <bound method ClientCreator._default_s3_presign_to_sigv2 of <botocore.client.ClientCreator object at 0x78d9c4dc5d50>>
+2025-08-08 23:57:50,148 - botocore.hooks - DEBUG - Event choose-signer.s3.HeadBucket: calling handler <function set_operation_specific_signer at 0x78d9c56ad3a0>
+2025-08-08 23:57:50,148 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <function remove_arn_from_signing_path at 0x78d9c56af9c0>
+2025-08-08 23:57:50,149 - botocore.hooks - DEBUG - Event before-sign.s3.HeadBucket: calling handler <bound method S3ExpressIdentityResolver.resolve_s3express_identity of <botocore.utils.S3ExpressIdentityResolver object at 0x78d9c4c3c650>>
+2025-08-08 23:57:50,149 - botocore.auth - DEBUG - Calculating signature using v4 auth.
+2025-08-08 23:57:50,149 - botocore.auth - DEBUG - CanonicalRequest:
+HEAD
+/
+
+host:phg-panther-msa-data-19.s3.us-west-2.amazonaws.com
+x-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+x-amz-date:20250808T235750Z
+
+host;x-amz-content-sha256;x-amz-date
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2025-08-08 23:57:50,149 - botocore.auth - DEBUG - StringToSign:
+AWS4-HMAC-SHA256
+20250808T235750Z
+20250808/us-west-2/s3/aws4_request
+8b02dd59101cef527c57249ba2b0bb3bc79f54e36a8ace0ce44fad7f5b54a405
+2025-08-08 23:57:50,150 - botocore.auth - DEBUG - Signature:
+c88d9d7c287d509732649ca36f18de3d7f7c58abf6c02dec9bc3a8b4d6e2db27
+2025-08-08 23:57:50,150 - botocore.hooks - DEBUG - Event request-created.s3.HeadBucket: calling handler <function add_retry_headers at 0x78d9c56af7e0>
+2025-08-08 23:57:50,150 - botocore.endpoint - DEBUG - Sending http request: <AWSPreparedRequest stream_output=False, method=HEAD, url=https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com/, headers={'User-Agent': b'Boto3/1.34.0 md/Botocore#1.34.162 ua/2.0 os/linux#6.6.87.2-microsoft-standard-WSL2 md/arch#x86_64 lang/python#3.11.13 md/pyimpl#CPython cfg/retry-mode#legacy Botocore/1.34.162', 'X-Amz-Date': b'20250808T235750Z', 'X-Amz-Content-SHA256': b'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'Authorization': b'AWS4-HMAC-SHA256 Credential=AKIAT2DXR6T2A3QEJNXM/20250808/us-west-2/s3/aws4_request, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=c88d9d7c287d509732649ca36f18de3d7f7c58abf6c02dec9bc3a8b4d6e2db27', 'amz-sdk-invocation-id': b'2f49bb99-16d4-417f-bb50-be00d3290fdc', 'amz-sdk-request': b'attempt=1'}>
+2025-08-08 23:57:50,151 - botocore.httpsession - DEBUG - Certificate path: /usr/local/lib/python3.11/site-packages/certifi/cacert.pem
+2025-08-08 23:57:50,151 - urllib3.connectionpool - DEBUG - Resetting dropped connection: phg-panther-msa-data-19.s3.us-west-2.amazonaws.com
+2025-08-08 23:57:50,467 - urllib3.connectionpool - DEBUG - https://phg-panther-msa-data-19.s3.us-west-2.amazonaws.com:443 "HEAD / HTTP/1.1" 200 0
+2025-08-08 23:57:50,468 - botocore.parsers - DEBUG - Response headers: {'x-amz-id-2': 'dZWsV60LU3Hic8/f6dJwMUlYdKfBL2Shej/q6+ygBwwDFyVa6TwfgAKYvWtvRJI4abkAXuqmQnc=', 'x-amz-request-id': 'Q5YSFQ5NZ44MZJJB', 'Date': 'Fri, 08 Aug 2025 23:57:51 GMT', 'x-amz-bucket-region': 'us-west-2', 'x-amz-access-point-alias': 'false', 'Content-Type': 'application/xml', 'Transfer-Encoding': 'chunked', 'Server': 'AmazonS3'}
+2025-08-08 23:57:50,468 - botocore.parsers - DEBUG - Response body:
+b''
+2025-08-08 23:57:50,468 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <botocore.retryhandler.RetryHandler object at 0x78d9c4c3d0d0>
+2025-08-08 23:57:50,469 - botocore.retryhandler - DEBUG - No retry needed.
+2025-08-08 23:57:50,469 - botocore.hooks - DEBUG - Event needs-retry.s3.HeadBucket: calling handler <bound method S3RegionRedirectorv2.redirect_from_error of <botocore.utils.S3RegionRedirectorv2 object at 0x78d9c4c31010>>
+2025-08-08 23:57:50,469 - werkzeug - INFO - 127.0.0.1 - - [08/Aug/2025 23:57:50] "GET /health HTTP/1.1" 200 -
+2025-08-08 23:58:13,198 - werkzeug - INFO -  * Detected change in '/app/panther_api.py', reloading
+2025-08-08 23:58:13,294 - werkzeug - INFO -  * Restarting with stat
+2025-08-08 23:58:14,156 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-08 23:58:14,157 - services.ortholog_service - WARNING - Locus mapping file not found
+2025-08-08 23:58:14,158 - services.ortholog_service - WARNING - Organism mapping file not found
+2025-08-08 23:58:14,158 - services.pruning_service - WARNING - Locus mapping file not found
+2025-08-08 23:58:14,161 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-08 23:58:14,182 - werkzeug - WARNING -  * Debugger is active!
+2025-08-08 23:58:14,183 - werkzeug - INFO -  * Debugger PIN: 825-045-492
+2025-08-08 23:58:20,303 - werkzeug - INFO -  * Detected change in '/app/panther_api.py', reloading
+2025-08-08 23:58:20,466 - werkzeug - INFO -  * Restarting with stat
+2025-08-08 23:58:21,056 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-08 23:58:21,057 - services.ortholog_service - WARNING - Locus mapping file not found
+2025-08-08 23:58:21,057 - services.ortholog_service - WARNING - Organism mapping file not found
+2025-08-08 23:58:21,058 - services.pruning_service - WARNING - Locus mapping file not found
+2025-08-08 23:58:21,061 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-08 23:58:21,080 - werkzeug - WARNING -  * Debugger is active!
+2025-08-08 23:58:21,081 - werkzeug - INFO -  * Debugger PIN: 825-045-492
+2025-08-08 23:58:21,100 - __main__ - DEBUG - Health check requested
+2025-08-08 23:58:21,655 - werkzeug - INFO - 127.0.0.1 - - [08/Aug/2025 23:58:21] "GET /health HTTP/1.1" 200 -
+2025-08-08 23:58:51,707 - __main__ - DEBUG - Health check requested
+2025-08-08 23:58:52,291 - werkzeug - INFO - 127.0.0.1 - - [08/Aug/2025 23:58:52] "GET /health HTTP/1.1" 200 -
+2025-08-08 23:59:01,723 - werkzeug - INFO -  * Detected change in '/app/services/ortholog_service.py', reloading
+2025-08-08 23:59:01,791 - werkzeug - INFO -  * Restarting with stat
+2025-08-08 23:59:02,414 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-08 23:59:02,441 - services.ortholog_service - INFO - Loaded 38206 locus mappings
+2025-08-08 23:59:02,442 - services.ortholog_service - WARNING - Organism mapping file not found
+2025-08-08 23:59:02,442 - services.pruning_service - WARNING - Locus mapping file not found
+2025-08-08 23:59:02,445 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-08 23:59:02,464 - werkzeug - WARNING -  * Debugger is active!
+2025-08-08 23:59:02,465 - werkzeug - INFO -  * Debugger PIN: 825-045-492
+2025-08-08 23:59:12,645 - werkzeug - INFO -  * Detected change in '/app/services/ortholog_service.py', reloading
+2025-08-08 23:59:12,736 - werkzeug - INFO -  * Restarting with stat
+2025-08-08 23:59:13,340 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-08 23:59:13,369 - services.ortholog_service - INFO - Loaded 38206 locus mappings
+2025-08-08 23:59:13,372 - services.ortholog_service - INFO - Loaded 50 organism mappings
+2025-08-08 23:59:13,372 - services.pruning_service - WARNING - Locus mapping file not found
+2025-08-08 23:59:13,376 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-08 23:59:13,394 - werkzeug - WARNING -  * Debugger is active!
+2025-08-08 23:59:13,395 - werkzeug - INFO -  * Debugger PIN: 825-045-492
+2025-08-08 23:59:20,526 - werkzeug - INFO -  * Detected change in '/app/services/pruning_service.py', reloading
+2025-08-08 23:59:20,595 - werkzeug - INFO -  * Restarting with stat
+2025-08-08 23:59:21,211 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-08 23:59:21,240 - services.ortholog_service - INFO - Loaded 38206 locus mappings
+2025-08-08 23:59:21,243 - services.ortholog_service - INFO - Loaded 50 organism mappings
+2025-08-08 23:59:21,274 - services.pruning_service - INFO - Loaded 38206 locus mappings for pruning
+2025-08-08 23:59:21,277 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-08 23:59:21,298 - werkzeug - WARNING -  * Debugger is active!
+2025-08-08 23:59:21,299 - werkzeug - INFO -  * Debugger PIN: 825-045-492
+2025-08-08 23:59:22,348 - __main__ - DEBUG - Health check requested
+2025-08-08 23:59:22,924 - werkzeug - INFO - 127.0.0.1 - - [08/Aug/2025 23:59:22] "GET /health HTTP/1.1" 200 -
+2025-08-08 23:59:52,988 - __main__ - DEBUG - Health check requested
+2025-08-08 23:59:53,590 - werkzeug - INFO - 127.0.0.1 - - [08/Aug/2025 23:59:53] "GET /health HTTP/1.1" 200 -
+2025-08-09 00:00:06,023 - werkzeug - INFO -  * Detected change in '/app/services/pruning_service.py', reloading
+2025-08-09 00:00:06,090 - werkzeug - INFO -  * Restarting with stat
+2025-08-09 00:00:06,689 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-09 00:00:06,716 - services.ortholog_service - INFO - Loaded 38206 locus mappings
+2025-08-09 00:00:06,719 - services.ortholog_service - INFO - Loaded 50 organism mappings
+2025-08-09 00:00:06,759 - services.pruning_service - INFO - Loaded 38206 locus mappings for pruning
+2025-08-09 00:00:06,765 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-09 00:00:06,789 - werkzeug - WARNING -  * Debugger is active!
+2025-08-09 00:00:06,790 - werkzeug - INFO -  * Debugger PIN: 825-045-492
+2025-08-09 00:00:23,659 - __main__ - DEBUG - Health check requested
+2025-08-09 00:00:24,244 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 00:00:24] "GET /health HTTP/1.1" 200 -
+2025-08-09 00:00:34,781 - __main__ - DEBUG - Health check requested
+2025-08-09 00:00:35,431 - werkzeug - INFO - 172.20.0.1 - - [09/Aug/2025 00:00:35] "GET /health HTTP/1.1" 200 -
+2025-08-09 00:07:46,144 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-09 00:07:46,175 - services.ortholog_service - INFO - Loaded 38206 locus mappings
+2025-08-09 00:07:46,179 - services.ortholog_service - INFO - Loaded 50 organism mappings
+2025-08-09 00:07:46,221 - services.pruning_service - INFO - Loaded 38206 locus mappings for pruning
+2025-08-09 00:07:46,225 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-09 00:07:46,253 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://172.20.0.2:8080
+2025-08-09 00:07:46,253 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-09 00:07:46,254 - werkzeug - INFO -  * Restarting with stat
+2025-08-09 00:07:46,902 - services.s3_service - INFO - S3 client initialized successfully
+2025-08-09 00:07:46,933 - services.ortholog_service - INFO - Loaded 38206 locus mappings
+2025-08-09 00:07:46,936 - services.ortholog_service - INFO - Loaded 50 organism mappings
+2025-08-09 00:07:46,969 - services.pruning_service - INFO - Loaded 38206 locus mappings for pruning
+2025-08-09 00:07:46,972 - __main__ - INFO - Starting Panther API on port 8080 (debug=True)
+2025-08-09 00:07:46,991 - werkzeug - WARNING -  * Debugger is active!
+2025-08-09 00:07:46,991 - werkzeug - INFO -  * Debugger PIN: 695-887-019
+2025-08-09 00:07:51,195 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 00:07:51] "GET /health HTTP/1.1" 200 -
+2025-08-09 00:07:55,407 - werkzeug - INFO - 172.20.0.1 - - [09/Aug/2025 00:07:55] "GET /health HTTP/1.1" 200 -
+2025-08-09 00:08:02,035 - werkzeug - INFO - 172.20.0.1 - - [09/Aug/2025 00:08:02] "POST /panther/validate/sequence HTTP/1.1" 200 -
+2025-08-09 00:08:07,943 - __main__ - INFO - Tree pruning request for tree: PTHR11913
+2025-08-09 00:08:07,944 - __main__ - INFO - Tree pruning: treeId=PTHR11913, taxonIds=['559292']
+2025-08-09 00:08:07,944 - services.pruning_service - INFO - Pruned tree URL: https://pantherdb.org/services/oai/pantherdb/treeinfo?family=PTHR11913&taxonFltr=559292
+2025-08-09 00:08:10,666 - services.pruning_service - WARNING - No annotation_node found in tree data
+2025-08-09 00:08:10,667 - __main__ - INFO - Successfully pruned tree PTHR11913 for 1 taxa
+2025-08-09 00:08:10,668 - werkzeug - INFO - 172.20.0.1 - - [09/Aug/2025 00:08:10] "POST /panther/pruning/PTHR11913 HTTP/1.1" 200 -
+2025-08-09 00:08:16,076 - __main__ - INFO - FASTA download request for tree: PTHR11913
+2025-08-09 00:08:16,076 - services.fasta_service - INFO - Generating FASTA for tree PTHR11913
+2025-08-09 00:08:16,076 - services.tree_service - INFO - Getting tree root annotation for PTHR11913
+2025-08-09 00:08:16,077 - services.s3_service - INFO - Fetching tree data from S3: phg-panther-data-19/PTHR11913.json
+2025-08-09 00:08:17,491 - services.tree_service - INFO - Mapped 479 persistent IDs
+2025-08-09 00:08:17,492 - services.s3_service - INFO - Fetching MSA data from S3: phg-panther-msa-data-19/PTHR11913.json
+2025-08-09 00:08:18,473 - services.fasta_service - INFO - Processed 474 sequences into FASTA format
+2025-08-09 00:08:18,474 - services.fasta_service - INFO - Generated FASTA with 474 sequences
+2025-08-09 00:08:18,488 - __main__ - INFO - Generated FASTA: 474 sequences, 70221 residues
+2025-08-09 00:08:18,488 - werkzeug - INFO - 172.20.0.1 - - [09/Aug/2025 00:08:18] "POST /panther/fastadoc/PTHR11913 HTTP/1.1" 200 -
+2025-08-09 00:08:21,475 - werkzeug - INFO - 127.0.0.1 - - [09/Aug/2025 00:08:21] "GET /health HTTP/1.1" 200 -
+2025-08-09 00:08:22,290 - __main__ - INFO - Ortholog mapping request received
+2025-08-09 00:08:22,291 - __main__ - INFO - Ortholog mapping: uniprotId=Q03048, queryOrganismId=559292
+2025-08-09 00:08:22,291 - services.ortholog_service - INFO - Ortholog URL: https://pantherdb.org/services/oai/pantherdb/ortholog/matchortho?geneInputList=Q03048&organism=559292&targetOrganism=3702%2C13333%2C15368%2C51351%2C3055%2C2711%2C3659%2C4155%2C3847%2C3635%2C4232%2C112509%2C3880%2C214687%2C4097%2C39947%2C70448%2C42345%2C3218%2C3694%2C3760%2C3988%2C4555%2C4081%2C4558%2C3641%2C4565%2C29760%2C4577%2C29655%2C3708%2C4072%2C71139%2C51240%2C4236%2C3983%2C4432%2C88036%2C4113%2C3562&orthologType=all
+2025-08-09 00:08:23,158 - services.ortholog_service - INFO - Processed 424 ortholog mappings
+2025-08-09 00:08:23,159 - werkzeug - INFO - 172.20.0.1 - - [09/Aug/2025 00:08:23] "POST /panther/orthomapping HTTP/1.1" 200 -

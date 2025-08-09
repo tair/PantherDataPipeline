@@ -17,7 +17,6 @@ class TreeService:
     def __init__(self, s3_service: Optional[S3Service] = None):
         self.logger = logging.getLogger(__name__)
         self.s3_service = s3_service or S3Service()
-        self.use_mock_data = os.getenv('USE_MOCK_DATA', 'true').lower() == 'true'
     
     def get_tree_root_annotation(self, tree_id: str, taxon_filter: Optional[List[str]] = None) -> Dict[str, Any]:
         """
@@ -27,12 +26,9 @@ class TreeService:
         try:
             self.logger.info(f"Getting tree root annotation for {tree_id}")
             
-            if self.use_mock_data:
-                return self._get_mock_tree_data(tree_id, taxon_filter)
-            
-            # Real S3 mode - require S3 to be available
+            # Require S3 to be available
             if not self.s3_service.is_available():
-                raise Exception("S3 service not available. Configure AWS credentials or set USE_MOCK_DATA=true")
+                raise Exception("S3 service not available. Please configure valid AWS credentials")
             
             # Get real data from S3
             tree_data = self.s3_service.get_tree_data(tree_id)
@@ -119,48 +115,7 @@ class TreeService:
             self.logger.error(f"Error in node iteration: {str(e)}")
             raise
     
-    def _get_mock_tree_data(self, tree_id: str, taxon_filter: Optional[List[str]] = None) -> Dict[str, Any]:
-        """
-        Get mock tree data for testing/fallback
-        """
-        mock_tree_data = {
-            "tree_node_type": "ROOT",
-            "persistent_id": f"root_{tree_id}",
-            "children": {
-                "annotation_node": [
-                    {
-                        "tree_node_type": "LEAF",
-                        "persistent_id": "leaf_001",
-                        "uniprot_id": "P12345",
-                        "organism": "Homo sapiens",
-                        "extracted_gene_id": "GENE1",
-                        "taxon_id": "9606"
-                    },
-                    {
-                        "tree_node_type": "LEAF", 
-                        "persistent_id": "leaf_002",
-                        "uniprot_id": "Q67890",
-                        "organism": "Mus musculus",
-                        "extracted_gene_id": "Gene1",
-                        "taxon_id": "10090"
-                    },
-                    {
-                        "tree_node_type": "LEAF",
-                        "persistent_id": "leaf_003", 
-                        "uniprot_id": "R11111",
-                        "organism": "Drosophila melanogaster",
-                        "extracted_gene_id": "gene1",
-                        "taxon_id": "7227"
-                    }
-                ]
-            }
-        }
-        
-        # Filter by taxon if specified
-        if taxon_filter:
-            mock_tree_data = self._filter_tree_by_taxons(mock_tree_data, taxon_filter)
-        
-        return mock_tree_data
+
     
     def _filter_tree_by_taxons(self, tree_data: Dict[str, Any], taxon_filter: List[str]) -> Dict[str, Any]:
         """

@@ -19,7 +19,6 @@ class FastaService:
         self.tree_service = tree_service
         self.s3_service = s3_service or S3Service()
         self.logger = logging.getLogger(__name__)
-        self.use_mock_data = os.getenv('USE_MOCK_DATA', 'true').lower() == 'true'
     
     def generate_fasta_from_tree(self, tree_id: str, taxon_filter: Optional[List[str]] = None) -> str:
         """
@@ -56,12 +55,9 @@ class FastaService:
         try:
             self.logger.debug(f"Getting MSA data for {tree_id}")
             
-            if self.use_mock_data:
-                return self._get_mock_msa_data(tree_id)
-            
-            # Real S3 mode - require S3 to be available
+            # Require S3 to be available
             if not self.s3_service.is_available():
-                raise Exception("S3 service not available. Configure AWS credentials or set USE_MOCK_DATA=true")
+                raise Exception("S3 service not available. Please configure valid AWS credentials")
             
             # Get real MSA data from S3
             msa_data = self.s3_service.get_msa_data(tree_id)
@@ -74,38 +70,7 @@ class FastaService:
             self.logger.error(f"Error getting MSA data for {tree_id}: {str(e)}")
             raise
     
-    def _get_mock_msa_data(self, tree_id: str) -> Dict[str, Any]:
-        """
-        Get mock MSA data for testing/fallback
-        """
-        return {
-            "family_data": [
-                {
-                    "msa_data": {
-                        "sequence_list": [
-                            {
-                                "persistent_id": "leaf_001",
-                                "sequence": "MKVLWAALLVTFLAGCQAKVEQAVETEPEPELRQQTEWQSGQRWQRLASLIANTI"
-                                         "PVSLEEFGVYPFNPFFPEESLLLEPTLGKLKHRGFPNLGEKGFGLYLTRSSQL"
-                                         "FPSDNSNGGTLSFMKFMNCNLRPLDEGVPFIHTKDSDDVDVYSNLNLGKRQDY"
-                            },
-                            {
-                                "persistent_id": "leaf_002", 
-                                "sequence": "MKVLWAALLVTFLAGCQAKVEQAVETEPEPELRQQTEWQSGQRWQRLASLIANTI"
-                                         "PVSLEEFGVYPFNPFFPEESLLLEPTLGKLKHRGFPNLGEKGFGLYLTRSSQL"
-                                         "FPSDNSNGGTLSFMKFMNCNLRPLDEGVPFIHTKDSDDVDVYSNLNLGKRQDY"
-                            },
-                            {
-                                "persistent_id": "leaf_003",
-                                "sequence": "MKVLWAALLVTFLAGCQAKVEQAVETEPEPELRQQTEWQSGQRWQRLASLIANTI"
-                                         "PVSLEEFGVYPFNPFFPEESLLLEPTLGKLKHRGFPNLGEKGFGLYLTRSSQL"
-                                         "FPSDNSNGGTLSFMKFMNCNLRPLDEGVPFIHTKDSDDVDVYSNLNLGKRQDY"
-                            }
-                        ]
-                    }
-                }
-            ]
-        }
+
     
     def _process_msa_to_fasta(self, msa_data: Dict[str, Any], persistent_id_map: Dict[str, str]) -> str:
         """
