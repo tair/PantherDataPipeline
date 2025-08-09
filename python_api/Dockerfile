@@ -35,6 +35,7 @@ COPY . .
 
 # Create logs directory and set permissions
 RUN mkdir -p logs && \
+    touch panther_api.log && \
     chown -R appuser:appuser /app && \
     ls -la data/ || echo "Data directory not found in development"
 
@@ -63,6 +64,7 @@ COPY . .
 
 # Create logs directory and set permissions
 RUN mkdir -p logs && \
+    touch panther_api.log && \
     chown -R appuser:appuser /app && \
     chmod -R 755 /app && \
     ls -la data/ || echo "Data directory not found in production"
