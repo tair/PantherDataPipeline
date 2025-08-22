@@ -9,6 +9,10 @@ import os
 import requests
 from typing import Dict, List, Optional, Any
 from urllib.parse import quote
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -127,21 +131,16 @@ class PruningService:
     def _load_locus_mapping(self) -> Optional[Dict[str, str]]:
         """Load AGI locus ID mapping from CSV file (same as OrthologService)"""
         try:
-            # Try different possible paths
-            possible_paths = [
-                "data/AGI_locusId_mapping_20200410.csv",  # Docker container path
-                "python_api/data/AGI_locusId_mapping_20200410.csv",  # Local development
-                "src/main/webapp/WEB-INF/AGI_locusId_mapping_20200410.csv"  # Java webapp
-            ]
+            # Get resources path from environment
+            resources_path = os.getenv('RESOURCES_PATH')
+            if not resources_path:
+                self.logger.error("RESOURCES_PATH environment variable not set")
+                return None
             
-            mapping_file = None
-            for path in possible_paths:
-                if os.path.exists(path):
-                    mapping_file = path
-                    break
+            mapping_file = os.path.join(resources_path, "AGI_locusId_mapping_20200410.csv")
             
-            if not mapping_file:
-                self.logger.warning("Locus mapping file not found in any expected location")
+            if not os.path.exists(mapping_file):
+                self.logger.error(f"Locus mapping file not found: {mapping_file}")
                 return None
             
             locus_mapping = {}

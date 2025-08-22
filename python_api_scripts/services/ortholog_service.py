@@ -9,6 +9,11 @@ import os
 import requests
 from typing import Dict, List, Optional, Any
 from urllib.parse import quote
+from dotenv import load_dotenv
+from ..utils.taxon_utils import get_ortholog_target_taxon_ids, get_organism_mapping
+
+# Load environment variables
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -20,17 +25,9 @@ class OrthologService:
         self.base_url = "https://pantherdb.org"
         self.ortho_url = f"{self.base_url}/services/oai/pantherdb/ortholog/matchortho?geneInputList="
         
-        # Organism taxon IDs from Java (exact copy)
-        self.organism_taxon_ids = [
-            3702, 13333, 15368, 51351, 3055, 2711, 3659, 4155, 3847, 3635, 4232, 112509,
-            3880, 214687, 4097, 39947, 70448, 42345, 3218, 3694, 3760, 3988, 4555, 4081, 
-            4558, 3641, 4565, 29760, 4577, 29655, 3708, 4072, 71139, 51240, 4236, 3983, 
-            4432, 88036, 4113, 3562
-        ]
-        
         # Load mapping files
         self.locus_mapping = self._load_locus_mapping()
-        self.org_mapping = self._load_organism_mapping()
+        self.org_mapping = get_organism_mapping()  # Use centralized utility
     
     def get_ortholog_mapping(self, uniprot_id: str, query_organism_id: int) -> str:
         """
@@ -38,8 +35,8 @@ class OrthologService:
         Returns JSON array string exactly like Java implementation
         """
         try:
-            # Build taxon filter (remove query organism from list)
-            taxon_list = [tid for tid in self.organism_taxon_ids if tid != query_organism_id]
+            # Build taxon filter using centralized utility
+            taxon_list = get_ortholog_target_taxon_ids(exclude_taxon_id=query_organism_id)
             taxon_filters_param = "%2C".join(map(str, taxon_list))
             
             # Construct URL exactly like Java
@@ -146,21 +143,16 @@ class OrthologService:
     def _load_locus_mapping(self) -> Optional[Dict[str, str]]:
         """Load AGI locus ID mapping from CSV file"""
         try:
-            # Try different possible paths
-            possible_paths = [
-                "data/AGI_locusId_mapping_20200410.csv",  # Docker container path
-                "python_api/data/AGI_locusId_mapping_20200410.csv",  # Local development
-                "src/main/webapp/WEB-INF/AGI_locusId_mapping_20200410.csv"  # Java webapp
-            ]
+            # Get resources path from environment
+            resources_path = os.getenv('RESOURCES_PATH')
+            if not resources_path:
+                self.logger.error("RESOURCES_PATH environment variable not set")
+                return None
             
-            mapping_file = None
-            for path in possible_paths:
-                if os.path.exists(path):
-                    mapping_file = path
-                    break
+            mapping_file = os.path.join(resources_path, "AGI_locusId_mapping_20200410.csv")
             
-            if not mapping_file:
-                self.logger.warning("Locus mapping file not found in any expected location")
+            if not os.path.exists(mapping_file):
+                self.logger.error(f"Locus mapping file not found: {mapping_file}")
                 return None
             
             locus_mapping = {}
@@ -184,53 +176,7 @@ class OrthologService:
             self.logger.error(f"Error loading locus mapping: {str(e)}")
             return None
     
-    def _load_organism_mapping(self) -> Optional[Dict[str, str]]:
-        """Load organism display name mapping from CSV file"""
-        try:
-            # Try different possible paths
-            possible_paths = [
-                "data/organism_to_display.csv",  # Docker container path
-                "python_api/data/organism_to_display.csv",  # Local development
-                "src/main/webapp/WEB-INF/organism_to_display.csv"  # Java webapp
-            ]
-            
-            mapping_file = None
-            for path in possible_paths:
-                if os.path.exists(path):
-                    mapping_file = path
-                    break
-            
-            if not mapping_file:
-                self.logger.warning("Organism mapping file not found in any expected location")
-                return None
-            
-            org_mapping = {}
-            with open(mapping_file, 'r') as f:
-                # Skip header
-                next(f)
-                for line in f:
-                    line = line.strip()
-                    if line:
-                        # Parse CSV: organism, displayName, commonName, orgCode, taxonID, isPlant
-                        parts = [p.strip() for p in line.split(',')]
-                        if len(parts) >= 4:
-                            organism = parts[0]
-                            common_name = parts[2] if len(parts) > 2 and parts[2] else ""
-                            org_code = parts[3]
-                            
-                            # Build display name like Java
-                            display_name = organism
-                            if common_name:
-                                display_name += f" ({common_name})"
-                            
-                            org_mapping[org_code] = display_name
-            
-            self.logger.info(f"Loaded {len(org_mapping)} organism mappings")
-            return org_mapping
-            
-        except Exception as e:
-            self.logger.error(f"Error loading organism mapping: {str(e)}")
-            return None
+
     
     def validate_ortholog_request(self, uniprot_id: str, query_organism_id: str) -> Dict[str, Any]:
         """Validate ortholog mapping request"""

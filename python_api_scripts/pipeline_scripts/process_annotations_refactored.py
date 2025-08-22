@@ -10,8 +10,13 @@ import os
 import glob
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv('.env.sandbox')
+# Get project root directory (panther-pipeline/)
+current_dir = os.path.dirname(os.path.abspath(__file__))  # pipeline_scripts/
+api_scripts_dir = os.path.dirname(current_dir)  # python_api_scripts/
+project_root = os.path.dirname(api_scripts_dir)  # panther-pipeline/
+
+# Load environment variables from project root
+load_dotenv(os.path.join(project_root, '.env.sandbox'))
 
 # Constants
 EVIDENCE_CODES = ["EXP", "IDA", "IEP", "IGI", "IMP", "IPI"]
@@ -153,7 +158,7 @@ def process_paint_annotation(cols: List[str], go_terms: dict) -> Optional[PaintA
 		gene_product_id = cols[0].split("UniProtKB=")[1]  # First column
 		go_id = cols[1]  # Second column
 		evidence_code = cols[2]  # Third column
-		reference = cols[3]  # Fifth column
+		reference = cols[4]  # Fifth column
 
 		# Get GO term info from preprocessed dictionary
 		go_term_id = f"GO_{go_id.split(':')[1]}"  # Convert GO:XXXXXX to GO_XXXXXX
@@ -274,8 +279,7 @@ def index_exp_annotations_to_solr(csv_path: str, go_basic_path: str, solr_client
 
 				if len(batch) >= batch_size:
 					solr_client.add(batch)
-					solr_client.commit()
-					# print(f"Committed batch of {len(batch)} docs, total processed: {count}")
+					print(f"Committed batch of {len(batch)} docs, total processed: {count}")
 					batch = []
 				
 				pbar.update(1)
@@ -283,8 +287,7 @@ def index_exp_annotations_to_solr(csv_path: str, go_basic_path: str, solr_client
 			# Commit any remaining docs
 			if batch:
 				solr_client.add(batch)
-				solr_client.commit()
-				# print(f"Committed final batch of {len(batch)} docs, total processed: {count}")
+				print(f"Committed final batch of {len(batch)} docs, total processed: {count}")
 			
 			pbar.close()
 			print(f"Successfully indexed {count} EXP annotations")
@@ -717,7 +720,7 @@ def main():
 	# analyze_paint_csv_structure(CSV_PATH)
 	
 	# Analyze specific gene product
-	# analyze_gene_product_annotations(CSV_PATH, "Q38954")
+	# analyze_gene_product_annotations(CSV_PATH, "P60981")
 	
 	# ========================================================================
 	# INDEXING TASKS (Uncomment as needed)
@@ -728,7 +731,7 @@ def main():
 	# 	csv_path=CSV_PATH,
 	# 	go_basic_path=GO_BASIC_PATH,
 	# 	solr_client=exp_solr_client,
-	# 	clear_solr=True
+	# 	clear_solr=False
 	# )
 
 	# Index IBA annotations to Solr
@@ -739,13 +742,13 @@ def main():
 	# ========================================================================
 	
 	# Update all Panther documents with GO annotations
-	update_all_panther_go_annotations()
+	# update_all_panther_go_annotations()
 
 	# Update single Panther document
 	# update_single_panther_go_annotations("PTHR48493")
 
 	# Update from CSV file
-	# update_panther_go_annotations_from_csv()
+	update_panther_go_annotations_from_csv()
 
 if __name__ == "__main__":
-	main()
+	main() 

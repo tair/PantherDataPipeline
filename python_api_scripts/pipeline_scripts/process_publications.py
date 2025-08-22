@@ -10,8 +10,13 @@ import os
 import time
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv('.env.sandbox')
+# Get project root directory (panther-pipeline/)
+current_dir = os.path.dirname(os.path.abspath(__file__))  # pipeline_scripts/
+api_scripts_dir = os.path.dirname(current_dir)  # python_api_scripts/
+project_root = os.path.dirname(api_scripts_dir)  # panther-pipeline/
+
+# Load environment variables from project root
+load_dotenv(os.path.join(project_root, '.env.sandbox'))
 
 class Uniprot2PubMapping:
     """Data class for UniProt to Publication mapping."""

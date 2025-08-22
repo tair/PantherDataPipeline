@@ -13,16 +13,24 @@ import boto3
 import io
 import sys
 
-# Load environment variables
-load_dotenv('.env.sandbox', override=True)
+# Get project root directory (panther-pipeline/)
+current_dir = os.path.dirname(os.path.abspath(__file__))  # pipeline_scripts/
+api_scripts_dir = os.path.dirname(current_dir)  # python_api_scripts/
+project_root = os.path.dirname(api_scripts_dir)  # panther-pipeline/
+
+# Add parent directory to path for utils import
+sys.path.insert(0, api_scripts_dir)
+from utils.taxon_utils import get_agi_locus_mapping
+
+# Load environment variables from project root
+load_dotenv(os.path.join(project_root, '.env.sandbox'), override=True)
 
 # Ensure AWS credentials are loaded from .env if present
 aws_access_key = os.getenv('AWS_ACCESS_KEY_ID')
 aws_secret_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-aws_region = os.getenv('AWS_DEFAULT_REGION')
+aws_region = os.getenv('AWS_REGION')
 
-BASE_DIR = os.getenv('BASE_DIR', r"C:\Users\Documents\panther_storage\resources")
-MAPPING_CSV_PATH = os.getenv('MAPPING_CSV_PATH', os.path.join(BASE_DIR, "AGI_locusId_mapping_20200410.tsv"))
+# Removed: MAPPING_CSV_PATH - now using centralized utility
 SOLR_HOST = os.getenv('SOLR_HOST', 'http://localhost:8983')
 PANTHER_DB_COLLECTION = os.getenv('PANTHER_COLLECTION', 'panther')
 PANTHER_SOLR_URL = f"{SOLR_HOST}/solr/{PANTHER_DB_COLLECTION}"
@@ -39,17 +47,7 @@ def get_boto3_client(service, region_name=None):
 	else:
 		return boto3.client(service, region_name=region_name or aws_region)
 	
-def load_agi_locus_mapping(mapping_csv_path):
-	"""Load AGI_id to locus_id mapping from the TSV file."""
-	mapping = {}
-	with open(mapping_csv_path, newline='', encoding='utf-8') as csvfile:
-		reader = csv.DictReader(csvfile, delimiter='\t')
-		for row in reader:
-			agi_id = row.get('AGI_id')
-			locus_id = row.get('locus_id')
-			if agi_id and locus_id:
-				mapping[locus_id] = agi_id
-	return mapping
+# Removed: load_agi_locus_mapping - now using centralized utility
 
 def update_gene_ids_in_list(gene_ids, agi_locus_mapping):
 	updated_gene_ids = []
@@ -176,7 +174,7 @@ def check_s3_access():
 def main():
 	if not check_s3_access():
 		sys.exit(1)
-	agi_locus_mapping = load_agi_locus_mapping(MAPPING_CSV_PATH)
+	agi_locus_mapping = get_agi_locus_mapping()
 	update_panther_gene_ids(agi_locus_mapping)
 
 

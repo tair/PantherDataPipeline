@@ -9,10 +9,6 @@ import org.tair.module.paralog.Mapped;
 import org.tair.module.paralog.ParalogMapping;
 import org.tair.util.Util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

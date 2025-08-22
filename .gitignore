@@ -57,3 +57,8 @@ python_api/services/__pycache__/
 python_scripts/.env.sandbox
 python_api/.env
 python_api/panther_api.log
+python_api_scripts/services/__pycache__/
+python_api_scripts/utils/__pycache__/
+python_api_scripts/.env
+python_api_scripts/data/
+python_api_scripts/logs/

@@ -199,6 +199,41 @@ class S3Service:
             self.logger.error(f"Error getting MSA data from S3: {str(e)}")
             return None
     
+    def upload_msa_json(self, family_id: str, json_content: str) -> bool:
+        """
+        Upload MSA JSON to S3 bucket
+        Based on PhylogenesServerWrapper.uploadJsonToPGMsaBucket()
+        
+        Args:
+            family_id: Panther family ID
+            json_content: JSON content to upload
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            if not self.is_available():
+                self.logger.warning("S3 service not available, skipping upload")
+                return False
+            
+            bucket_name = os.getenv('PG_MSA_BUCKET', 'phg-panther-msa-data-19')
+            key = f"{family_id}.json"
+            
+            # Upload to S3
+            self._s3_client.put_object(
+                Bucket=bucket_name,
+                Key=key,
+                Body=json_content.encode('utf-8'),
+                ContentType='application/json'
+            )
+            
+            self.logger.info(f"Uploaded MSA JSON to S3: {bucket_name}/{key}")
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Failed to upload MSA JSON to S3 for {family_id}: {str(e)}")
+            return False
+    
     def test_connection(self) -> Dict[str, Any]:
         """Test S3 connection and access to buckets"""
         try:

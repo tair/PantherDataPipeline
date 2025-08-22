@@ -17,6 +17,7 @@ from services.fasta_service import FastaService
 from services.s3_service import S3Service
 from services.ortholog_service import OrthologService
 from services.pruning_service import PruningService
+from services.grafting_service import GraftingService
 
 # Load environment variables
 load_dotenv('config.env')
@@ -50,6 +51,7 @@ tree_service = TreeService(s3_service)
 fasta_service = FastaService(tree_service, s3_service)
 ortholog_service = OrthologService()
 pruning_service = PruningService()
+grafting_service = GraftingService()
 
 # Mock data constants
 MOCK_TREE_DATA = {
@@ -192,33 +194,49 @@ def health_check():
 def graft_tree():
     """
     Tree grafting - Add sequence to phylogenetic tree
+    Based on PruningController.getGrafterTree() logic
     """
     try:
+        logger.info("Tree grafting request received")
+        
         data = request.get_json()
         sequence = data.get('sequence', '').strip()
         
-        # Validate input
-        if not sequence:
+        logger.info(f"Tree grafting: sequence length={len(sequence)}")
+        
+        # Validate request
+        validation = grafting_service.validate_grafting_request(sequence)
+        if not validation['is_valid']:
+            logger.warning(f"Invalid grafting request: {validation['errors']}")
             return create_error_response("invalid_sequence", 400)
         
-        if len(sequence) < 10:
-            return create_error_response("invalid_sequence", 400)
-        
-
-        
-        # Simulate occasional errors for testing
-        if random.random() < 0.1:  # 10% chance of error
-            return create_error_response("timeout", 504)
-        
-        # Return mock tree data with grafted sequence (grafting doesn't use S3 data)
-        response_data = MOCK_TREE_DATA.copy()
-        response_data["search"]["graftedSequence"] = sequence
-        response_data["search"]["graftPosition"] = random.randint(1, 100)
-        
-        return jsonify(response_data)
+        try:
+            # Call grafting service (calls external Panther API)
+            result = grafting_service.get_grafted_tree(sequence)
+            
+            # Parse result to return as JSON object (not string)
+            tree_data = json.loads(result)
+            
+            # Log statistics
+            stats = grafting_service.get_grafting_stats(result)
+            logger.info(f"Successfully grafted sequence: {stats['sequence_count']} sequences, tree_id={stats['tree_id']}")
+            
+            return jsonify(tree_data)
+            
+        except Exception as service_error:
+            error_msg = str(service_error)
+            logger.error(f"Service error grafting sequence: {error_msg}")
+            
+            # Return specific error responses based on error type
+            if "Panther grafting API call failed" in error_msg:
+                return create_error_response("s3_unavailable", 503)  # External API unavailable
+            elif "timed out" in error_msg.lower():
+                return create_error_response("timeout", 504)
+            else:
+                return create_error_response("unknown", 500)
         
     except Exception as e:
-        app.logger.error(f"Error in graft_tree: {str(e)}")
+        logger.error(f"Error in graft_tree: {str(e)}")
         return create_error_response("unknown", 500)
 
 @app.route('/panther/pruning/<tree_id>', methods=['POST'])
@@ -273,36 +291,55 @@ def prune_tree(tree_id):
 def prune_grafted_tree():
     """
     Grafted tree pruning - Prune a previously grafted tree
+    Based on PruningController.getPrunedAndGraftedTree() logic
     """
     try:
+        logger.info("Pruned grafted tree request received")
+        
         data = request.get_json()
         sequence = data.get('sequence', '').strip()
         taxon_ids_to_show = data.get('taxonIdsToShow', [])
         
-        # Validate input
-        if not sequence:
+        logger.info(f"Pruned grafting: sequence length={len(sequence)}, taxonIds={taxon_ids_to_show}")
+        
+        # Validate sequence
+        validation = grafting_service.validate_grafting_request(sequence)
+        if not validation['is_valid']:
+            logger.warning(f"Invalid grafting request: {validation['errors']}")
             return create_error_response("invalid_sequence", 400)
         
-
+        # Validate taxon IDs
+        if not taxon_ids_to_show or not isinstance(taxon_ids_to_show, list):
+            logger.warning("Invalid or missing taxonIdsToShow")
+            return create_error_response("invalid_sequence", 400)
         
-        # Filter sequences based on taxon IDs
-        filtered_sequences = []
-        if taxon_ids_to_show:
-            for seq in MOCK_TREE_DATA["search"]["sequences"]:
-                if seq["taxonId"] in taxon_ids_to_show:
-                    filtered_sequences.append(seq)
-        else:
-            filtered_sequences = MOCK_TREE_DATA["search"]["sequences"]
-        
-        response_data = MOCK_TREE_DATA.copy()
-        response_data["search"]["sequences"] = filtered_sequences
-        response_data["search"]["graftedSequence"] = sequence
-        response_data["search"]["prunedTaxonIds"] = taxon_ids_to_show
-        
-        return jsonify(response_data)
+        try:
+            # Call grafting service with pruning (calls external Panther API)
+            result = grafting_service.get_pruned_and_grafted_tree(sequence, taxon_ids_to_show)
+            
+            # Parse result to return as JSON object (not string)
+            tree_data = json.loads(result)
+            
+            # Log statistics
+            stats = grafting_service.get_grafting_stats(result)
+            logger.info(f"Successfully grafted and pruned sequence: {stats['sequence_count']} sequences, tree_id={stats['tree_id']}")
+            
+            return jsonify(tree_data)
+            
+        except Exception as service_error:
+            error_msg = str(service_error)
+            logger.error(f"Service error grafting and pruning sequence: {error_msg}")
+            
+            # Return specific error responses based on error type
+            if "Panther grafting API call failed" in error_msg:
+                return create_error_response("s3_unavailable", 503)  # External API unavailable
+            elif "timed out" in error_msg.lower():
+                return create_error_response("timeout", 504)
+            else:
+                return create_error_response("unknown", 500)
         
     except Exception as e:
-        app.logger.error(f"Error in prune_grafted_tree: {str(e)}")
+        logger.error(f"Error in prune_grafted_tree: {str(e)}")
         return create_error_response("unknown", 500)
 
 @app.route('/panther/pruning/fastadoc/<tree_id>', methods=['POST'])

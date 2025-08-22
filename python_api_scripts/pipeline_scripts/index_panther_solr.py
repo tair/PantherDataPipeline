@@ -9,8 +9,13 @@ import json
 import csv
 from datetime import datetime
 
-# Load environment variables
-load_dotenv('.env.sandbox', override=True)
+# Get project root directory (panther-pipeline/)
+current_dir = os.path.dirname(os.path.abspath(__file__))  # pipeline_scripts/
+api_scripts_dir = os.path.dirname(current_dir)  # python_api_scripts/
+project_root = os.path.dirname(api_scripts_dir)  # panther-pipeline/
+
+# Load environment variables from project root
+load_dotenv(os.path.join(project_root, '.env.sandbox'), override=True)
 
 def flatten_tree(children, annotations):
 	"""Recursively flatten the tree structure to extract all annotations."""
