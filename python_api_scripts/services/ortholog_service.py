@@ -6,11 +6,18 @@ Based on PruningController.callOrthologApi() functionality
 import json
 import logging
 import os
+import sys
 import requests
 from typing import Dict, List, Optional, Any
 from urllib.parse import quote
 from dotenv import load_dotenv
-from ..utils.taxon_utils import get_ortholog_target_taxon_ids, get_organism_mapping
+
+# Add parent directory to path for utils import
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
+from utils.taxon_utils import get_ortholog_target_taxon_ids, get_organism_mapping
 
 # Load environment variables
 load_dotenv()

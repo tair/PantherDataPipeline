@@ -24,11 +24,19 @@ load_dotenv('config.env')
 
 app = Flask(__name__)
 
-# Configure logging - use console only (Docker will capture all logs)
+# Configure logging - console and file output
+log_handlers = [logging.StreamHandler()]
+
+# Add file handler for logs folder
+logs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+os.makedirs(logs_dir, exist_ok=True)
+log_file = os.path.join(logs_dir, 'panther_api.log')
+log_handlers.append(logging.FileHandler(log_file, encoding='utf-8'))
+
 logging.basicConfig(
     level=getattr(logging, os.getenv('LOG_LEVEL', 'INFO')),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
+    handlers=log_handlers
 )
 logger = logging.getLogger(__name__)
 
