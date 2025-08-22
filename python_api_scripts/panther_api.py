@@ -6,8 +6,6 @@ Mirrors the client-side API endpoints with mock responses
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
-import time
-import random
 import logging
 import os
 from datetime import datetime
@@ -20,18 +18,24 @@ from services.pruning_service import PruningService
 from services.grafting_service import GraftingService
 
 # Load environment variables
-load_dotenv('config.env')
+load_dotenv('.env')
 
 app = Flask(__name__)
 
-# Configure logging - console and file output
+# Configure logging - console and file output (Docker-friendly)
 log_handlers = [logging.StreamHandler()]
 
-# Add file handler for logs folder
-logs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
-os.makedirs(logs_dir, exist_ok=True)
-log_file = os.path.join(logs_dir, 'panther_api.log')
-log_handlers.append(logging.FileHandler(log_file, encoding='utf-8'))
+# Add file handler for logs folder (only if we have write permissions)
+try:
+    logs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+    os.makedirs(logs_dir, exist_ok=True)
+    log_file = os.path.join(logs_dir, 'panther_api.log')
+    log_handlers.append(logging.FileHandler(log_file, encoding='utf-8'))
+    print(f"✓ Log file will be written to: {log_file}")
+except (PermissionError, OSError) as e:
+    # In Docker or restricted environments, just use console logging
+    print(f"⚠ Cannot create log file (using console only): {e}")
+    print("  This is normal in Docker containers - logs will go to stdout")
 
 logging.basicConfig(
     level=getattr(logging, os.getenv('LOG_LEVEL', 'INFO')),
