@@ -62,3 +62,4 @@ python_api_scripts/utils/__pycache__/
 python_api_scripts/.env
 python_api_scripts/data/
 python_api_scripts/logs/
+python_api_scripts/pipeline_scripts/__pycache__/

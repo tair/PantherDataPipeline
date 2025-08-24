@@ -13,10 +13,11 @@ from dotenv import load_dotenv
 # Get project root directory (panther-pipeline/)
 current_dir = os.path.dirname(os.path.abspath(__file__))  # pipeline_scripts/
 api_scripts_dir = os.path.dirname(current_dir)  # python_api_scripts/
-project_root = os.path.dirname(api_scripts_dir)  # panther-pipeline/
 
 # Load environment variables from project root
-load_dotenv(os.path.join(project_root, '.env.sandbox'))
+path = os.path.join(api_scripts_dir, '.env')
+print(f"Loading environment variables from {path}")
+load_dotenv(path)
 
 # Constants
 EVIDENCE_CODES = ["EXP", "IDA", "IEP", "IGI", "IMP", "IPI"]
@@ -154,11 +155,17 @@ def load_go_properties(properties_path: str) -> Dict[str, str]:
 def process_paint_annotation(cols: List[str], go_terms: dict) -> Optional[PaintAnno]:
 	"""Process a single PAINT annotation from CSV columns."""
 	try:
+		# Validate minimum number of columns
+		if len(cols) < 6:
+			print(f"Warning: Line has only {len(cols)} columns, expected at least 6")
+			return None
+		
 		# Fields from CSV
 		gene_product_id = cols[0].split("UniProtKB=")[1]  # First column
 		go_id = cols[1]  # Second column
-		evidence_code = cols[2]  # Third column
-		reference = cols[4]  # Fifth column
+		evidence_code = cols[3]  # Third column
+		# Skip column 3 (which might be empty or contain additional data)
+		reference = cols[5]  # Fifth column
 
 		# Get GO term info from preprocessed dictionary
 		go_term_id = f"GO_{go_id.split(':')[1]}"  # Convert GO:XXXXXX to GO_XXXXXX
@@ -177,6 +184,7 @@ def process_paint_annotation(cols: List[str], go_terms: dict) -> Optional[PaintA
 		)
 	except Exception as e:
 		print(f"Error processing PAINT annotation: {e}")
+		print(f"Columns: {cols}")
 		return None
 
 def get_go_annotations_for_uniprot_ids(uniprot_ids: List[str], solr_manager: SolrManager) -> List[str]:
@@ -259,8 +267,14 @@ def index_exp_annotations_to_solr(csv_path: str, go_basic_path: str, solr_client
 		with open(csv_path, 'r') as file:
 			pbar = tqdm(total=total_lines, desc="Processing EXP annotations", unit="lines")
 			for line in file:
-				cols = line.strip().split()
+				cols = line.strip().split('\t')
 				annotation = process_paint_annotation(cols, go_terms)
+				### DEBUG
+				# if annotation.geneProductId == "F4I6M1":
+				# 	print("cols: ", cols)
+				# 	print("Reference: ", annotation.reference)
+				# else:
+				# 	continue
 				
 				if annotation:
 					doc = {
@@ -279,6 +293,7 @@ def index_exp_annotations_to_solr(csv_path: str, go_basic_path: str, solr_client
 
 				if len(batch) >= batch_size:
 					solr_client.add(batch)
+					solr_client.commit()
 					print(f"Committed batch of {len(batch)} docs, total processed: {count}")
 					batch = []
 				
@@ -287,6 +302,7 @@ def index_exp_annotations_to_solr(csv_path: str, go_basic_path: str, solr_client
 			# Commit any remaining docs
 			if batch:
 				solr_client.add(batch)
+				solr_client.commit()
 				print(f"Committed final batch of {len(batch)} docs, total processed: {count}")
 			
 			pbar.close()
@@ -542,7 +558,7 @@ def analyze_paint_csv_structure(csv_path: str, num_lines: int = 10):
 			print("-" * 40)
 			
 			# Split the line and show each field
-			cols = line.strip().split()
+			cols = line.strip().split('\t')
 			print(f"Number of columns: {len(cols)}")
 			
 			# Show each column with its index
@@ -591,7 +607,7 @@ def analyze_gene_product_annotations(csv_path: str, gene_product_id: str):
     with open(csv_path, 'r') as file:
         pbar = tqdm(total=total_lines, desc="Searching PAINT CSV", unit="lines")
         for line in file:
-            cols = line.strip().split()
+            cols = line.strip().split('\t')
             if not cols:
                 pbar.update(1)
                 continue
@@ -702,7 +718,7 @@ def analyze_gene_product_annotations(csv_path: str, gene_product_id: str):
 def main():
 	"""Main function to run various annotation processing tasks."""
 	# Configuration
-	BASE_DIR = os.getenv('BASE_DIR', r"C:\Users\Documents\panther_storage\resources")
+	BASE_DIR = os.getenv('BASE_DIR', r"C:\Users\swapp\Documents\MyProjects\Work\panther_storage\resources")
 	CSV_PATH = os.path.join(BASE_DIR, "paint", "Pthr_GO_19.0.tsv")
 	GO_BASIC_PATH = os.path.join(BASE_DIR, "paint", "go-basic.json")
 	
@@ -720,19 +736,20 @@ def main():
 	# analyze_paint_csv_structure(CSV_PATH)
 	
 	# Analyze specific gene product
-	# analyze_gene_product_annotations(CSV_PATH, "P60981")
+	# analyze_gene_product_annotations(CSV_PATH, "F4I6M1")
 	
 	# ========================================================================
 	# INDEXING TASKS (Uncomment as needed)
 	# ========================================================================
 	
 	# Index EXP annotations to Solr
-	# index_exp_annotations_to_solr(
-	# 	csv_path=CSV_PATH,
-	# 	go_basic_path=GO_BASIC_PATH,
-	# 	solr_client=exp_solr_client,
-	# 	clear_solr=False
-	# )
+	index_exp_annotations_to_solr(
+		csv_path=CSV_PATH,
+		go_basic_path=GO_BASIC_PATH,
+		solr_client=exp_solr_client,
+		clear_solr=True,
+		batch_size=10000
+	)
 
 	# Index IBA annotations to Solr
 	# index_iba_annotations_to_solr(iba_solr_client, clear_solr=True)
@@ -748,7 +765,7 @@ def main():
 	# update_single_panther_go_annotations("PTHR48493")
 
 	# Update from CSV file
-	update_panther_go_annotations_from_csv()
+	# update_panther_go_annotations_from_csv()
 
 if __name__ == "__main__":
 	main() 
