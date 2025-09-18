@@ -432,9 +432,14 @@ def update_single_panther_go_annotations(panther_id: str) -> bool:
 	
 	return success
 
-def update_all_panther_go_annotations(query: str = '*:*') -> None:
-	"""Update GO annotations for all Panther documents matching the query."""
-	print("Updating GO annotations for all Panther documents...")
+def update_all_panther_go_annotations(query: str = '*:*', start_index: int = 0) -> None:
+	"""Update GO annotations for all Panther documents matching the query.
+	
+	Args:
+		query: Solr query to filter documents (default: '*:*' for all documents)
+		start_index: Index to start processing from (default: 0 to start from beginning)
+	"""
+	print(f"Updating GO annotations for all Panther documents (starting from index {start_index})...")
 	
 	config = SolrConfig()
 	solr_manager = SolrManager(config)
@@ -442,11 +447,22 @@ def update_all_panther_go_annotations(query: str = '*:*') -> None:
 	# Get all Panther documents
 	documents = solr_manager.get_all_panther_documents(query)
 	
+	# Validate start_index
+	if start_index >= len(documents):
+		print(f"Error: start_index ({start_index}) is greater than or equal to total documents ({len(documents)})")
+		return
+	
+	if start_index > 0:
+		print(f"Skipping first {start_index} documents, starting from index {start_index}")
+		documents = documents[start_index:]
+	
 	# Process each document with progress bar
-	with tqdm(total=len(documents), desc="Processing Panther documents", unit="doc") as pbar:
-		for doc in documents:
+	total_docs = len(documents)
+	with tqdm(total=total_docs, desc="Processing Panther documents", unit="doc") as pbar:
+		for i, doc in enumerate(documents):
 			panther_id = doc.get('id')
-			pbar.set_description(f"Processing: {panther_id}")
+			current_index = start_index + i
+			pbar.set_description(f"Processing [{current_index}]: {panther_id}")
 			
 			uniprot_ids = doc.get('uniprot_ids', [])
 			if isinstance(uniprot_ids, str):
@@ -454,11 +470,15 @@ def update_all_panther_go_annotations(query: str = '*:*') -> None:
 			
 			if uniprot_ids:
 				go_annotation_data_list = get_go_annotations_for_uniprot_ids(uniprot_ids, solr_manager)
-				solr_manager.update_panther_document_annotations(panther_id, go_annotation_data_list)
+				success = solr_manager.update_panther_document_annotations(panther_id, go_annotation_data_list)
+				if not success:
+					print(f"Failed to update document at index {current_index}: {panther_id}")
+			else:
+				print(f"No UniProt IDs found for document at index {current_index}: {panther_id}")
 			
 			pbar.update(1)
 	
-	print("Completed updating all Panther documents")
+	print(f"Completed updating {total_docs} Panther documents (started from index {start_index})")
 
 def update_panther_go_annotations_from_csv(csv_file_path: str = "solr_indexed_documents.csv") -> bool:
 	"""Update GO annotations for Panther documents listed in a CSV file."""
@@ -717,6 +737,51 @@ def analyze_gene_product_annotations(csv_path: str, gene_product_id: str):
 
 def main():
 	"""Main function to run various annotation processing tasks."""
+	parser = argparse.ArgumentParser(
+		description='Process GO annotations for Panther documents',
+		formatter_class=argparse.RawDescriptionHelpFormatter,
+		epilog="""
+Examples:
+  %(prog)s --update-all
+  %(prog)s --update-all --start-index 1500
+  %(prog)s --update-single PTHR10133
+  %(prog)s --update-from-csv solr_indexed_documents.csv
+  %(prog)s --index-exp
+  %(prog)s --index-iba
+  %(prog)s --analyze-csv
+  %(prog)s --analyze-gene F4I6M1
+		"""
+	)
+	
+	# Task selection arguments
+	task_group = parser.add_mutually_exclusive_group(required=True)
+	task_group.add_argument('--update-all', action='store_true',
+						   help='Update GO annotations for all Panther documents')
+	task_group.add_argument('--update-single', type=str, metavar='PANTHER_ID',
+						   help='Update GO annotations for a single Panther document')
+	task_group.add_argument('--update-from-csv', type=str, metavar='CSV_FILE',
+						   help='Update GO annotations from CSV file')
+	task_group.add_argument('--index-exp', action='store_true',
+						   help='Index EXP annotations to Solr')
+	task_group.add_argument('--index-iba', action='store_true',
+						   help='Index IBA annotations to Solr')
+	task_group.add_argument('--analyze-csv', action='store_true',
+						   help='Analyze PAINT CSV structure')
+	task_group.add_argument('--analyze-gene', type=str, metavar='GENE_ID',
+						   help='Analyze annotations for specific gene product')
+	
+	# Optional arguments
+	parser.add_argument('--start-index', type=int, default=0,
+					   help='Index to start processing from (for --update-all, default: 0)')
+	parser.add_argument('--query', type=str, default='*:*',
+					   help='Solr query to filter documents (default: *:*)')
+	parser.add_argument('--clear-solr', action='store_true',
+					   help='Clear Solr collection before indexing (for --index-exp/--index-iba)')
+	parser.add_argument('--batch-size', type=int, default=10000,
+					   help='Batch size for Solr operations (default: 10000)')
+	
+	args = parser.parse_args()
+	
 	# Configuration
 	BASE_DIR = os.getenv('BASE_DIR', r"C:\Users\swapp\Documents\MyProjects\Work\panther_storage\resources")
 	CSV_PATH = os.path.join(BASE_DIR, "paint", "Pthr_GO_19.0.tsv")
@@ -728,44 +793,76 @@ def main():
 	exp_solr_client = Solr(config.GO_EXP_SOLR_URL, timeout=60)
 	iba_solr_client = Solr(config.GO_IBA_SOLR_URL, timeout=60)
 	
-	# ========================================================================
-	# ANALYSIS TASKS (Uncomment as needed)
-	# ========================================================================
-	
-	# Analyze PAINT CSV structure
-	# analyze_paint_csv_structure(CSV_PATH)
-	
-	# Analyze specific gene product
-	# analyze_gene_product_annotations(CSV_PATH, "F4I6M1")
-	
-	# ========================================================================
-	# INDEXING TASKS (Uncomment as needed)
-	# ========================================================================
-	
-	# Index EXP annotations to Solr
-	index_exp_annotations_to_solr(
-		csv_path=CSV_PATH,
-		go_basic_path=GO_BASIC_PATH,
-		solr_client=exp_solr_client,
-		clear_solr=True,
-		batch_size=10000
-	)
-
-	# Index IBA annotations to Solr
-	# index_iba_annotations_to_solr(iba_solr_client, clear_solr=True)
-
-	# ========================================================================
-	# PANTHER COLLECTION UPDATE TASKS (Uncomment as needed)
-	# ========================================================================
-	
-	# Update all Panther documents with GO annotations
-	# update_all_panther_go_annotations()
-
-	# Update single Panther document
-	# update_single_panther_go_annotations("PTHR48493")
-
-	# Update from CSV file
-	# update_panther_go_annotations_from_csv()
+	# Execute selected task
+	try:
+		if args.update_all:
+			print(f"Starting update of all Panther documents from index {args.start_index}")
+			update_all_panther_go_annotations(query=args.query, start_index=args.start_index)
+		
+		elif args.update_single:
+			print(f"Updating single Panther document: {args.update_single}")
+			success = update_single_panther_go_annotations(args.update_single)
+			if not success:
+				print(f"Failed to update document: {args.update_single}")
+				return 1
+		
+		elif args.update_from_csv:
+			print(f"Updating from CSV file: {args.update_from_csv}")
+			success = update_panther_go_annotations_from_csv(args.update_from_csv)
+			if not success:
+				print(f"Failed to update from CSV file: {args.update_from_csv}")
+				return 1
+		
+		elif args.index_exp:
+			print("Indexing EXP annotations to Solr")
+			index_exp_annotations_to_solr(
+				csv_path=CSV_PATH,
+				go_basic_path=GO_BASIC_PATH,
+				solr_client=exp_solr_client,
+				clear_solr=args.clear_solr,
+				batch_size=args.batch_size
+			)
+		
+		elif args.index_iba:
+			print("Indexing IBA annotations to Solr")
+			index_iba_annotations_to_solr(iba_solr_client, clear_solr=args.clear_solr, batch_size=args.batch_size)
+		
+		elif args.analyze_csv:
+			print("Analyzing PAINT CSV structure")
+			analyze_paint_csv_structure(CSV_PATH)
+		
+		elif args.analyze_gene:
+			print(f"Analyzing annotations for gene: {args.analyze_gene}")
+			analyze_gene_product_annotations(CSV_PATH, args.analyze_gene)
+		
+		print("Task completed successfully!")
+		return 0
+		
+	except KeyboardInterrupt:
+		print("\nProcess interrupted by user")
+		return 1
+	except Exception as e:
+		print(f"Error: {str(e)}")
+		return 1
 
 if __name__ == "__main__":
-	main() 
+	import sys
+	sys.exit(main()) 
+
+
+# Start from the beginning (default behavior)
+# python process_annotations.py --update-all
+
+# # Resume from index 1500 (where the process stopped)
+# python process_annotations.py --update-all --start-index 1500
+
+# # Resume from index 2000 with custom query
+# python process_annotations.py --update-all --start-index 2000 --query "id:PTHR*"
+
+# # Other available tasks
+# python process_annotations.py --update-single PTHR10133
+# python process_annotations.py --update-from-csv my_documents.csv
+# python process_annotations.py --index-exp --clear-solr
+# python process_annotations.py --index-iba --batch-size 5000
+# python process_annotations.py --analyze-csv
+# python process_annotations.py --analyze-gene F4I6M1
