@@ -59,6 +59,7 @@ FROM base as production
 # Copy requirements and install production dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir gunicorn
 
 # Copy application code
 COPY . .
@@ -82,5 +83,4 @@ HEALTHCHECK --interval=10m --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
 # Production command with gunicorn
-RUN pip install gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "4", "--timeout", "120", "--log-level", "info", "panther_api:app"]
