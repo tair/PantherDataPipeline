@@ -1,94 +1,78 @@
-# Panther Python API
+## Panther API (Python)
 
-A simplified Python implementation of the Panther phylogenetic tree API, based on the Java PruningController architecture.
+Flask-based API exposing core Panther phylogenetic operations. This is the service API (not the data-processing scripts).
 
-## 🚀 Quick Start
+### What it provides
 
-### 1. Install Dependencies
+- **Grafting**: add a sequence to a Panther tree.
+- **Pruning**: return a pruned tree for selected taxa.
+- **FASTA export**: download sequences for a tree (full or pruned).
+- **Ortholog mapping**: fetch orthologs for a gene and organism.
+
+Key endpoints (see `Panther_API_Postman_Collection.json` for full usage):
+
+- `POST /panther/grafting`
+- `POST /panther/pruning/<treeId>`
+- `POST /panther/grafting/prune`
+- `POST /panther/fastadoc/<treeId>` (alias: `/panther/pruning/fastadoc/<treeId>`)
+- `POST /panther/orthomapping`
+- `GET /health`
+
+---
+
+### Install (local)
+
+1. Python 3.11+ and pip
+2. From this folder:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Configure Environment
-
-Edit `config.env` to customize settings:
+3. Create `.env` (minimal):
 
 ```bash
-# Basic configuration
 FLASK_ENV=development
-DEBUG=True
+DEBUG=true
 PORT=8080
-
-# Mock data (set to false for real AWS S3 integration)
-USE_MOCK_DATA=true
-
-# Logging
 LOG_LEVEL=INFO
-LOG_FILE=panther_api.log
-
-# CORS origins
 ALLOWED_ORIGINS=http://localhost:8081,http://localhost:3000
+# Optional/when using S3-backed data
+AWS_ACCESS_KEY=...
+AWS_SECRET_KEY=...
+AWS_REGION=us-west-2
+PG_TREE_BUCKET=phg-panther-data-19
+PG_MSA_BUCKET=phg-panther-msa-data-19
 ```
 
-### 3. Run the API
+4. Run:
 
 ```bash
 python panther_api.py
 ```
 
-The API will be available at `http://localhost:8080`
+Open `http://localhost:8080/health`.
 
-## 🐳 Docker Deployment
-
-### Quick Start with Docker Compose
-
-1. **Copy environment template:**
-
-   ```bash
-   cp .env.example .env
-   ```
-
-2. **Run in development mode:**
-
-   ```bash
-   docker-compose --profile dev up --build
-   ```
-
-3. **Run in production mode:**
-   ```bash
-   docker-compose --profile prod up --build -d
-   ```
-
-The API will be available at `http://localhost:8080`
-
-### Available Docker Commands
+### Install with Docker
 
 ```bash
-# Development (with hot reload)
+# Development (hot reload)
 docker-compose --profile dev up --build
 
-# Production (with nginx reverse proxy)
+# Production
 docker-compose --profile prod up --build -d
-
-# Stop all containers
-docker-compose down
-
-# View logs
-docker-compose --profile dev logs -f
-
-# Rebuild and restart
-docker-compose --profile prod up --build -d --force-recreate
 ```
 
-### Environment Configuration
+Logs (example):
 
-Edit `.env` file for deployment:
+```bash
+docker logs -f panther-api-dev
+```
 
-- **Required**: Configure AWS credentials for S3 data access
-- Update `ALLOWED_ORIGINS` with your frontend URLs
-- The API only uses real S3 data (no mock data mode)
+---
 
-## 🧪 Testing
+### Notes
 
-Import the Postman collection (`Panther_API_Postman_Collection.json`) for comprehensive API testing.
+- CORS is controlled via `ALLOWED_ORIGINS`.
+- Logs go to stdout; a file is also created in `python_api_scripts/logs/` when permitted.
+- Import `Panther_API_Postman_Collection.json` for example requests.
