@@ -61,7 +61,8 @@ public class PruningController {
             70448, 42345, 3218, 3694, 3760, 3988, 4555, 4081, 4558, 3641, 4565, 29760, 4577, 29655, 3708, 4072, 71139,
             51240, 4236, 3983, 4432, 88036, 4113, 3562 };
 
-    PantherETLPipeline etl = new PantherETLPipeline();
+    @Autowired
+    PantherETLPipeline etl;
     HashMap<String, String> tair_locus2id_mapping;
     HashMap<String, String> org_mapping;
 
