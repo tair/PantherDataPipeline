@@ -1,0 +1,41 @@
+organism_code,full_name,common_name,group_name
+AMBTC,Amborella trichopoda,,other plants
+BRACM,Brassica campestris,field mustard,eudicotyledons
+BRADI,Brachypodium distachyon,purple false brome,monocotyledons
+BRANA,Brassica napus,rapeseed,eudicotyledons
+BRARP,Brassica rapa,Chinese cabbage,eudicotyledons
+CAPAN,Capsicum annuum,pepper,eudicotyledons
+CHLRE,Chlamydomonas reinhardtii,,other plants
+CITSI,Citrus sinensis,orange,eudicotyledons
+CUCSA,Cucumis sativus,cucumber,eudicotyledons
+ERYGU,Erythranthe guttata,yellow monkey flower,eudicotyledons
+EUCGR,Eucalyptus grandis,flooded gum,eudicotyledons
+GOSHI,Gossypium hirsutum,cotton,eudicotyledons
+HELAN,Helianthus annuus,sunflower,eudicotyledons
+HORVV,Hordeum vulgare,barley,monocotyledons
+JUGRE,Juglans regia,walnut,eudicotyledons
+KLENI,Klebsormidium nitens,,other plants
+LACSA,Lactuca sativa,lettuce,eudicotyledons
+MAIZE,Zea mays,corn,monocotyledons
+MANES,Manihot esculenta,cassava,eudicotyledons
+MARPO,Marchantia polymorpha,common liverwort,other plants
+MEDTR,Medicago truncatula,barrelclover,eudicotyledons
+MUSAM,Musa acuminata,banana,monocotyledons
+NELNU,Nelumbo nucifera,sacred lotus,other plants
+ORYSJ,Oryza sativa,rice,monocotyledons
+PHYPA,Physcomitrella patens,,other plants
+POPTR,Populus trichocarpa,black cottonwood,eudicotyledons
+PRUPE,Prunus persica,peach,eudicotyledons
+RICCO,Ricinus communis,castor bean,eudicotyledons
+SELML,Selaginella moellendorffii,spikemoss,other plants
+SETIT,Setaria italica,foxtail millet,monocotyledons
+SOLLC,Solanum lycopersicum,tomato,eudicotyledons
+SOLTU,Solanum tuberosum,potato,eudicotyledons
+SORBI,Sorghum bicolor,sorghum,monocotyledons
+SOYBN,Glycine max,soybean,eudicotyledons
+SPIOL,Spinacia oleracea,spinach,eudicotyledons
+THECC,Theobroma cacao,cocoa,eudicotyledons
+TOBAC,Nicotiana tabacum,tobacco,eudicotyledons
+VITVI,Vitis vinifera,grape,eudicotyledons
+WHEAT,Triticum aestivum,wheat,monocotyledons
+ZOSMR,Zostera marina,eelgrass,monocotyledons
