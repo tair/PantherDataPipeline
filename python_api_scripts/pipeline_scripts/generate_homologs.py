@@ -132,6 +132,17 @@ def uniprot_from(name: str) -> Optional[str]:
     return None
 
 
+def load_id_set(path: str) -> set:
+    return set(read_id_file(path)) if os.path.exists(path) else set()
+
+
+def save_id_set(path: str, ids: set) -> None:
+    tmp = path + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f:
+        f.write(''.join(f'{i}\n' for i in sorted(ids)))
+    os.replace(tmp, path)
+
+
 def read_id_file(path: str) -> List[str]:
     with open(path, encoding='utf-8') as f:
         return [line.strip() for line in f if line.strip() and not line.startswith('#')]
@@ -354,6 +365,8 @@ class Writer:
         self.json_bucket, self.txt_bucket = BUCKETS[kind]
         self.out_dir = out_dir
         self.s3 = None
+        # Kept next to what it describes: under logs/ for S3, inside --out-dir for a dry run.
+        self.retry_path = os.path.join(logs_dir if upload else out_dir, f'{self.json_bucket}_needs_retry.txt')
         if upload:
             import boto3
             self.s3 = boto3.client(
@@ -437,6 +450,11 @@ def run_homologs(kind: str, args) -> None:
         agis = agis[:args.limit]
 
     writer = Writer(kind, args.out_dir, args.upload)
+    # AGIs whose last attempt failed or dropped every target. Files from an earlier run
+    # may still exist for them, so --skip-existing must not take those as done.
+    needs_retry = load_id_set(writer.retry_path)
+    if needs_retry:
+        logger.info(f'{len(needs_retry)} AGIs to retry from {writer.retry_path}')
     session = requests.Session()
     report_path = os.path.join(logs_dir, f'{kind}_report_{time.strftime("%Y%m%d_%H%M%S")}.csv')
     counts = {'written': 0, 'empty': 0, 'all_targets_dropped': 0, 'skipped_existing': 0, 'failed': 0,
@@ -449,7 +467,7 @@ def run_homologs(kind: str, args) -> None:
         for i, agi in enumerate(agis, 1):
             uniprot = agi2uniprot[agi]
             try:
-                if args.skip_existing and writer.exists(agi):
+                if args.skip_existing and agi not in needs_retry and writer.exists(agi):
                     counts['skipped_existing'] += 1
                     report.writerow([agi, uniprot, 'skipped_existing', '', '', ''])
                     continue
@@ -457,8 +475,8 @@ def run_homologs(kind: str, args) -> None:
                 rows, txt, dropped = build(payload, ctx)
                 if not rows and dropped:
                     # PANTHER has homologs but none resolved (e.g. the locus mapping lacks
-                    # them). Writing [] would read as "no homologs" and --skip-existing would
-                    # never retry it, so leave the AGI without files and report it.
+                    # them). Writing [] would read as "no homologs", so write nothing, leave
+                    # any older files alone, and mark the AGI for retry.
                     status = 'all_targets_dropped'
                 else:
                     writer.write(agi, rows, txt)
@@ -466,9 +484,14 @@ def run_homologs(kind: str, args) -> None:
                 counts[status] += 1
                 report.writerow([agi, uniprot, status, len(rows), dropped, ''])
             except Exception as e:
+                status = 'failed'
                 counts['failed'] += 1
                 report.writerow([agi, uniprot, 'failed', '', '', str(e)])
                 logger.error(f'{agi} ({uniprot}): {e}')
+            retry = status in ('failed', 'all_targets_dropped')
+            if retry != (agi in needs_retry):
+                (needs_retry.add if retry else needs_retry.discard)(agi)
+                save_id_set(writer.retry_path, needs_retry)
             rf.flush()
             if i % 200 == 0:
                 logger.info(f'{kind}: {i}/{len(agis)} {counts}')

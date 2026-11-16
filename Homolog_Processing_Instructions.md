@@ -74,10 +74,15 @@ Each run writes `logs/<paralogs|orthologs>_report_<timestamp>.csv` with one row 
 | --- | --- |
 | `written` | File written with at least one homolog. |
 | `empty` | PANTHER has no homologs for the gene; an empty list `[]` is written. |
-| `all_targets_dropped` | PANTHER returned homologs, but none could be resolved to an AGI or parsed (`dropped_targets` says how many); nothing is written. Fix the mapping, then rerun with `--skip-existing`. |
+| `all_targets_dropped` | PANTHER returned homologs, but none could be resolved to an AGI or parsed (`dropped_targets` says how many); nothing is written, and files from an earlier run are left as they are. Fix the mapping, then rerun with `--skip-existing`. |
 | `failed` | PANTHER call failed after retries; nothing is written. Rerun with `--skip-existing`. |
 | `not_in_panther` | An `--agis` entry with no Arabidopsis leaf in the trees. |
 | `skipped_existing` | Both files already exist. |
+
+AGIs that end `failed` or `all_targets_dropped` are also listed in
+`<json bucket>_needs_retry.txt`: under `logs/` for an upload, inside `--out-dir` for a dry run.
+`--skip-existing` never skips a listed AGI, even when files from an earlier run exist, and an AGI
+leaves the list once a later run writes it. Run uploads from the same machine, or copy the file along.
 
 Calls are spaced by `--sleep` (0.2 s by default), so a full run of about 27,000 AGIs
 takes several hours for each step.
