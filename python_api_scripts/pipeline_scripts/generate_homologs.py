@@ -202,10 +202,11 @@ def build_mapping(args) -> None:
     for i, fid in enumerate(family_ids, 1):
         try:
             data = fetch_tree(session, fid, args.tree_cache)
+            root = tree_root(data) if data else None
         except Exception as e:
-            problems.append((fid, '', '', f'tree fetch failed: {e}'))
+            # A malformed tree (e.g. bad jsonString) must not end the run for every family.
+            problems.append((fid, '', '', f'tree fetch or parse failed: {e}'))
             continue
-        root = tree_root(data) if data else None
         if root is None:
             problems.append((fid, '', '', 'tree missing or unreadable'))
             continue
@@ -438,7 +439,8 @@ def run_homologs(kind: str, args) -> None:
     writer = Writer(kind, args.out_dir, args.upload)
     session = requests.Session()
     report_path = os.path.join(logs_dir, f'{kind}_report_{time.strftime("%Y%m%d_%H%M%S")}.csv')
-    counts = {'written': 0, 'empty': 0, 'skipped_existing': 0, 'failed': 0, 'not_in_panther': len(not_in_panther)}
+    counts = {'written': 0, 'empty': 0, 'all_targets_dropped': 0, 'skipped_existing': 0, 'failed': 0,
+              'not_in_panther': len(not_in_panther)}
     with open(report_path, 'w', newline='', encoding='utf-8') as rf:
         report = csv.writer(rf)
         report.writerow(['agi', 'uniprot', 'status', 'homologs', 'dropped_targets', 'detail'])
@@ -453,8 +455,14 @@ def run_homologs(kind: str, args) -> None:
                     continue
                 payload = panther_get(session, path, dict(params, geneInputList=uniprot))
                 rows, txt, dropped = build(payload, ctx)
-                writer.write(agi, rows, txt)
-                status = 'written' if rows else 'empty'
+                if not rows and dropped:
+                    # PANTHER has homologs but none resolved (e.g. the locus mapping lacks
+                    # them). Writing [] would read as "no homologs" and --skip-existing would
+                    # never retry it, so leave the AGI without files and report it.
+                    status = 'all_targets_dropped'
+                else:
+                    writer.write(agi, rows, txt)
+                    status = 'written' if rows else 'empty'
                 counts[status] += 1
                 report.writerow([agi, uniprot, status, len(rows), dropped, ''])
             except Exception as e:
