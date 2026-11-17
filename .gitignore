@@ -33,3 +33,7 @@ mvnw.cmd
 /src/main/logs/
 !/src/main/logs/uniprot_db/.keep
 src/main/resources/application.properties
+
+### TAIR3-1098 homolog script ###
+python_api_scripts/logs/
+__pycache__/
